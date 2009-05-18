@@ -29,7 +29,7 @@ The game area contains:
 - The drawer. It contains the game elements that can be disposed on the table, organised in "packs". A pack is simply a set of images along with a descriptive text file, inside a folder on the user's hard drive. They can be easily downloaded and shared as compressed archives, and are installed by simply uncompressing them in the game's folder (or an appropriate location depending on the OS).
 Since packs are as simple as a folder of images, they can be easily created by the players, and shared on the game's website, or for private use between friends. The game comes with a set of generic boards and game objects that cover the most common games and can be used for many others.
 The drawer allows the user to browse the packs and get elements from them by drag and dropping them to the table. In the spirit of "freedom of play", elements from different packs can be used together in the same game. Packs are merely a convenient way to sort game elements for browsing and sharing.
-In the drawer are also special game elements that require more game logic than simple image displaying, such as dices, counters (for points, money, whatever), clocks. They are added to the table by simple drag and dropping as well.
+In the drawer are also special game elements that require more game logic than simple image displaying, such as dice, counters (for points, money, whatever), clocks. They are added to the table by simple drag and dropping as well.
 The packs can contain "presets" that are dropped in one go on the table, and place many elements directly in a preset position, to make the setting up of a game quicker.
 The images can be modulated in color by the user, so that the pack contains only white elements instead of one of each color needed.
 
@@ -45,11 +45,14 @@ Objects are moved by drag and drop. They can be rotated and resized. They are re
 Identical objects can be put in piles where the number of elements in the pile appears along the image of the object.
 Similar shaped objects can be stacked and moved as a whole. When stacking, the images are drawn with a vertical offset, to show partially all elements of the stack.
 
-Cards are stacked in a special way, showing a special image to avoid confusion.
+Cards are stacked in a special way, to make manipulation easier and displaying less confusing (a regular stack is normally used for a few objects).
 
 Players can have a "secret zone" in which they can put and move objects without the others knowing. This can be used as the hand in a card game, or to simulate a cardboard screen.
 
 Bags can contain many elements and you can draw a random one from them, or select it. They can simulate any kind of container.
+
+Players can also add tags to objects, or floating text fields anywhere.
+They can attract attention of the other players to a particular area of the table, which will appear as a movie target sign.
 
 Game objects
 ------------
@@ -63,3 +66,14 @@ Game objects
 - Stack
 - Secret zone
 - Bag
+- Text field
+
+
+III. Technical details
+----------------------
+
+The game uses a server-client structure. The server can be run as a stand-alone command line program, or from the graphical client.
+
+The server holds all game data and communicates with client through a simple text protocol. When a player updates his game area, he really sends a request to the server, which if it finds it reasonable (ie, if the player is allowed to do it), broadcasts it back to all users, whose clients are updated.
+
+The server sends data with a "all you need to know" policy to avoid cheating (like hidden card faces, things happening in players secret areas, bag contents, etc.)
