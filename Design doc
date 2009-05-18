@@ -1,0 +1,15 @@
+Pöytä design doc
+================
+
+I. Motivation
+-------------
+
+Board games are awesome. They are the first social games we played with, and long before computers they kept us busy and entertained. Now we don't always have some one around to play a board game with. Internet connects people together and is a great source of opponents. There are plenty existing systems to play board games over the Internet. All the popular game are present (Chess, Checkers, Diplomacy, just name it). But there is the problem: "popular". You cannot play "every" game yet through the Internet.
+
+There are systems that claim to be "universal", because they implement a great number of games, hundreds sometimes, and also let you write new rulesets to implement new ones. Here is another problem: rulesets. To extend an existing system with a new game, you usually need to feed in the rules of the game. This task might be daunting to non programmers, take time, and discourage the use of the given system.
+
+Why bother with rulesets? Real board games rely on the player to follow the rules. Or to bend them at their convenience. Why should computers enforce a different behavior?
+
+I propose a system that allows players to play any board game they like, by implementing - instead of multiple games along with their rules and mechanisms - a table simulator.
+
+Board games are most of the time cardboard setting on which the players move little objects. Many games involve throwing dices, drawing cards, sometimes counting time.
