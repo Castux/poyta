@@ -21,11 +21,11 @@ Pöytä (working name) means table in Finnish.
 II. Features
 ------------
 
-P comes as a PC application, for several OSes (GNU/Linux, Mac OS X, Windows). The user starts it by double-clicking and is presented with the choice of either hosting a game or connecting an existing one by entering IP and port.
+Pöytä comes as a PC application, for several OSes (GNU/Linux, Mac OS X, Windows). The user starts it by double-clicking and is presented with the choice of either hosting a game or connecting an existing one by entering IP and port.
 
 The game area contains:
 - The table, a 2D space on which can be placed and manipulated game elements, and that itself can be moved and zoomed to allow more than one screen size of game area. The table is infinite in size but might have a logo marking its center.
-- A chatting zone where one can find a list of the players connected to the game and discuss in real time with them. Similarly to (for instance) IRC, several cascading levels of authority exist. The host is all powerful and can kick/ban other players. Users with the "hand" can manipulate objects on the table. Users with "voice" can send messages to the chat. Other users are just silent observers.
+- A chatting zone where one can find a list of the players connected to the game and discuss in real time with them. Similarly to (for instance) IRC, several cascading levels of authority exist. The host is all powerful and can kick/ban other players. Users with the right of "hand" can manipulate objects on the table. Users with the right of "voice" can send messages to the chat. Other users are just silent observers.
 - The drawer. It contains the game elements that can be disposed on the table, organised in "packs". A pack is simply a set of images along with a descriptive text file, inside a folder on the user's hard drive. They can be easily downloaded and shared as compressed archives, and are installed by simply uncompressing them in the game's folder (or an appropriate location depending on the OS).
 Since packs are as simple as a folder of images, they can be easily created by the players, and shared on the game's website, or for private use between friends. The game comes with a set of generic boards and game objects that cover the most common games and can be used for many others.
 The drawer allows the user to browse the packs and get elements from them by drag and dropping them to the table. In the spirit of "freedom of play", elements from different packs can be used together in the same game. Packs are merely a convenient way to sort game elements for browsing and sharing.
@@ -36,11 +36,11 @@ The images can be modulated in color by the user, so that the pack contains only
 Table operations
 ----------------
 
-Users with the "hand" can manipulate the objects on the table. To each of them is attributed a color, which appears next to their name in the chat area. When a player does any action, a hand icon of his color appears next to the manipulated object to notify the other players.
+Users with the right of "hand" can manipulate the objects on the table. To each of them is attributed a color, which appears next to their name in the chat area. When a player does any action, a hand icon of his color appears next to the manipulated object to notify the other players.
 
 [A system indicated the position of the players cursors in real time might be possible.]
 
-Objects are moved by drag and drop. They can be rotated and resized. They are removed by dropping them to a trash icon. They can be selected in groups for faster operation. Special objects have special manipulations, usually activated by clicking on them, entering values with the keyboard, etc. Objects "height" can be changed to make some elements appear above or below others.
+Objects are moved by drag and drop. They can be rotated and resized. They are removed by dropping them to a trash icon. They can be selected in groups for faster operation. Special objects have special manipulations, usually activated by clicking on them, entering values with the keyboard, etc. Objects' "altitude" can be changed to make some elements appear above or below others, as in drawing programs.
 
 Identical objects can be put in piles where the number of elements in the pile appears along the image of the object.
 Similar shaped objects can be stacked and moved as a whole. When stacking, the images are drawn with a vertical offset, to show partially all elements of the stack.
