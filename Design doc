@@ -31,6 +31,7 @@ Since packs are as simple as a folder of images, they can be easily created by t
 The drawer allows the user to browse the packs and get elements from them by drag and dropping them to the table. In the spirit of "freedom of play", elements from different packs can be used together in the same game. Packs are merely a convenient way to sort game elements for browsing and sharing.
 In the drawer are also special game elements that require more game logic than simple image displaying, such as dices, counters (for points, money, whatever), clocks. They are added to the table by simple drag and dropping as well.
 The packs can contain "presets" that are dropped in one go on the table, and place many elements directly in a preset position, to make the setting up of a game quicker.
+The images can be modulated in color by the user, so that the pack contains only white elements instead of one of each color needed.
 
 Table operations
 ----------------
