@@ -4,7 +4,7 @@ Pöytä design doc
 I. Motivation
 -------------
 
-Board games are awesome. They are the first social games we played with, and long before computers they kept us busy and entertained. Now we don't always have some one around to play a board game with. Internet connects people together and is a great source of opponents. There are plenty existing systems to play board games over the Internet. All the popular game are present (Chess, Checkers, Diplomacy, just name it). But there is the problem: "popular". You cannot play "every" game yet through the Internet.
+Board games are awesome. They are the first social games we played with, and long before computers they kept us busy and entertained. Now we don't always have some one around to play a board game with. Internet connects people together and is a great source of opponents. There are plenty existing systems to play board games over the Internet. All the popular game are present (Chess, Checkers, Diplomacy, just name it). But there is the problem: "popular". You cannot play "every" game yet through the Internet. And in most cases, you need one application per game you want to play. Which can be a lot.
 
 There are systems that claim to be "universal", because they implement a great number of games, hundreds sometimes, and also let you write new rulesets to implement new ones. Here is another problem: rulesets. To extend an existing system with a new game, you usually need to feed in the rules of the game. This task might be daunting to non programmers, take time, and discourage the use of the given system.
 
@@ -12,4 +12,53 @@ Why bother with rulesets? Real board games rely on the player to follow the rule
 
 I propose a system that allows players to play any board game they like, by implementing - instead of multiple games along with their rules and mechanisms - a table simulator.
 
-Board games are most of the time cardboard setting on which the players move little objects. Many games involve throwing dices, drawing cards, sometimes counting time.
+Board games are most of the time cardboard setting on which the players move little objects. Many games involve throwing dices, drawing cards, sometimes counting time. Some elements can have two faces, revealed by flipping them. But all in all, most games are cover by very few mechanisms.
+
+Implementing these features in a networked application would allow people to play basically every game that doesn't use physical laws or special mechanical devices. Thus making it "universal" (handle term with care).
+
+Pöytä (working name) means table in Finnish.
+
+II. Features
+------------
+
+P comes as a PC application, for several OSes (GNU/Linux, Mac OS X, Windows). The user starts it by double-clicking and is presented with the choice of either hosting a game or connecting an existing one by entering IP and port.
+
+The game area contains:
+- The table, a 2D space on which can be placed and manipulated game elements, and that itself can be moved and zoomed to allow more than one screen size of game area. The table is infinite in size but might have a logo marking its center.
+- A chatting zone where one can find a list of the players connected to the game and discuss in real time with them. Similarly to (for instance) IRC, several cascading levels of authority exist. The host is all powerful and can kick/ban other players. Users with the "hand" can manipulate objects on the table. Users with "voice" can send messages to the chat. Other users are just silent observers.
+- The drawer. It contains the game elements that can be disposed on the table, organised in "packs". A pack is simply a set of images along with a descriptive text file, inside a folder on the user's hard drive. They can be easily downloaded and shared as compressed archives, and are installed by simply uncompressing them in the game's folder (or an appropriate location depending on the OS).
+Since packs are as simple as a folder of images, they can be easily created by the players, and shared on the game's website, or for private use between friends. The game comes with a set of generic boards and game objects that cover the most common games and can be used for many others.
+The drawer allows the user to browse the packs and get elements from them by drag and dropping them to the table. In the spirit of "freedom of play", elements from different packs can be used together in the same game. Packs are merely a convenient way to sort game elements for browsing and sharing.
+In the drawer are also special game elements that require more game logic than simple image displaying, such as dices, counters (for points, money, whatever), clocks. They are added to the table by simple drag and dropping as well.
+The packs can contain "presets" that are dropped in one go on the table, and place many elements directly in a preset position, to make the setting up of a game quicker.
+
+Table operations
+----------------
+
+Users with the "hand" can manipulate the objects on the table. To each of them is attributed a color, which appears next to their name in the chat area. When a player does any action, a hand icon of his color appears next to the manipulated object to notify the other players.
+
+[A system indicated the position of the players cursors in real time might be possible.]
+
+Objects are moved by drag and drop. They can be rotated and resized. They are removed by dropping them to a trash icon. They can be selected in groups for faster operation. Special objects have special manipulations, usually activated by clicking on them, entering values with the keyboard, etc. Objects "height" can be changed to make some elements appear above or below others.
+
+Identical objects can be put in piles where the number of elements in the pile appears along the image of the object.
+Similar shaped objects can be stacked and moved as a whole. When stacking, the images are drawn with a vertical offset, to show partially all elements of the stack.
+
+Cards are stacked in a special way, showing a special image to avoid confusion.
+
+Players can have a "secret zone" in which they can put and move objects without the others knowing. This can be used as the hand in a card game, or to simulate a cardboard screen.
+
+Bags can contain many elements and you can draw a random one from them, or select it. They can simulate any kind of container.
+
+Game objects
+------------
+
+- Image
+- Double sided image [N-sided image, with possible random selection]
+- Counter
+- Clock
+- Die (merely a random number generator)
+- Pile
+- Stack
+- Secret zone
+- Bag
