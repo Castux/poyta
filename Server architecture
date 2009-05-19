@@ -43,14 +43,14 @@ Entity: has a position,angle,scale,second scale (if there is a second then they 
 	BasicE: can be added to collections (pile, stack, bag). Can be compared to another one.
 		Label: has a string. Can also be attached to another entity, in which case it follows it (has relative position). Can have a second string. Has a flipping capacity (= hiding if only one string).
 		N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number (the "up" side). Can be flipped to the next, or to a random one. Has a modulating color.
-			Image: has only one sprite, so doesn't present flipping ability.
+			[Image: has only one sprite, so doesn't present flipping ability. Unsure.]
 			[Card just a 2-image, not necessary]
 	Pile: has one BasicE. One number. Can be splited. To add an BasicE to it, it has to be identical (same sprites, same color/same text). The added one is destroyed.
 	Stack: has an ordered list of BasicE. They can be pushed/popped. The stack can be splitted. Can be reversed (turned upside down): 2-Images/labels are then flipped.
 		Deck: a special stack for cards. Has a shuffle operation. Shows (and tells about) only the top element's [perhaps the number of elements].
 	Counter: just has a number there, setable.
 		Die: a counter with a random number generator. Randomizable. Range setable.
-	Clock: holds a number, the server time at last reset. Can be reset. May need synchronisation with clients (sending them the server time every once in a while so they can know the approximate time difference, and adjust "their" server time)
+	Clock: holds a number, the server time at last reset. Can be reset, paused, started. May need synchronisation with clients (sending them the server time every once in a while so they can know the approximate time difference, and adjust "their" server time)
 	Bag: has an unordered list of N-Images. Shows none. Can randomly pick a certain number to put them outside.
 	
 	
@@ -93,10 +93,73 @@ PROMOTE nickname level
 KICK nickname
 	Request deconnection of user nickname. Fails if clearance is inferior than 3 (host).
 	
-b. Game entities
-----------------
+PING
+	Request for a PONG.
+	
+b. Manipulation of game entities
+--------------------------------
 
 (All these commands require clearance 2 or 3 to succeed.)
+As a general rule, the server should try to be as nice as possible. If an action does not apply or is irrelevant, just ignore it, and if necessary, notify in an answer.
 
 MOVE id x y
 	Move entity id to position (x,y)
+	
+ROTATE id a
+	Rotate entity id to angle a.
+	
+SCALE id s1 [s2]
+	If only s1 is present, entity id's scale to s1. Else, set its scale on x to s1, and on y to s2.
+
+FLIP id ["random"]
+	Flip current entity to its next state (next sprite for an N-Image, second face for a label, reverse a stack). If "random" is present, flip to a random side of an N-Image. 
+
+DELETE id
+	Remove entity id from the table.
+
+c. Creation of simple game entities
+-----------------------------------
+
+//Temporary
+ENTITY x y a
+	Create a "generic entity" (debug purpose) at (x,y) with angle a.
+
+LABEL x y a text [id]
+	Create a label with text text at (x,y) with angle a. If id, attach it to entity id (x,y,a are then relative to id's).
+
+IMAGE x y a N sprite1 [sprite2 ...] [r g b]
+	Create a N-Image at (x,y,a) with strings sprite* as sprites, and optionnal color (r,g,b) as modulating color.
+	
+COUNTER x y a [value]
+	Create a counter at (x,y,a) with value value (which defaults to 0).
+
+DIE x y a [faces]
+	Create a die at (x,y,a) with faces faces (which defaults to 6). The first face is random.
+
+CLOCK x y a
+	Create a clock at (x,y,a), initialised at 0 and in paused state.
+
+d. Special commands to simple entities
+--------------------------------------
+
+SETLABEL id [text]
+	Sets the current (top) text of the label id to text. If text is omitted, erase it instead (do not delete label).
+
+SETCOUNTER id [value]
+	Set the counter id to value, or 0 if ommited.
+
+ROLL id [newrange]
+	Roll die id. If a number newrange is given, sets the range of the die.
+
+RESETCLOCK id
+TOGGLECLOCK id
+	Reset or toggle (pause/unpause) clock id.
+
+e. Creation of collections
+--------------------------
+
+
+xx. random thoughts (sort later)
+--------------------------------
+
+- For creating "already full" collections, have a BEGIN collection/END collection pair, with all the rest in between.
