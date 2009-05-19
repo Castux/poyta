@@ -34,20 +34,69 @@ Lists game objects by unique identifiers (numbers). Just a table with helper fun
 4. Supervisor
 -------------
 
-The God of the house. It parses incoming commands, rejects the malformed ones and checks appliability and conformity to protocol by checking table status and player data. Then instructs the game status change, then informs users of it through the network.
+The God of the house. It parses incoming commands, rejects the malformed ones and checks appliability and conformity to protocol by checking table status and player data. Then instructs the game status change, then informs users of what each of them needs to know about it through the network.
 
 5. Game entities
 ----------------
 
 Entity: has a position,angle,scale,second scale (if there is a second then they are for x and y), a visible flag (turned off when in a container for instance)
-	N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number (the "up" side). Can be flipped to the next, or to a random one. Has a modulating color.
-		Image: has only one sprite, so doesn't present flipping ability.
-		[Card just a 2-image, not necessary]
-	Pile: has one N-Image. One number. Can be splited. To add an N-Image to it, it has to be identical (same sprites, same color). The added one is destroyed.
-	Stack: has an ordered list of N-Images. They can be pushed/popped. The stack can be splitted. Can be reversed (turned upside down): 2-Images are then flipped.
-		Deck: a special stack for cards. Has a shuffle operation. Shows (and tells about) only the top element's current sprite [perhaps the number of elements].
+	BasicE: can be added to collections (pile, stack, bag). Can be compared to another one.
+		Label: has a string. Can also be attached to another entity, in which case it follows it (has relative position). Can have a second string. Has a flipping capacity (= hiding if only one string).
+		N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number (the "up" side). Can be flipped to the next, or to a random one. Has a modulating color.
+			Image: has only one sprite, so doesn't present flipping ability.
+			[Card just a 2-image, not necessary]
+	Pile: has one BasicE. One number. Can be splited. To add an BasicE to it, it has to be identical (same sprites, same color/same text). The added one is destroyed.
+	Stack: has an ordered list of BasicE. They can be pushed/popped. The stack can be splitted. Can be reversed (turned upside down): 2-Images/labels are then flipped.
+		Deck: a special stack for cards. Has a shuffle operation. Shows (and tells about) only the top element's [perhaps the number of elements].
 	Counter: just has a number there, setable.
 		Die: a counter with a random number generator. Randomizable. Range setable.
 	Clock: holds a number, the server time at last reset. Can be reset. May need synchronisation with clients (sending them the server time every once in a while so they can know the approximate time difference, and adjust "their" server time)
 	Bag: has an unordered list of N-Images. Shows none. Can randomly pick a certain number to put them outside.
-	Label: has a string. Can also be attached to another entity, in which case it follows it (and has relative position).
+	
+	
+6. Protocol: client to server
+-----------------------------
+
+Text based. Words are space separated. All commands have the following syntax:
+
+COMMAND [arguments]
+
+Where arguments is a sequence of space separated strings.
+
+Upon connecting, a user has to handshake with:
+
+HANDSHAKE Do you want to play a game?
+
+When done, the user gets clearance level 0 (observer) and is revealed to the other users. If a user doesn't handshake before a given time, the server can drop him.
+
+a. User data and chatting
+-------------------------
+
+NICK nickname
+	Request to change nick to nickname. Fails if nickname is already in use. If it contains a space, only the first word is considered.
+
+COLOR r g b
+	Request to change to color (r,g,b), where r g and b are decimal numbers in the range 0:255.
+
+SAY message
+	Request to send message to the chat channel. Fails if clearance is less than 1 (voice).
+	
+TELL nickname message
+	Request to send private message to user nickname. Fails if clearance is less than 1 (voice). Private messages are signaled to the other users with a message such as "nickname1 whispered to nickname2".
+
+QUIT
+	Properly announce parting. The server can then make all necessary cleaning. If the user was the only host (clearance level 3), a random user with hand (level 2) is promoted to host (or if none, a level 1, and if none, 0). Even if no users are left, the server goes on and keeps the game state.
+	
+PROMOTE nickname level
+	Request promotion of user nickname to clearance level level, where level is a number in the range 0:3. Fails if a level 2 (hand) requests any promotion to host, or demotion from host. For voices and observers, the command always fails.
+
+KICK nickname
+	Request deconnection of user nickname. Fails if clearance is inferior than 3 (host).
+	
+b. Game entities
+----------------
+
+(All these commands require clearance 2 or 3 to succeed.)
+
+MOVE id x y
+	Move entity id to position (x,y)
