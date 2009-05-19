@@ -1,0 +1,8 @@
+Server architecture
+===================
+
+Basic elements:
+
+- Tcp Server. Takes care of holding sockets, sending data to them, calling callbacks when receives data.
+- Client manager. Lists clients, all the data associated to them.
+- Table. Lists game objects

@@ -25,7 +25,7 @@ Pöytä comes as a PC application, for several OSes (GNU/Linux, Mac OS X, Window
 
 The game area contains:
 - The table, a 2D space on which can be placed and manipulated game elements, and that itself can be moved and zoomed to allow more than one screen size of game area. The table is infinite in size but might have a logo marking its center.
-- A chatting zone where one can find a list of the players connected to the game and discuss in real time with them. Similarly to (for instance) IRC, several cascading levels of authority exist. The host is all powerful and can kick/ban other players. Users with the right of "hand" can manipulate objects on the table. Users with the right of "voice" can send messages to the chat. Other users are just silent observers.
+- A chatting zone where one can find a list of the players connected to the game and discuss in real time with them. Similarly to (for instance) IRC, several cascading levels of authority exist. The host is all powerful and can kick/ban other players. Users with the right of "hand" can manipulate objects on the table. Users with the right of "voice" can send messages to the chat. Other users are just silent observers. Private messages are possible, but are signaled to the other players as "whispering".
 - The drawer. It contains the game elements that can be disposed on the table, organised in "packs". A pack is simply a set of images along with a descriptive text file, inside a folder on the user's hard drive. They can be easily downloaded and shared as compressed archives, and are installed by simply uncompressing them in the game's folder (or an appropriate location depending on the OS).
 Since packs are as simple as a folder of images, they can be easily created by the players, and shared on the game's website, or for private use between friends. The game comes with a set of generic boards and game objects that cover the most common games and can be used for many others.
 The drawer allows the user to browse the packs and get elements from them by drag and dropping them to the table. In the spirit of "freedom of play", elements from different packs can be used together in the same game. Packs are merely a convenient way to sort game elements for browsing and sharing.
@@ -41,6 +41,7 @@ Users with the right of "hand" can manipulate the objects on the table. To each 
 [A system indicated the position of the players cursors in real time might be possible.]
 
 Objects are moved by drag and drop. They can be rotated and resized. They are removed by dropping them to a trash icon. They can be selected in groups for faster operation. Special objects have special manipulations, usually activated by clicking on them, entering values with the keyboard, etc. Objects' "altitude" can be changed to make some elements appear above or below others, as in drawing programs.
+Objects can be duplicated to make setting up faster (once resized/colored for instance).
 
 Identical objects can be put in piles where the number of elements in the pile appears along the image of the object.
 Similar shaped objects can be stacked and moved as a whole. When stacking, the images are drawn with a vertical offset, to show partially all elements of the stack.
@@ -50,8 +51,8 @@ Cards are stacked in a special way, to make manipulation easier and displaying l
 Players can have a "secret zone" in which they can put and move objects without the others knowing. This can be used as the hand in a card game, or to simulate a cardboard screen.
 
 Bags can contain many elements and you can draw a random one from them, or select it. They can simulate any kind of container.
-
-Players can also add tags to objects, or floating text fields anywhere.
+Players can add rulers to measure distance/angle between two points on the table. The rulers' ends can snap to the centers of objects.
+Players can also add tags to objects, or floating text fields anywhere. These can be hidden to simulate flipping a piece of paper (or even be two-faced).
 They can attract attention of the other players to a particular area of the table, which will appear as a movie target sign.
 
 Game objects
@@ -64,9 +65,10 @@ Game objects
 - Die (merely a random number generator)
 - Pile
 - Stack
-- Secret zone
+- Secret zone [might be implemented as a special drawer instead of a game object]
 - Bag
 - Text field
+- Ruler
 
 
 III. Technical details
@@ -77,3 +79,13 @@ The game uses a server-client structure. The server can be run as a stand-alone 
 The server holds all game data and communicates with client through a simple text protocol. When a player updates his game area, he really sends a request to the server, which if it finds it reasonable (ie, if the player is allowed to do it), broadcasts it back to all users, whose clients are updated.
 
 The server sends data with a "all you need to know" policy to avoid cheating (like hidden card faces, things happening in players secret areas, bag contents, etc.)
+
+Not all movements are transmitted to the server: only the final position/angle of a deplacement. Clients can then draw it as an interpolated movement for nicer effect.
+
+IV. Random ideas (sort later)
+-----------------------------
+
+- A package with only images (no text file) assumes every thing is a basic object. To create more complex things, a bit of code is necessary. Shortcuts are provided for usual tasks (like making card deck where all cards have a common face and a different one, using wildcards for easy importing, etc.)
+- If activated, the private zone could appear as a drawer (typically at the bottom of the screen). But then how to represent on the table movements to and from them?
+- Moving objects done by drag and drop. Rotating them by hovering over a corner. A button appear. One click makes a quarter turn in the direction of the corner. Holding the click allows for a continuous rotation. Resizing should be more rare (don't know how yet).
+- Provide objects as arrows and lines. Directly drawable as a special object, or just images? Like rulers, it would be easier to place by clicking from one end and dragging to the other, instead of placing, resizing, rotating.
