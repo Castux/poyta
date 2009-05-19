@@ -39,8 +39,15 @@ The God of the house. It parses incoming commands, rejects the malformed ones an
 5. Game entities
 ----------------
 
-Entity: has a position,angle,scale,second scale (if there is a second then they are for x and y)
-	N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number. Can be flipped to the next, or to a random one.
+Entity: has a position,angle,scale,second scale (if there is a second then they are for x and y), a visible flag (turned off when in a container for instance)
+	N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number (the "up" side). Can be flipped to the next, or to a random one. Has a modulating color.
 		Image: has only one sprite, so doesn't present flipping ability.
 		[Card just a 2-image, not necessary]
-
+	Pile: has one N-Image. One number. Can be splited. To add an N-Image to it, it has to be identical (same sprites, same color). The added one is destroyed.
+	Stack: has an ordered list of N-Images. They can be pushed/popped. The stack can be splitted. Can be reversed (turned upside down): 2-Images are then flipped.
+		Deck: a special stack for cards. Has a shuffle operation. Shows (and tells about) only the top element's current sprite [perhaps the number of elements].
+	Counter: just has a number there, setable.
+		Die: a counter with a random number generator. Randomizable. Range setable.
+	Clock: holds a number, the server time at last reset. Can be reset. May need synchronisation with clients (sending them the server time every once in a while so they can know the approximate time difference, and adjust "their" server time)
+	Bag: has an unordered list of N-Images. Shows none. Can randomly pick a certain number to put them outside.
+	Label: has a string. Can also be attached to another entity, in which case it follows it (and has relative position).

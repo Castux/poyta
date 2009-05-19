@@ -68,7 +68,7 @@ Game objects
 - Secret zone [might be implemented as a special drawer instead of a game object]
 - Bag
 - Text field
-- Ruler
+- Ruler (or just as a client tool for now)
 
 
 III. Technical details
