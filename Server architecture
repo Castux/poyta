@@ -3,6 +3,44 @@ Server architecture
 
 Basic elements:
 
-- Tcp Server. Takes care of holding sockets, sending data to them, calling callbacks when receives data.
+- Tcp Server. Takes care of holding sockets, sending data to them, calling callbacks when receives data or connections are closed.
 - Client manager. Lists clients, all the data associated to them.
-- Table. Lists game objects
+- Table. Lists game objects.
+- Supervisor. Analyses requests from clients, and decide if they are applicable (user clearance, coherence of the request, etc). Then applies changes and takes care of warning back users.
+
+The main loop should be blocked at each frame by the Tcp Server. All server activity should normally be triggered by incoming connections/data.
+
+
+1. Tcp Server
+-------------
+
+Deals by itself with the keeping of client sockets: accepts every incoming connection, adds then to its list, calls a callback. Calls callback for every incoming data, as well as for lost connections. Allows to send data to a particular socket, or to all, or to all but one. Simple.
+
+2. Client manager
+-----------------
+
+Identifies clients uniquely by their nicknames (for command targets) or sockets (for command senders). So, two tables, one indexed by nicks, one by socket, all point to the same client objects.
+Client object:
+- a nickname (contains anything but blanks)
+- a socket
+- a clearance (0:observer, 1:voice, 2:hand, 3:host)
+- a color
+
+3. Table
+--------
+
+Lists game objects by unique identifiers (numbers). Just a table with helper functions (add, remove, etc). See more details about game objects later.
+
+4. Supervisor
+-------------
+
+The God of the house. It parses incoming commands, rejects the malformed ones and checks appliability and conformity to protocol by checking table status and player data. Then instructs the game status change, then informs users of it through the network.
+
+5. Game entities
+----------------
+
+Entity: has a position,angle,scale,second scale (if there is a second then they are for x and y)
+	N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number. Can be flipped to the next, or to a random one.
+		Image: has only one sprite, so doesn't present flipping ability.
+		[Card just a 2-image, not necessary]
+
