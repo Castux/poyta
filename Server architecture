@@ -57,11 +57,15 @@ Entity: has a position,angle,scale,second scale (if there is a second then they 
 6. Protocol: client to server
 -----------------------------
 
-Text based. Words are space separated. All commands have the following syntax:
+Text based, encoded in UTF8. Words are space separated. All commands have the following syntax:
 
-COMMAND [arguments]
+COMMAND [arguments...]
 
-Where arguments is a sequence of space separated strings.
+Where arguments is a sequence of space separated strings. Arguments in brackets are optionnal. Arguments in quote mean the strings appear there litteraly (without the quotes).
+
+
+x. Connecting
+-------------
 
 Upon connecting, a user has to handshake with:
 
@@ -76,7 +80,7 @@ NICK nickname
 	Request to change nick to nickname. Fails if nickname is already in use. If it contains a space, only the first word is considered.
 
 COLOR r g b
-	Request to change to color (r,g,b), where r g and b are decimal numbers in the range 0:255.
+	Request to change user's color to (r,g,b), where r g and b are decimal numbers in the range 0:255.
 
 SAY message
 	Request to send message to the chat channel. Fails if clearance is less than 1 (voice).
@@ -157,6 +161,11 @@ TOGGLECLOCK id
 
 e. Creation of collections
 --------------------------
+
+That's where it gets complex, and that's why I'm doing it later.
+
+
+
 
 
 xx. random thoughts (sort later)
