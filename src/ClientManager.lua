@@ -68,7 +68,7 @@ function ClientManager:changenick(sock,newnick)
 		
 	local cli = self.clients[sock]
 	
-	self.nicks[nick] = nil
+	self.nicks[cli.nick] = nil
 	self.nicks[newnick] = cli
 	cli.nick = newnick
 	
@@ -113,4 +113,15 @@ function ClientManager:checktimeouts()
 			self:remove(sock)
 		end
 	end
+end
+
+function ClientManager:istherehost()
+	
+	for sock,cli in pairs(self.clients) do
+		if cli.clearance == 3 then
+			return true
+		end
+	end
+	
+	return false
 end

@@ -15,6 +15,7 @@
 
 require "TcpServer"
 require "ClientManager"
+require "Supervisor"
 
 --[[ Initialization ]]
 
@@ -41,6 +42,15 @@ if not Oscar then
 	return
 end
 
+-- Denis the Supervisor
+
+Denis = Supervisor()
+
+if not Denis then
+	print("Could not build Supervisor. Exiting.")
+	return
+end
+
 
 --[[Callbacks for the server]]
 
@@ -57,8 +67,27 @@ Alfred.cbconnect = function(cli)
 	print("New connection from " .. ip .. ":" .. port)
 	io.write("\t")
 	Oscar:printclient(cli)
+	
+	--[[ SERV -> CLIENT ]]
 end
 
+Alfred.cbrecv = function(data,sock)
+
+	Denis:parsecommand(data,sock)
+end
+
+Alfred.cbdisconnect = function(sock)
+	
+	local ip,port = sock:getpeername()
+	
+	print("Lost connection from " .. ip .. ":" .. port)
+	io.write("\t")
+	Oscar:printclient(sock)
+	
+	Oscar:remove(sock)
+	
+	--[[ SERV -> CLIENT ]]
+end
 
 --[[Main loop]]
 
