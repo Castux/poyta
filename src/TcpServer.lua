@@ -22,6 +22,8 @@ TcpServer = class()
 -- timeout is the timeout for the select function, called at each update
 -- 	unnecessary if your server acts only at reception of data or new client
 --	defaults to -1 (blocking call)
+-- returns nil if no server was established, or the server otherwise
+
 -- a server has following "public" members:
 -- server: the actual LuaSocket server socket
 -- ip, port: well, ip and port
@@ -32,6 +34,11 @@ TcpServer = class()
 function TcpServer:init(port,timeout)
 	local port = port or 0
 	self.server = socket.bind("*", port)
+	
+	if self.server == nil then
+		return nil
+	end
+	
 	self.ip, self.port = self.server:getsockname()
 	
 	self.cbconnect = function(client) end

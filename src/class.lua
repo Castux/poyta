@@ -101,7 +101,8 @@ Trying to index super in a base class fails.
 Recommended design:
 ===================
 
-* init() should call the parent init(), since there might be important stuff done there.
+* init() should call the parent init(), since there might be important stuff done there,
+  and always return self, since this is what is returned by the hidden method new().
 
 function Child:init(a,b,c)
 	self.super:init(a,b)
@@ -123,7 +124,7 @@ Class.method(object,params)
 
 As class and super are transmitted to the instances, the following is possible:
 
-Class.super:method(object,params)
+Class.super.method(object,params)
 if object.super == Class then end
 if Class.super == OtherClass then end
 if object.class == otherobject.super then end
@@ -150,9 +151,9 @@ class = function(base)
 		setmetatable(obj,c)
 	
 		-- automatically call init method with same arguments
-		obj:init(...)
+		return obj:init(...)
 	
-		return obj
+		-- return obj
 	end
 	
 	-- inheritance
