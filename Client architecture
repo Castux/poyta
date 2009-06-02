@@ -1,0 +1,58 @@
+Client architecture
+===================
+
+Basic elements:
+
+- Tcp Client. Handles the connection to the server. Can send to it, and calls callbacks at reception and connection closing. It has no blocking call (timeout instead).
+- Client manager. Same as in server but has no socket information, so they are referenced only by nickname.
+- Table. Same as in server, with an additional drawing method, and a coordinate to id converter. Also has a local zoom + position, for the displaying.
+- Event handler. Records user input (keyboard and mouse) and calls appropriate callbacks. These can either change local game status or send requests to the server.
+- Drawer. Handles the loading of packs and the resolving of sprite name -> actual sprite. Has the graphical part to make it appear on screen, and the event handling that goes with it.
+
+The main loop is never blocked, since we need constant refreshing and input possibility.
+
+x. Dealing with delay
+---------------------
+
+All actions that modify game state are delayed by the round trip to the server. Moving an object with the mouse really sends a request, and the movement occurs only when receiving the answer from the server.
+
+To minimize traffic and delay, only final positions/angles/zoom/etc. are sent as requests to the server (not all intermediary positions occupied during drap & drop or such). Upon reception of the server answer, the game state is updated, and objects are smoothly interpolated to their final positions.
+
+1. Tcp Client
+-------------
+
+Nothing special, since it deals only with one socket.
+
+2. Client manager
+-----------------
+
+Identical to the server's one, only socket information is not given.
+
+3. Table
+--------
+
+Follows closely the server's model. Indexed by game entity id, as given by the server. A draw method takes care of forwarding to all game entities, taking in account the general viewing zoom/position. It must be able to know in which object happened a click. Game objects are built upon server game objects, see additions later.
+Has a coordinated converter between game world and screen (to be used with id/coord conversion).
+
+4. Event handler
+----------------
+
+The tough part, especially since the UI actions have not been decided yet. Will include:
+- drag & drop to move objects
+- drag on the table to move viewing position
+- wheel up and down to change viewing zoom
+- right click (or ctrl-click) for basic action
+[- click on an object to select, click on the table to deselect]
+
+5. Game entities
+----------------
+
+Are basically the same as server's ones, with added methods (in another source, for instance, or "category").
+
+- immediate position and angle, which serves for interpolation. They are the one really drawn. At each update they go closer to the real ones, which are given by the server.
+- dragged flag, with initial relative click position. 
+
+- draw at immediate position/angle.
+- inside coordinates test: based on rectangular shapes with the immediate position/angle/scales.
+
+

@@ -14,7 +14,7 @@ The main loop should be blocked at each frame by the Tcp Server. All server acti
 1. Tcp Server
 -------------
 
-Deals by itself with the keeping of client sockets: accepts every incoming connection, adds then to its list, calls a callback. Calls callback for every incoming data, as well as for lost connections. Allows to send data to a particular socket, or to all, or to all but one. Simple.
+Deals by itself with the keeping of client sockets: accepts every incoming connection, adds then to its list, calls a callback. Calls callback for every incoming data, as well as for lost connections. Allows to send data to a particular socket, or to all, or to all but one/two. Simple.
 
 2. Client manager
 -----------------
@@ -29,7 +29,7 @@ Client object:
 3. Table
 --------
 
-Lists game objects by unique identifiers (numbers). Just a table with helper functions (add, remove, etc). See more details about game objects later.
+Lists game objects by unique identifiers (numbers). Just a table with helper functions (add, remove, etc). See more details about game objects later. Identifiers are not reused to avoid confusion (the table can be sparse).
 
 4. Supervisor
 -------------
@@ -39,7 +39,7 @@ The God of the house. It parses incoming commands, rejects the malformed ones an
 5. Game entities
 ----------------
 
-Entity: has a position,angle,scale,second scale (if there is a second then they are for x and y), a visible flag (turned off when in a container for instance)
+Entity: has a position,angle,scale,second scale (if there is a second then they are for x and y), a visibility flag (turned off when in a container for instance)
 	BasicE: can be added to collections (pile, stack, bag). Can be compared to another one.
 		Label: has a string. Can also be attached to another entity, in which case it follows it (has relative position). Can have a second string. Has a flipping capacity (= hiding if only one string).
 		N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number (the "up" side). Can be flipped to the next, or to a random one. Has a modulating color.
@@ -67,11 +67,11 @@ Where arguments is a sequence of space separated strings. Arguments in brackets 
 x. Connecting
 -------------
 
-Upon connecting, a user has to handshake with:
+Upon connecting, a user gets special clearance -1 (connecting) and has to handshake with:
 
 HANDSHAKE Do you want to play a game?
 
-When done, the user gets clearance level 0 (observer) and is revealed to the other users. If a user doesn't handshake before a given time, the server can drop him.
+When done, the user gets clearance level 0 (observer. If there are no hosts yet, user get level 3) and is revealed to the other users. If a user doesn't handshake before a given time, the server can drop him.
 
 a. User data and chatting
 -------------------------
@@ -86,7 +86,7 @@ SAY message
 	Request to send message to the chat channel. Fails if clearance is less than 1 (voice).
 	
 TELL nickname message
-	Request to send private message to user nickname. Fails if clearance is less than 1 (voice). Private messages are signaled to the other users with a message such as "nickname1 whispered to nickname2".
+	Request to send private message to user nickname. Fails if clearance is less than 1 (voice). Private messages are signaled to the other users with a message such as "nickname1 whispered to nickname2" (see protocol server -> client).
 
 QUIT
 	Properly announce parting. The server can then make all necessary cleaning. If the user was the only host (clearance level 3), a random user with hand (level 2) is promoted to host (or if none, a level 1, and if none, 0). Even if no users are left, the server goes on and keeps the game state.
@@ -98,13 +98,13 @@ KICK nickname
 	Request deconnection of user nickname. Fails if clearance is inferior than 3 (host).
 	
 PING
-	Request for a PONG.
+	Request for a PONG (see protocol server -> client).
 	
 b. Manipulation of game entities
 --------------------------------
 
 (All these commands require clearance 2 or 3 to succeed.)
-As a general rule, the server should try to be as nice as possible. If an action does not apply or is irrelevant, just ignore it, and if necessary, notify in an answer.
+As a general rule, the server should try to be as nice as possible. If an action does not apply or is irrelevant, just ignore it, and if necessary, notify in an answer but never block in error.
 
 MOVE id x y
 	Move entity id to position (x,y)
@@ -138,7 +138,7 @@ COUNTER x y a [value]
 	Create a counter at (x,y,a) with value value (which defaults to 0).
 
 DIE x y a [faces]
-	Create a die at (x,y,a) with faces faces (which defaults to 6). The first face is random.
+	Create a die at (x,y,a) with faces faces (which defaults to 6). The initial face is random.
 
 CLOCK x y a
 	Create a clock at (x,y,a), initialised at 0 and in paused state.
@@ -153,7 +153,7 @@ SETCOUNTER id [value]
 	Set the counter id to value, or 0 if ommited.
 
 ROLL id [newrange]
-	Roll die id. If a number newrange is given, sets the range of the die.
+	Roll die id. If a number newrange is given, sets the range of the die first.
 
 RESETCLOCK id
 TOGGLECLOCK id
