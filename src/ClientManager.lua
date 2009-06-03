@@ -75,6 +75,14 @@ function ClientManager:changenick(sock,newnick)
 	return true	
 end
 
+function ClientManager:promote(cli,level)
+
+	cli.clearance = level
+	print("", cli.nick .. " was promoted to level " .. level)
+	
+	-- SERV -> CLI
+end
+
 -- remove client associated to sock from client table
 -- returns false if there wasn't such a client, true otherwise.
 
@@ -89,6 +97,17 @@ function ClientManager:remove(sock)
 	
 	self.nicks[cli.nick] = nil
 	self.clients[sock] = nil
+	
+	-- check if a host remains and if not, promote someone from level 2.
+	if not self:istherehost() then
+		for sock,cli in pairs(self.clients) do
+			if cli.clearance == 2 then
+				self:promote(cli,3)
+			end		
+		end
+	
+	end
+	
 	
 	return true
 end

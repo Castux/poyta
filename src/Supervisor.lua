@@ -67,8 +67,7 @@ HANDSHAKE = function(w,sock)
 		
 		-- promote to host if there is none
 		if not Oscar:istherehost() then
-			Oscar.clients[sock].clearance = 3
-			print("", "Promoted to host")
+			Oscar:promote(Oscar.clients[sock],3)
 		end
 		
 		-- SERV -> CLIENT stuff
@@ -124,7 +123,98 @@ SAY = function(w,sock)
 	print("", cli.nick .. " says: " .. string.gsub(w.orig, "^SAY%s*", ""))
 	
 	-- SERV -> CLIENT stuff
+end,
+
+TELL = function(w,sock)
+	local cli = Oscar.clients[sock]
+	
+	if cli.clearance < 1 then
+		print("", cli.nick .. " is not allowed to speak")
+		return
+	end
+	
+	if Oscar.nicks[w[2]] == nil then
+		print("", w[2] .. ": no such nick")
+		return
+	end
+	
+	print("", cli.nick .. " tells " .. w[2] .. ": " .. string.gsub(w.orig, "^TELL%s*%w+%s*", ""))
+	
+	-- SERV -> CLIENT stuff
+end,
+
+QUIT = function(w,sock)
+	local cli = Oscar.clients[sock]
+	
+	print("", cli.nick .. " left")
+	
+	Alfred:removeclient(sock)
+	Oscar:remove(sock)
+	
+	-- SERV -> CLIENT stuff
+end,
+
+PROMOTE = function(w,sock)
+	local cli = Oscar.clients[sock]
+	local target = Oscar.nicks[w[2]]
+	local level = tonumber(w[3])
+	
+	if level == nil then
+		print("", "Malformed command")
+		return
+	end
+	
+	if cli.clearance < 2 then
+		print("", cli.nick .. " is not allowed to change clearance levels")
+		return
+	end
+	
+	if target == nil then
+		print("", w[2] .. ": no such nick")
+		return
+	end
+	
+	if cli.clearance == 2 and (target.clearance == 3 or level == 3) then
+		print("", cli.nick .. " is not allowed to promote to/from host")
+		return
+	end
+	
+	Oscar:promote(target,level)
+	
+	-- SERV -> CLIENT stuff
+end,
+
+KICK = function(w,sock)
+	local cli = Oscar.clients[sock]
+	local target = Oscar.nicks[w[2]]
+	
+	if cli.clearance < 3 then
+		print("", cli.nick .. " is not allowed to kick users")
+		return
+	end
+	
+	if target == nil then
+		print("", w[2] .. ": no such nick")
+		return
+	end
+
+	print("", cli.nick .. " kicked " .. w[2])
+	
+	Alfred:removeclient(target.socket)
+	Oscar:remove(target.socket)
+	
+	-- SERV -> CLIENT stuff
+	
+end,
+
+PING = function(w,sock)
+	local cli = Oscar.clients[sock]
+	local time = os.time()
+	
+	print("", "Received PING from " .. cli.nick .. " at " .. time)
+	
+	-- SERV -> CLIENT stuff
 end
 
-
 }
+
