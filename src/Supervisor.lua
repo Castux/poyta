@@ -43,15 +43,22 @@ end
 function Supervisor:parsecommand(data,sock)
 
 	print(sock,data)
-
+	
 	local w = self:split(data)
+	
+	-- don't treat empty commands
+	if w[1] == nil then
+		return
+	end
 	
 	local func = self.commands[w[1]]
 		
 	if func then
 		func(w,sock)
 	else
-		print("","Command " .. w[1] .. " unknown")
+		local err = "Command " .. w[1] .. " unknown"
+		print("", err)
+		Alfred:send("ERROR " .. err, sock)
 	end
 end
 
@@ -60,18 +67,37 @@ end
 Supervisor.commands = {
 
 HANDSHAKE = function(w,sock)
-	if w.orig == "HANDSHAKE Do you want to play a game?" and Oscar.clients[sock].clearance == -1 then
-		Oscar.clients[sock].clearance = 0
+	local cli = Oscar.clients[sock]
+
+	if w.orig == "HANDSHAKE Do you want to play a game?" and cli.clearance == -1 then
+		cli.clearance = 0
 		
 		print("", "Accepted handshake from", sock)
 		
 		-- promote to host if there is none
 		if not Oscar:istherehost() then
-			Oscar:promote(Oscar.clients[sock],3)
+			Oscar:promote(cli,3)
 		end
 		
 		-- SERV -> CLIENT stuff
 		
+		local str = string.format("CLIENT %s %d %d %d %d", cli.nick, cli.clearance,
+			cli.color[1], cli.color[2], cli.color[3])
+
+			-- tell everyone but him
+		Alfred:broadcast(str, sock)
+			-- tell him
+		Alfred:send(string.gsub(str, "CLIENT", "YOUARE"), sock)
+		
+		-- and tell the new one about all the other people [later: gamestate too]
+		
+		for _,other in pairs(Oscar.clients) do
+			if other ~= cli then
+				local str = string.format("CLIENT %s %d %d %d %d", other.nick,
+					 other.clearance, other.color[1], other.color[2], other.color[3])
+				Alfred:send(str,sock)
+			end
+		end
 	end
 end,
 
@@ -81,11 +107,15 @@ NICK = function(w,sock)
 	
 	if success then
 		print("", oldnick .. " changed their nick to " .. Oscar.clients[sock].nick)
+		-- server -> clients
+		Alfred:broadcast("NICK " .. oldnick .. " " .. Oscar.clients[sock].nick)
 	else
-		print("", "Nick " .. w[2] .. " is already in use")
+		local err = "Nick " .. w[2] .. " is already in use"
+		print("", err)
+		-- server -> client
+		Alfred:send("ERROR " .. err, sock)
 	end
 	
-	-- SERV -> CLIENT stuff
 end,
 
 COLOR = function(w,sock)
@@ -110,48 +140,73 @@ COLOR = function(w,sock)
 		"(" .. r .. "," .. g .. "," .. b .. ")")
 		
 	-- SERV -> CLIENT stuff
+	
+	local str = string.format("COLOR %s %d %d %d", Oscar.clients[sock].nick, r, g, b)
+	Alfred:broadcast(str)
 end,
 
 SAY = function(w,sock)
 	local cli = Oscar.clients[sock]
 	
 	if cli.clearance < 1 then
-		print("", cli.nick .. " is not allowed to speak")
+		local err = cli.nick .. " is not allowed to speak"
+		print("", err)
+		
+		Alfred:send("ERROR " .. err, sock)
 		return
 	end
 	
-	print("", cli.nick .. " says: " .. string.gsub(w.orig, "^SAY%s*", ""))
+	local message = string.gsub(w.orig, "^SAY%s*", "")
+	print("", cli.nick .. " says: " .. message)
 	
 	-- SERV -> CLIENT stuff
+	Alfred:broadcast("SAY " .. cli.nick .. " " .. message)
 end,
 
 TELL = function(w,sock)
 	local cli = Oscar.clients[sock]
 	
 	if cli.clearance < 1 then
-		print("", cli.nick .. " is not allowed to speak")
+		local err = cli.nick .. " is not allowed to speak"
+		print("", err)
+		
+		Alfred:send("ERROR " .. err, sock)
 		return
 	end
 	
-	if Oscar.nicks[w[2]] == nil then
-		print("", w[2] .. ": no such nick")
+	local target = Oscar.nicks[w[2]]
+	if target == nil then
+		local err = w[2] .. ": no such nick"
+		print("", err)
+		
+		Alfred:send("ERROR " .. err, sock)
 		return
 	end
 	
-	print("", cli.nick .. " tells " .. w[2] .. ": " .. string.gsub(w.orig, "^TELL%s*%w+%s*", ""))
+	
+	local message = string.gsub(w.orig, "^TELL%s*%w+%s*", "")
+	print("", cli.nick .. " tells " .. w[2] .. ": " .. message)
 	
 	-- SERV -> CLIENT stuff
+	local command = string.format("TELL %s %s", cli.nick, w[2])
+	
+		-- first the two concerned
+	Alfred:send(command .. " " .. message, sock)
+	Alfred:send(command .. " " .. message, target.socket)
+		-- then the others
+	Alfred:broadcast(command, sock, target.socket)
 end,
 
 QUIT = function(w,sock)
-	local cli = Oscar.clients[sock]
+	local nick = Oscar.clients[sock].nick
 	
-	print("", cli.nick .. " left")
+	print("", nick .. " left")
 	
 	Alfred:removeclient(sock)
 	Oscar:remove(sock)
 	
 	-- SERV -> CLIENT stuff
+	Alfred:broadcast("QUIT " .. nick)
 end,
 
 PROMOTE = function(w,sock)
@@ -159,52 +214,53 @@ PROMOTE = function(w,sock)
 	local target = Oscar.nicks[w[2]]
 	local level = tonumber(w[3])
 	
+	local err = ""
+	
 	if level == nil then
-		print("", "Malformed command")
+		err = "Malformed command"
+	elseif cli.clearance < 2 then
+		err = cli.nick .. " is not allowed to change clearance levels"
+	elseif target == nil then
+		err = w[2] .. ": no such nick"
+	elseif cli.clearance == 2 and (target.clearance == 3 or level == 3) then
+		err = cli.nick .. " is not allowed to promote to/from host"
+	end
+	
+	if err ~= "" then
+		Alfred:send("ERROR " .. err,sock)
 		return
 	end
 	
-	if cli.clearance < 2 then
-		print("", cli.nick .. " is not allowed to change clearance levels")
-		return
-	end
+	Oscar:promote(target,level,cli.nick)
 	
-	if target == nil then
-		print("", w[2] .. ": no such nick")
-		return
-	end
-	
-	if cli.clearance == 2 and (target.clearance == 3 or level == 3) then
-		print("", cli.nick .. " is not allowed to promote to/from host")
-		return
-	end
-	
-	Oscar:promote(target,level)
-	
-	-- SERV -> CLIENT stuff
+	-- SERV -> CLIENT stuff done in :promote()
+
 end,
 
 KICK = function(w,sock)
 	local cli = Oscar.clients[sock]
 	local target = Oscar.nicks[w[2]]
 	
+	local err = ""
+	
 	if cli.clearance < 3 then
-		print("", cli.nick .. " is not allowed to kick users")
+		err = cli.nick .. " is not allowed to kick users"
+	elseif target == nil then
+		err = w[2] .. ": no such nick"
+	end
+
+	if err ~= "" then
+		Alfred:send("ERROR " .. err,sock)
 		return
 	end
 	
-	if target == nil then
-		print("", w[2] .. ": no such nick")
-		return
-	end
-
 	print("", cli.nick .. " kicked " .. w[2])
 	
 	Alfred:removeclient(target.socket)
 	Oscar:remove(target.socket)
 	
 	-- SERV -> CLIENT stuff
-	
+	Alfred:broadcast(string.format("KICK %s %s", cli.nick, w[2]))
 end,
 
 PING = function(w,sock)
@@ -214,6 +270,7 @@ PING = function(w,sock)
 	print("", "Received PING from " .. cli.nick .. " at " .. time)
 	
 	-- SERV -> CLIENT stuff
+	Alfred:send("PONG " .. time, sock)
 end
 
 }

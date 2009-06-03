@@ -68,7 +68,7 @@ Alfred.cbconnect = function(cli)
 	io.write("\t")
 	Oscar:printclient(cli)
 	
-	--[[ SERV -> CLIENT ]]
+	-- no broadcast is done here. only at handshake
 end
 
 Alfred.cbrecv = function(data,sock)
@@ -84,9 +84,12 @@ Alfred.cbdisconnect = function(sock)
 	io.write("\t")
 	Oscar:printclient(sock)
 	
-	Oscar:remove(sock)
-	
 	--[[ SERV -> CLIENT ]]
+	
+	Alfred:broadcast("LOST " .. Oscar.clients[sock].nick)
+	
+	-- and clean
+	Oscar:remove(sock)
 end
 
 --[[Main loop]]

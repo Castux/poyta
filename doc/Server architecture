@@ -73,6 +73,8 @@ HANDSHAKE Do you want to play a game?
 
 When done, the user gets clearance level 0 (observer. If there are no hosts yet, user get level 3) and is revealed to the other users. If a user doesn't handshake before a given time, the server can drop him.
 
+Commands NICK and COLOR can be sent before the HANDSHAKE so that the client will appear directly to the others with appropriate settings.
+
 a. User data and chatting
 -------------------------
 
@@ -89,7 +91,7 @@ TELL nickname message
 	Request to send private message to user nickname. Fails if clearance is less than 1 (voice). Private messages are signaled to the other users with a message such as "nickname1 whispered to nickname2" (see protocol server -> client).
 
 QUIT
-	Properly announce parting. The server can then make all necessary cleaning. If the user was the only host (clearance level 3), a random user with hand (level 2) is promoted to host. Even if no users are left, the server goes on and keeps the game state.
+	Properly announce parting. The server can then make all necessary cleaning. If the user was the only host (clearance level 3), a random user with hand (level 2) is promoted to host (or if none, a level 1, and if none, 0). Even if no users are left, the server goes on and keeps the game state.
 	
 PROMOTE nickname level
 	Request promotion of user nickname to clearance level level, where level is a number in the range 0:3. Fails if a level 2 (hand) requests any promotion to host, or demotion from host. For voices and observers, the command always fails.

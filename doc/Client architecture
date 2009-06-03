@@ -55,4 +55,41 @@ Are basically the same as server's ones, with added methods (in another source, 
 - draw at immediate position/angle.
 - inside coordinates test: based on rectangular shapes with the immediate position/angle/scales.
 
+6. Protocol: server to client
+-----------------------------
 
+It is closely based on the client to server protocol. Descriptions are omitted when they are identical to those in the latter.
+
+x. Connection
+-------------
+
+When a client handshakes and gets clearance 0, it is revealed to the others.
+
+CLIENT nick clearance r g b
+
+The command YOUARE is sent with the same parameters to the origin of the handshake.
+
+xx. Errors
+----------
+
+The server can answer to a request that fails by:
+
+ERROR message
+
+[We might need in the future to have specific error messages or codes, for better interpretation by the client.]
+
+a. User data and chatting
+-------------------------
+
+NICK oldnick newnick
+COLOR nick r g b
+SAY nick message
+TELL source dest [message]	(message is sent only to the target)
+QUIT nick
+LOST nick	(if nick's connection drops)
+PROMOTE nick target level	(nick can be "<server>" if the promotion was automatic)
+KICK nick target
+PONG time	(time is the server time at reception of the PING. This is sent only to the sender of PING)
+
+b. Manipulation of game entities
+--------------------------------

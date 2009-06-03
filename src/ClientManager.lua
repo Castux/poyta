@@ -41,7 +41,7 @@ end
 
 function ClientManager:add(sock)
 	
-	local nick = tostring(sock)
+	local _,_,nick = string.find(tostring(sock), "(%w+)$")
 	local tmp = {
 		socket = sock,
 		nick = nick,
@@ -75,12 +75,24 @@ function ClientManager:changenick(sock,newnick)
 	return true	
 end
 
-function ClientManager:promote(cli,level)
+-- change the clearance level of a client, and broadcast about it
+-- by is an optional string that gives the nick of the origin of the request
+-- defaults to <server>
 
+function ClientManager:promote(cli,level,by)
+
+	local level = level
+	local by = by or "<server>"
+	
+	if level < 0 then level = 0 end
+	
 	cli.clearance = level
 	print("", cli.nick .. " was promoted to level " .. level)
 	
 	-- SERV -> CLI
+		
+	local str = string.format("PROMOTE %s %s %d", by, cli.nick, level)
+	Alfred:broadcast(str)
 end
 
 -- remove client associated to sock from client table
@@ -98,12 +110,27 @@ function ClientManager:remove(sock)
 	self.nicks[cli.nick] = nil
 	self.clients[sock] = nil
 	
-	-- check if a host remains and if not, promote someone from level 2.
+	-- check if a host remains and if not, promote someone from level 2, then 1, then 0.
 	if not self:istherehost() then
 		for sock,cli in pairs(self.clients) do
 			if cli.clearance == 2 then
 				self:promote(cli,3)
-			end		
+				return
+			end
+		end
+		
+		for sock,cli in pairs(self.clients) do
+			if cli.clearance == 1 then
+				self:promote(cli,3)
+				return
+			end
+		end
+		
+		for sock,cli in pairs(self.clients) do
+			if cli.clearance == 0 then
+				self:promote(cli,3)
+				return
+			end
 		end
 	
 	end
