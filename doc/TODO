@@ -3,6 +3,10 @@ Roadmap
 
 - networking in server (adapt from echo.lua)
 - client managment in server, with basic client commands
+
+<WE ARE HERE>
+
+- chatting/console in the graphical client
 - basic entity in server and client
 - drag and drop
 

@@ -13,6 +13,11 @@
 -- You should have received a copy of the  GNU General Public License  along
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
+
+--[[ require()'s ]]
+
+package.path = package.path .. ";../common/?.lua"
+
 require "TcpServer"
 require "ClientManager"
 require "Supervisor"
