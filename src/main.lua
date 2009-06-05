@@ -20,7 +20,10 @@ local LG = love.graphics
 function load()
 	
 	love.graphics.setBackgroundColor(LG.newColor(255,255,255))
-	cons = Console(80,24,"VeraMono.ttf",10)
+	cons = Console(80,24,"VeraMono.ttf",12)
+	cons.callback = function(self,line)
+		self:print(line)
+	end
 	
 	LG.setColor(LG.newColor(0,0,150))
 end
@@ -28,7 +31,7 @@ end
 
 function draw()
 
-	LG.draw(love.timer.getFPS(),620,20)
+	LG.draw(love.timer.getFPS(),600,20)
 	cons:draw()
 end
 
