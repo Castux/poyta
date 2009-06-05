@@ -69,6 +69,7 @@ When a client handshakes and gets clearance 0, it is revealed to the others.
 CLIENT nick clearance r g b
 
 The command YOUARE is sent with the same parameters to the origin of the handshake.
+The command THEREIS is sent upon connection, for each client already connected, with same parameters as CLIENT.
 
 xx. Errors
 ----------

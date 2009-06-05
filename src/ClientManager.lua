@@ -15,6 +15,9 @@
 
 love.filesystem.require("common/class.lua")
 
+local LG = love.graphics
+
+
 ClientManager = class()
 
 -- A ClientManager has the following public member:
@@ -27,6 +30,11 @@ ClientManager = class()
 function ClientManager:init()
 
 	self.nicks = {}
+	self.us = nil 	-- points to the client that we are
+
+	-- nickbox
+	self.font = LG.newFont(love.default_font, 10)
+	
 	return self
 end
 
@@ -60,7 +68,7 @@ function ClientManager:changenick(oldnick,newnick)
 	
 	-- shouldn't happen
 	if self.nicks[newnick] ~= nil then
-		cons:print("[Warning] Changing old nick ".. oldnick .. " to existing nick: " .. newnick)
+		Console:print("[Warning] Changing old nick ".. oldnick .. " to existing nick: " .. newnick)
 		ret = false
 	end
 		
@@ -78,5 +86,20 @@ function ClientManager:printclient(nick)
 
 	local tmp = self.nicks[nick]
 	local col = "(" .. tmp.color[1] .. "," .. tmp.color[2] .. "," .. tmp.color[3] .. ")"
-	print(tmp.socket, tmp.nick, tmp.clearance, col, tmp.time)
+	
+	return string.format("%s %s %s", tmp.nick, tmp.clearance, col)
+end
+
+function ClientManager:draw(x,y)
+	
+	local i = 1
+	for k,v in pairs(self.nicks) do
+		local us = ""
+		if k == self.us.nick then us = "*" end
+		
+		LG.draw(us .. self:printclient(k), x + 2, y + i*10 + 2)
+		i = i + 1
+	end
+	
+	LG.rectangle(love.draw_line, x, y, 200 + 4 , i*10 + 4)
 end

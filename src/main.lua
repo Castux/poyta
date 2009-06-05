@@ -17,6 +17,7 @@
 -- client specific includes
 love.filesystem.require("Console.lua")
 love.filesystem.require("TcpClient.lua")
+love.filesystem.require("ClientManager.lua")
 
 -- common includes. must override Lua's require and take care of dependencies by hand
 -- because of Löve's integration.
@@ -34,43 +35,50 @@ local LG = love.graphics
 
 function load()
 	
+	-- all singleton classes reuse the class name
+	--	MyClass = MyClass(init params)
+	
 	-- console
-	cons = Console(80,24,"VeraMono.ttf",12)
-	cons.callback = function(self,line)
-		Spiderman:send(line)
+	Console = Console(80,24,"VeraMono.ttf",12)
+	Console.callback = function(self,line)
+		TcpClient:send(line)
 	end
 	
 	LG.setColor(LG.newColor(0,0,150))
 	
 	-- network
-	Spiderman = TcpClient("localhost",6666,0)
-	if not Spiderman.socket then
-		cons:print("Impossible to connect to server")
+	TcpClient = TcpClient("localhost",6666,0)
+	if not TcpClient.socket then
+		Console:print("Impossible to connect to server")
 	else
-		cons:print("Connected to server ".. Spiderman.ip .. ":" .. Spiderman.port)
+		Console:print("Connected to server ".. TcpClient.ip .. ":" .. TcpClient.port)
 	end
 	
 	-- supervisor
-	Cesar = Supervisor()
+	Supervisor = Supervisor()
 	love.filesystem.include("commands.lua")
 	
+	-- clientmanager
+	ClientManager = ClientManager()
 	
 	-- pluging things together
-	Spiderman.cbrecv = function(line)
+	TcpClient.cbrecv = function(line)
 		
-		local success,w = Cesar:parsecommand(line)
+		local success,w = Supervisor:parsecommand(line)
 		if not success then
-			cons:print("[recv unknown cmd]" .. w.orig)
+			Console:print("[recv unknown cmd]" .. w.orig)
 		end
 		
 		-- later, all commands will go to a hidden console,
 		-- since every command will have repercussions in game/chat
 	end
-	Spiderman.cbdisconnect = function()
-		cons:print("Disconnected from server")
+	TcpClient.cbdisconnect = function()
+		Console:print("Disconnected from server")
 	end
 	
-	Spiderman:send("HANDSHAKE Do you want to play a game?")
+	-- tell the server about us
+	TcpClient:send("NICK Alfredo")
+	TcpClient:send("HANDSHAKE Do you want to play a game?")
 	
 	
 	
@@ -84,13 +92,15 @@ end
 function update(dt)
 	
 	-- check network input
-	Spiderman:update()
+	TcpClient:update()
 end
 
 function draw()
 
 	LG.draw(love.timer.getFPS(),600,20)
-	cons:draw()
+	Console:draw()
+	ClientManager:draw(0,300)
+	
 end
 
 function keypressed(key)
@@ -99,11 +109,11 @@ function keypressed(key)
 		love.system.exit()
 		
 	elseif key == love.key_f1 then
-		Spiderman:close()
+		TcpClient:close()
 		load()
 		return
 	end
 	
 	-- forward to console
-	cons:input(key)
+	Console:input(key)
 end

@@ -83,16 +83,19 @@ function ClientManager:promote(cli,level,by)
 
 	local level = level
 	local by = by or "<server>"
+	local prev = cli.clearance
 	
 	if level < 0 then level = 0 end
+	
 	
 	cli.clearance = level
 	print("", cli.nick .. " was promoted to level " .. level)
 	
 	-- SERV -> CLI
-		
-	local str = string.format("PROMOTE %s %s %d", by, cli.nick, level)
-	Alfred:broadcast(str)
+	if prev >= 0 then
+		local str = string.format("PROMOTE %s %s %d", by, cli.nick, level)
+		Alfred:broadcast(str)
+	end
 end
 
 -- remove client associated to sock from client table

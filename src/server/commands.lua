@@ -6,13 +6,14 @@ HANDSHAKE = function(w,sock)
 	local cli = Oscar.clients[sock]
 
 	if w.orig == "HANDSHAKE Do you want to play a game?" and cli.clearance == -1 then
-		cli.clearance = 0
-		
+				
 		print("", "Accepted handshake from", sock)
 		
-		-- promote to host if there is none
+		-- promote to host if there is none, or to observer instead
 		if not Oscar:istherehost() then
 			Oscar:promote(cli,3)
+		else
+			Oscar:promote(cli,0)
 		end
 		
 		-- SERV -> CLIENT stuff
@@ -29,7 +30,7 @@ HANDSHAKE = function(w,sock)
 		
 		for _,other in pairs(Oscar.clients) do
 			if other ~= cli then
-				local str = string.format("CLIENT %s %d %d %d %d", other.nick,
+				local str = string.format("THEREIS %s %d %d %d %d", other.nick,
 					 other.clearance, other.color[1], other.color[2], other.color[3])
 				Alfred:send(str,sock)
 			end
@@ -44,7 +45,9 @@ NICK = function(w,sock)
 	if success then
 		print("", oldnick .. " changed their nick to " .. Oscar.clients[sock].nick)
 		-- server -> clients
-		Alfred:broadcast("NICK " .. oldnick .. " " .. Oscar.clients[sock].nick)
+		if Oscar.clients[sock].clearance >= 0 then
+			Alfred:broadcast("NICK " .. oldnick .. " " .. Oscar.clients[sock].nick)
+		end
 	else
 		local err = "Nick " .. w[2] .. " is already in use"
 		print("", err)
@@ -77,8 +80,10 @@ COLOR = function(w,sock)
 		
 	-- SERV -> CLIENT stuff
 	
-	local str = string.format("COLOR %s %d %d %d", Oscar.clients[sock].nick, r, g, b)
-	Alfred:broadcast(str)
+	if Oscar.clients[sock].clearance >= 0 then
+		local str = string.format("COLOR %s %d %d %d", Oscar.clients[sock].nick, r, g, b)
+		Alfred:broadcast(str)
+	end
 end,
 
 SAY = function(w,sock)
@@ -135,6 +140,7 @@ end,
 
 QUIT = function(w,sock)
 	local nick = Oscar.clients[sock].nick
+	local clear = Oscar.clients[sock].clearance
 	
 	print("", nick .. " left")
 	
@@ -142,7 +148,9 @@ QUIT = function(w,sock)
 	Oscar:remove(sock)
 	
 	-- SERV -> CLIENT stuff
-	Alfred:broadcast("QUIT " .. nick)
+	if clear >= 0 then
+		Alfred:broadcast("QUIT " .. nick)
+	end
 end,
 
 PROMOTE = function(w,sock)
