@@ -50,8 +50,21 @@ function load()
 		cons:print("Connected to server ".. Spiderman.ip .. ":" .. Spiderman.port)
 	end
 	
+	-- supervisor
+	Cesar = Supervisor()
+	love.filesystem.include("commands.lua")
+	
+	
+	-- pluging things together
 	Spiderman.cbrecv = function(line)
-		cons:print(line)
+		
+		local success,w = Cesar:parsecommand(line)
+		if not success then
+			cons:print("[recv unknown cmd]" .. w.orig)
+		end
+		
+		-- later, all commands will go to a hidden console,
+		-- since every command will have repercussions in game/chat
 	end
 	Spiderman.cbdisconnect = function()
 		cons:print("Disconnected from server")
@@ -59,10 +72,6 @@ function load()
 	
 	Spiderman:send("HANDSHAKE Do you want to play a game?")
 	
-	-- supervisor
-	Cesar = Supervisor()
-	
-	love.filesystem.include("commands.lua")
 	
 	
 	-- graphics

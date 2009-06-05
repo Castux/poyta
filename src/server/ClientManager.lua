@@ -13,12 +13,11 @@
 -- You should have received a copy of the  GNU General Public License  along
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
-require "class"
+love.filesystem.require("common/class.lua")
 
 ClientManager = class()
 
 -- A ClientManager has the following public member:
--- clients: table which holds the client tables, indexed by socket
 -- nicks: table which holds the client tables, indexed by nickname
 
 -- client tables have the following public members:
@@ -27,147 +26,57 @@ ClientManager = class()
 
 function ClientManager:init()
 
-	self.clients = {}
 	self.nicks = {}
-	
-	self.clienttimeout = 5
-	
 	return self
 end
 
--- add a new client based on socket sock.
--- nick is initialised to the socket as a string, clearance to -1, and a random color
+-- add a new client
 -- returns the client
 
-function ClientManager:add(sock)
-	
-	local _,_,nick = string.find(tostring(sock), "(%w+)$")
+function ClientManager:add(nick,clearance,r,g,b)
+
 	local tmp = {
-		socket = sock,
 		nick = nick,
-		clearance = -1,
-		color = {math.random(0,255),math.random(0,255),math.random(0,255)},
-		time = os.time()
+		clearance = clearance,
+		color = {r,g,b},
 	}
 	
-	self.clients[sock] = tmp
+	--shouldnt happen
+	if self.nicks[nick] then
+		cons:print("[Warning] Adding client with existing nick: " .. nick)
+	end
+	
 	self.nicks[nick] = tmp
 	
 	return tmp
 end
 
--- change the nick of the client associated to sock to newnick
--- returns false if impossible (the nick was already taken), true otherwise.
+-- change the nick of the client oldnick to newnick
+-- returns false in case of existing nick (but does the change anyway)
 
-function ClientManager:changenick(sock,newnick)
+function ClientManager:changenick(oldnick,newnick)
 	
-	-- first check if the nick is available
+	local ret = true
+	
+	-- shouldn't happen
 	if self.nicks[newnick] ~= nil then
-		return false
+		cons:print("[Warning] Changing old nick ".. oldnick .. " to existing nick: " .. newnick)
+		ret = false
 	end
 		
-	local cli = self.clients[sock]
+	local cli = self.nicks[oldnick]
 	
-	self.nicks[cli.nick] = nil
+	self.nicks[oldnick] = nil
 	self.nicks[newnick] = cli
 	cli.nick = newnick
 	
-	return true	
+	return ret	
 end
 
--- change the clearance level of a client, and broadcast about it
--- by is an optional string that gives the nick of the origin of the request
--- defaults to <server>
 
-function ClientManager:promote(cli,level,by)
+function ClientManager:printclient(nick)
 
-	local level = level
-	local by = by or "<server>"
-	
-	if level < 0 then level = 0 end
-	
-	cli.clearance = level
-	print("", cli.nick .. " was promoted to level " .. level)
-	
-	-- SERV -> CLI
-		
-	local str = string.format("PROMOTE %s %s %d", by, cli.nick, level)
-	Alfred:broadcast(str)
-end
-
--- remove client associated to sock from client table
--- returns false if there wasn't such a client, true otherwise.
-
-function ClientManager:remove(sock)
-	
-	local cli = self.clients[sock]
-	
-	-- first check if it is here
-	if cli == nil then
-		return false
-	end
-	
-	self.nicks[cli.nick] = nil
-	self.clients[sock] = nil
-	
-	-- check if a host remains and if not, promote someone from level 2, then 1, then 0.
-	if not self:istherehost() then
-		for sock,cli in pairs(self.clients) do
-			if cli.clearance == 2 then
-				self:promote(cli,3)
-				return
-			end
-		end
-		
-		for sock,cli in pairs(self.clients) do
-			if cli.clearance == 1 then
-				self:promote(cli,3)
-				return
-			end
-		end
-		
-		for sock,cli in pairs(self.clients) do
-			if cli.clearance == 0 then
-				self:promote(cli,3)
-				return
-			end
-		end
-	
-	end
-	
-	
-	return true
-end
-
-function ClientManager:printclient(sock)
-
-	local tmp = self.clients[sock]
+	local tmp = self.nicks[nick]
 	local col = "(" .. tmp.color[1] .. "," .. tmp.color[2] .. "," .. tmp.color[3] .. ")"
 	print(tmp.socket, tmp.nick, tmp.clearance, col, tmp.time)
-end
-
-function ClientManager:checktimeouts()
-	local now = os.time()
-	
-	for sock,cli in pairs(self.clients) do
-		if cli.clearance == -1 and os.difftime(now,cli.time) > self.clienttimeout then
-			print("Client did not handshake and expired.")
-			io.write("\t")
-			self:printclient(sock)
-			
-			Alfred:removeclient(sock)
-			self:remove(sock)
-		end
-	end
-end
-
-function ClientManager:istherehost()
-	
-	for sock,cli in pairs(self.clients) do
-		if cli.clearance == 3 then
-			return true
-		end
-	end
-	
-	return false
 end
