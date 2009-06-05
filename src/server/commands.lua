@@ -1,70 +1,6 @@
--- pöytä
--- Copyright (C) 2009 Noé Falzon <firstname.lastname@aliceadsl.fr>
-
--- This program is  free software:  you can redistribute it and/or modify it
--- under  the terms  of the  GNU General Public License  as published by the
--- Free Software Foundation, version 3 of the License.
---
--- This program  is  distributed  in the hope  that it will  be useful,  but
--- WITHOUT  ANY WARRANTY;  without  even the implied  warranty of MERCHANTA-
--- BILITY  or  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
--- License for more details.
---
--- You should have received a copy of the  GNU General Public License  along
--- with this program. If not, see <http://www.gnu.org/licenses/>.
-
-require "class"
-
-Supervisor = class()
-
-
-function Supervisor:init()
-	
-	return self
-end
-
--- splits a string into white separated words
--- returns a table of them, with the original line in the orig field
-
-function Supervisor:split(line)
-	local words = {}
-	for w in string.gmatch(line, "%S+") do
-		table.insert(words, w)
-	end
-	
-	words.orig = line
-	
-	return words
-end
-
--- the main command interpreter. check if the command exists and then calls the 
--- corresponding function from the command table.
-
-function Supervisor:parsecommand(data,sock)
-
-	print(sock,data)
-	
-	local w = self:split(data)
-	
-	-- don't treat empty commands
-	if w[1] == nil then
-		return
-	end
-	
-	local func = self.commands[w[1]]
-		
-	if func then
-		func(w,sock)
-	else
-		local err = "Command " .. w[1] .. " unknown"
-		print("", err)
-		Alfred:send("ERROR " .. err, sock)
-	end
-end
-
 --[[Command associated functions]]
 
-Supervisor.commands = {
+Denis.commands = {
 
 HANDSHAKE = function(w,sock)
 	local cli = Oscar.clients[sock]
@@ -256,11 +192,12 @@ KICK = function(w,sock)
 	
 	print("", cli.nick .. " kicked " .. w[2])
 	
-	Alfred:removeclient(target.socket)
-	Oscar:remove(target.socket)
-	
 	-- SERV -> CLIENT stuff
 	Alfred:broadcast(string.format("KICK %s %s", cli.nick, w[2]))
+	
+	-- cleaning
+	Alfred:removeclient(target.socket)
+	Oscar:remove(target.socket)
 end,
 
 PING = function(w,sock)

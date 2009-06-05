@@ -13,10 +13,24 @@
 -- You should have received a copy of the  GNU General Public License  along
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
-love.filesystem.require("console.lua")
+
+-- client specific includes
+love.filesystem.require("Console.lua")
 love.filesystem.require("TcpClient.lua")
 
+-- common includes. must override Lua's require and take care of dependencies by hand
+-- because of Löve's integration.
+-- (since these are used by the pure Lua server also, we can't put Löve's require in them)
+
+require = function() end
+
+love.filesystem.require("common/Supervisor.lua")
+
+-- shortcut
 local LG = love.graphics
+
+
+--[[ THE REAL THING ]]
 
 function load()
 	
@@ -32,6 +46,8 @@ function load()
 	Spiderman = TcpClient("localhost",6666,0)
 	if not Spiderman.socket then
 		cons:print("Impossible to connect to server")
+	else
+		cons:print("Connected to server ".. Spiderman.ip .. ":" .. Spiderman.port)
 	end
 	
 	Spiderman.cbrecv = function(line)
@@ -42,6 +58,12 @@ function load()
 	end
 	
 	Spiderman:send("HANDSHAKE Do you want to play a game?")
+	
+	-- supervisor
+	Cesar = Supervisor()
+	
+	love.filesystem.include("commands.lua")
+	
 	
 	-- graphics
 	love.graphics.setBackgroundColor(LG.newColor(255,255,255))
@@ -68,6 +90,7 @@ function keypressed(key)
 		love.system.exit()
 		
 	elseif key == love.key_f1 then
+		Spiderman:close()
 		load()
 		return
 	end

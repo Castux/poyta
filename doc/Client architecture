@@ -4,6 +4,7 @@ Client architecture
 Basic elements:
 
 - Tcp Client. Handles the connection to the server. Can send to it, and calls callbacks at reception and connection closing. It has no blocking call (timeout instead).
+- Supervisor. Analyses commands from server, and applies them.
 - Client manager. Same as in server but has no socket information, so they are referenced only by nickname.
 - Table. Same as in server, with an additional drawing method, and a coordinate to id converter. Also has a local zoom + position, for the displaying.
 - Event handler. Records user input (keyboard and mouse) and calls appropriate callbacks. These can either change local game status or send requests to the server.

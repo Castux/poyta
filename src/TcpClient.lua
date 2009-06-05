@@ -19,7 +19,7 @@ love.filesystem.require("common/class.lua")
 TcpClient = class()
 
 -- timeout is the timeout for the select function, called at each update
---	defaults to -1 (blocking call)
+--	defaults to -1 (blocking call). 0 is probably needed in a game.
 
 -- ip, port: well, ip and port or the distant host
 -- cbrecv, cbdisconnect: callback functions for a new message, and loss of connection
@@ -52,7 +52,7 @@ function TcpClient:connect(host,port)
 		return false
 	end
 	
-	self.ip, self.port = self.socket:getsockname()
+	self.ip, self.port = self.socket:getpeername()
 	self.socket:settimeout(self.timeout)
 	
 	return true

@@ -56,6 +56,7 @@ if not Denis then
 	return
 end
 
+dofile("commands.lua")
 
 --[[Callbacks for the server]]
 
@@ -78,14 +79,20 @@ end
 
 Alfred.cbrecv = function(data,sock)
 
-	Denis:parsecommand(data,sock)
+	print(sock,data)
+		
+	local success,w = Denis:parsecommand(data,sock)
+	
+	if not success then
+		local err = "Command " .. w[1] .. " unknown"
+		print("", err)
+		Alfred:send("ERROR " .. err, sock)
+	end
 end
 
 Alfred.cbdisconnect = function(sock)
 	
-	local ip,port = sock:getpeername()
-	
-	print("Lost connection from " .. ip .. ":" .. port)
+	print("Lost connection from " .. Oscar.clients[sock].nick)
 	io.write("\t")
 	Oscar:printclient(sock)
 	
