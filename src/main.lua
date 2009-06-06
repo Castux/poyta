@@ -86,7 +86,7 @@ function load()
 	TcpClient:send("NICK Alfredo")
 	TcpClient:send("HANDSHAKE Do you want to play a game?")
 	
-	
+	TcpClient:send("ENTITY")
 	
 	-- graphics
 	love.graphics.setBackgroundColor(LG.newColor(255,255,255))
@@ -98,10 +98,10 @@ end
 function update(dt)
 	
 	-- check network input
-	TcpClient:update()
+	TcpClient:update(dt)
 	
 	-- update stuff
-	Table:update()
+	Table:update(dt)
 end
 
 function draw()
@@ -125,4 +125,14 @@ function keypressed(key)
 	
 	-- forward to console
 	Console:input(key)
+end
+
+function mousepressed(x,y,button)
+
+	Table:mousepressed(x,y,button)
+end
+
+function mousereleased(x,y,button)
+
+	Table:mousereleased(x,y,button)
 end

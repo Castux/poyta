@@ -53,11 +53,20 @@ love.filesystem.require("common/Entity.lua")
 
 function Entity:draw()
 	
+	if not self.visible then return end
+	
 	LG.setColor(LG.newColor(100,100,100))
 	
-	local p = {-50,-50,50,-50,50,50,-50,50}
-	polygon(p,self.x,self.y,self.a,self.s,self.s2)
+	local x,y = Table:game2screen(self.x,self.y)
+	local s2
+	if self.s2 then
+		s2 = self.s2 * Table.zoom
+	else
+		s2 = nil
+	end
 	
+	local p = {-50,-50,50,-50,50,50,-50,50}
+	polygon(p,x,y,self.a,self.s*Table.zoom,s2)
 	
 end
 
