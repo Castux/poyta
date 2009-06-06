@@ -285,6 +285,7 @@ ENTITY = function(w,sock)
 	print("", FMT("%s created entity %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
+	TcpServer:broadcast(FMT("ENTITY %s %d %d %d %d", cli.nick, id, e.x, e.y, e.a))
 end,
 
 MOVE = function(w,sock)
@@ -298,6 +299,7 @@ MOVE = function(w,sock)
 	print("", FMT("%s moved entity %d to (%d,%d)", cli.nick, id, e.x, e.y))
 	
 	-- WARN USERS
+	TcpServer:broadcast(FMT("MOVE %s %d %d %d", cli.nick, id, e.x, e.y))
 end,
 
 ROTATE = function(w,sock)
@@ -311,6 +313,7 @@ ROTATE = function(w,sock)
 	print("", FMT("%s rotated entity %d to %d", cli.nick, id, e.a))
 	
 	-- WARN USERS
+	TcpServer:broadcast(FMT("ROTATE %s %d %d", cli.nick, id, e.a))
 end,
 
 SCALE = function(w,sock)
@@ -323,11 +326,12 @@ SCALE = function(w,sock)
 	
 	if e.s2 then
 		print("", FMT("%s scaled entity %d to (%d,%d)", cli.nick, id, e.s, e.s2))
+		TcpServer:broadcast(FMT("SCALE %s %d %d %d", cli.nick, id, e.s, e.s2))
 	else
 		print("", FMT("%s scaled entity %d to %d", cli.nick, id, e.s))
+		TcpServer:broadcast(FMT("SCALE %s %d %d", cli.nick, id, e.s))
 	end
 	
-	-- WARN USERS
 end,
 
 DELETE = function(w,sock)
@@ -341,6 +345,7 @@ DELETE = function(w,sock)
 	print("", FMT("%s removed entity %d", cli.nick, id))
 	
 	-- WARN USERS
+	TcpServer:broadcast(FMT("DELETE %s %d", cli.nick, id))
 end,
 
 

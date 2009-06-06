@@ -95,3 +95,9 @@ PONG time	(time is the server time at reception of the PING. This is sent only t
 
 b. Manipulation of game entities
 --------------------------------
+
+ENTITY nick id x y a
+MOVE nick id x y
+ROTATE nick id a	
+SCALE nick id s1 [s2]
+DELETE nick id
