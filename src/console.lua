@@ -13,9 +13,6 @@
 -- You should have received a copy of the  GNU General Public License  along
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
--- make handy shortcut
-local LG = love.graphics
-
 love.filesystem.require("common/class.lua")
 
 
@@ -51,6 +48,8 @@ end
 function Console:draw(x,y)
 	local x,y = x or 1, y or 1
 	
+	LG.setColor(LG.newColor(0,0,150))
+	LG.setLineWidth(1)
 	-- frame
 	
 	LG.rectangle(love.draw_line, x, y, self.w*self.size*0.6 + 4 , self.h*self.size + 4)

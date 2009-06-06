@@ -29,9 +29,9 @@ require = function() end
 love.filesystem.require("common/Supervisor.lua")
 love.filesystem.require("Entity.lua")
 
--- shortcut
-local LG = love.graphics
-
+-- shortcuts
+LG = love.graphics
+FMT = string.format
 
 --[[ THE REAL THING ]]
 
@@ -46,9 +46,7 @@ function load()
 	Console.callback = function(self,line)
 		TcpClient:send(line)
 	end
-	
-	LG.setColor(LG.newColor(0,0,150))
-	
+		
 	-- network
 	TcpClient = TcpClient("localhost",6666,0)
 	if not TcpClient.socket then
@@ -86,7 +84,7 @@ function load()
 	TcpClient:send("NICK Alfredo")
 	TcpClient:send("HANDSHAKE Do you want to play a game?")
 	
-	TcpClient:send("ENTITY")
+	TcpClient:send("ENTITY 10 40 20")
 	
 	-- graphics
 	love.graphics.setBackgroundColor(LG.newColor(255,255,255))
@@ -102,6 +100,8 @@ function update(dt)
 	
 	-- update stuff
 	Table:update(dt)
+	
+
 end
 
 function draw()

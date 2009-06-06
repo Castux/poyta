@@ -15,9 +15,6 @@
 
 love.filesystem.require("common/class.lua")
 
-local LG = love.graphics
-
-
 ClientManager = class()
 
 -- A ClientManager has the following public member:
@@ -91,6 +88,9 @@ function ClientManager:printclient(nick)
 end
 
 function ClientManager:draw(x,y)
+	
+	LG.setColor(LG.newColor(100,0,150))
+	LG.setLineWidth(1)
 	
 	local i = 1
 	for k,v in pairs(self.nicks) do

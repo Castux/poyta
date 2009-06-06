@@ -14,8 +14,7 @@
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
 -- make handy shortcut
-local LG = love.graphics
-local function polygon(p,x,y,r,sx,sy)
+local function polygon(p,x,y,r,sx,sy,self)
 
 	local q = {}
 	local N = #p/2
@@ -43,7 +42,18 @@ local function polygon(p,x,y,r,sx,sy)
 		q[2*i] = v2
 	end
 	
+	LG.setColor(LG.newColor(100,100,100))
 	LG.polygon(love.draw_fill,q)
+	
+	if self == Table.hot then
+		LG.setColor(LG.newColor(255,0,0))
+		LG.setLineWidth(4)
+	else
+		LG.setColor(LG.newColor(0,0,0))
+		LG.setLineWidth(1)
+	end
+	LG.polygon(love.draw_line,q)
+	
 end
 
 
@@ -51,6 +61,10 @@ end
 
 love.filesystem.require("common/Entity.lua")
 
+
+-- draws a rectangle of the size of the entity
+-- usefull for the generic dummy entity
+-- or as a debug draw for others
 function Entity:draw()
 	
 	if not self.visible then return end
@@ -65,10 +79,69 @@ function Entity:draw()
 		s2 = nil
 	end
 	
-	local p = {-50,-50,50,-50,50,50,-50,50}
-	polygon(p,x,y,self.a,self.s*Table.zoom,s2)
+	local w,h = self:getsize()
+	w,h = w/2, h/2
+	local p = {-w,-h,w,-h,w,h,-w,h}
+	polygon(p,x,y,self.a,self.s*Table.zoom,s2,self)
 	
+	-- draw dragging ghost
+	if self.dragged then
+		polygon(p,love.mouse.getX()-self.dragx,
+			love.mouse.getY()-self.dragy,self.a,self.s*Table.zoom,s2,self)
+	end
+end
+
+-- on this generic entity, it's dummy
+-- will be overloaded by others
+function Entity:getsize()
+	return 100,100
+end
+
+-- tells if the game coordinates x,y are inside the rectangle
+function Entity:isinside(x,y)
+	local w,h = self:getsize()
+	local r = math.rad(-self.a)
+	local sx,sy = self.s, self.s2 or self.s
+	
+	-- put the point in the shape's referential
+	local x,y = x - self.x, y - self.y
+	
+	-- in rotation too
+	local x2 = x * math.cos(r) - y * math.sin(r)
+	local y2 = x * math.sin(r) + y * math.cos(r)
+	
+	-- checking insideness of a rectangle is quite easy, now
+	return x2 <= w/2*sx and x2 >= -w/2*sx and y2 <= h/2*sy and y2 >= -h/2*sy
 end
 
 
+-- mousepressed/released are called for all entities
+-- x,y are in screen space
+
+function Entity:mousepressed(x,y,button)
+
+	-- Left click: start dragging if we're hot
+	if button == love.mouse_left and Table.hot == self then
+		local cx,cy = Table:game2screen(self.x,self.y)
+		self.dragged = true
+		self.dragx = x - cx
+		self.dragy = y - cy
+	end
+end
+
+function Entity:mousereleased(x,y,button)
+
+	-- if we were dragging, stop and ask server to move entity
+	if button == love.mouse_left and self.dragged then
+		self.dragged = false
+		
+		local x,y = Table:screen2game(x,y)
+		TcpClient:send(FMT("MOVE %d %d %d", self.id, x-self.dragx, y-self.dragy))
+	end
+end
+
+function Entity:update(dt)
+
+	
+end
 

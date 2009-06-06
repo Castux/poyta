@@ -310,10 +310,10 @@ ROTATE = function(w,sock)
 	-- rotate it
 	e:set(nil,nil,tonumber(w[3]))
 	
-	print("", FMT("%s rotated entity %d to %d", cli.nick, id, e.a))
+	print("", FMT("%s rotated entity %d to %f", cli.nick, id, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(FMT("ROTATE %s %d %d", cli.nick, id, e.a))
+	TcpServer:broadcast(FMT("ROTATE %s %d %f", cli.nick, id, e.a))
 end,
 
 SCALE = function(w,sock)
@@ -325,11 +325,11 @@ SCALE = function(w,sock)
 	e:scale(tonumber(w[3]), tonumber(w[4]))
 	
 	if e.s2 then
-		print("", FMT("%s scaled entity %d to (%d,%d)", cli.nick, id, e.s, e.s2))
-		TcpServer:broadcast(FMT("SCALE %s %d %d %d", cli.nick, id, e.s, e.s2))
+		print("", FMT("%s scaled entity %d to (%f,%f)", cli.nick, id, e.s, e.s2))
+		TcpServer:broadcast(FMT("SCALE %s %d %f %f", cli.nick, id, e.s, e.s2))
 	else
-		print("", FMT("%s scaled entity %d to %d", cli.nick, id, e.s))
-		TcpServer:broadcast(FMT("SCALE %s %d %d", cli.nick, id, e.s))
+		print("", FMT("%s scaled entity %d to %f", cli.nick, id, e.s))
+		TcpServer:broadcast(FMT("SCALE %s %d %f", cli.nick, id, e.s))
 	end
 	
 end,

@@ -13,8 +13,6 @@
 -- You should have received a copy of the  GNU General Public License  along
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
-local LG = love.graphics
-
 love.filesystem.require("common/class.lua")
 
 Table = class()
@@ -35,6 +33,10 @@ function Table:init()
 	self.dragx = nil
 	self.dragy = nil
 	
+	self.hot = nil	-- points to the current hot (under mouse) entity, if any
+	
+	self.sprite = LG.newImage("background.png")
+	
 	return self
 end
 
@@ -47,6 +49,9 @@ function Table:add(id,e)
 	end
 	
 	self.ids[id] = e
+
+	-- also give the entity its id, for easier conversion
+	e.id = id
 
 	return self
 end
@@ -81,6 +86,10 @@ end
 
 function Table:draw()
 	
+	-- background
+	--local x,y = self:game2screen(0,0)
+	--LG.draw(self.sprite,x,y,0,self.zoom)
+	
 	-- simply draw the things in order
 	for id,e in self:pairs() do
 		e:draw()
@@ -108,19 +117,25 @@ end
 
 function Table:mousepressed(x,y,button)
 	
-	-- later, we will check if it's not an entity that is dragged, first
+	-- first forward event to entities
+	for id,e in self:pairs() do
+		e:mousepressed(x,y,button)
+	end
+
+	-- Left click
+	if button == love.mouse_left then
+		-- if no hot entity, start dragging the table
+		if not self.hot then	
+			self.dragged = true
+			self.dragx = x
+			self.dragy = y
+		end
 	
-	-- drag the table
-	if button == 1 then
-		self.dragged = true
-		self.dragx = x
-		self.dragy = y
-		
-	-- zoom the table around the mouse	
-	elseif button == 4 then
+	-- Wheel up and down: zoom the table around the mouse	
+	elseif button == love.mouse_wheelup then
 		self.zoomtarget = self.zoomtarget + 0.1
 
-	elseif button == 5 then
+	elseif button == love.mouse_wheeldown then
 		if self.zoomtarget > 0.2 then 
 			self.zoomtarget = self.zoomtarget - 0.1
 		end
@@ -129,28 +144,57 @@ end
 
 function Table:mousereleased(x,y,button)
 
-	if button == 1 then
+	-- forward to entities first
+	for id,e in self:pairs() do
+		e:mousereleased(x,y,button)
+	end
+	
+	-- if we were dragging the table, stop
+	if button == 1 and self.dragged then
 		self.dragged = false
 	end
 end
 
 function Table:update(dt)
 	
+	-- update entities
+	for id,e in self:pairs() do
+		e:update(dt)
+	end
+	
 	-- the smooth zoom
-	local dzoom = (self.zoomtarget - self.zoom)*5*dt
+	local zoomdiff = self.zoomtarget - self.zoom
+	local dzoom = zoomdiff*5*dt
+	if dzoom > math.abs(zoomdiff) then 	-- avoid passing over the target and jumping around it
+		dzoom = zoomdiff
+	end
 	self:incrzoom(dzoom)
 	
-	-- dragging the table
+	-- checking hotness of entities
+	local x,y = self:screen2game(love.mouse.getX(),love.mouse.getY())
+	self.hot = nil
+	for id,e in self:pairs() do
+		if e:isinside(x,y) then
+			self.hot = e		-- this will keep only the top one hot
+		end
+	end
 	
+	-- dragging the table
 	if self.dragged then
 		local x,y = love.mouse.getX(), love.mouse.getY()
-		self.x = self.x - (x - self.dragx)/self.zoom
-		self.y = self.y - (y - self.dragy)/self.zoom
+		
+		local shiftx = (x - self.dragx)/self.zoom
+		local shifty = (y - self.dragy)/self.zoom
+	
+		self.x = self.x - shiftx
+		self.y = self.y - shifty
 		
 		self.dragx = x
 		self.dragy = y		
 	end
+	
 
+	
 end
 
 -- this makes the zooming occur around the mouse
