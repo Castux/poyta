@@ -2,10 +2,28 @@ require "Entity"
 
 local FMT = string.format
 
+-- to be used by every command that tries to manipulate an entity
+-- checks if an id is valid, and if not, warns the original user
+local fetch_entity = function(str,sock)
+	local cli = ClientManager.clients[sock]
+	local id = tonumber(str)
+	local e = Table.ids[id]
+	
+	if not e then
+		local err = "Entity " .. id .. " does not exist"
+		print("",err)
+		TcpServer:send("ERROR " .. err, sock)
+		return
+	end
+	
+	return id,e,cli
+end
+
 -- Modify the supervisor to check clearance before executing a function
 
 Supervisor.clearances = {
 
+	-- basic user management
 	HANDSHAKE = -1,
 	NICK = -1,
 	COLOR = -1,
@@ -18,9 +36,12 @@ Supervisor.clearances = {
 	PROMOTE = 2,
 	KICK = 3,
 
+	-- entity manipulation
 	ENTITY = 2,
 	MOVE = 2,
 	ROTATE = 2,
+	SCALE = 2,
+	DELETE = 2,
 
 }
 
@@ -267,18 +288,9 @@ ENTITY = function(w,sock)
 end,
 
 MOVE = function(w,sock)
-	local cli = ClientManager.clients[sock]
 	
-	-- fetch entity
-	local id = tonumber(w[2])
-	local e = Table.ids[id]
-	
-	if not e then
-		local err = "Entity " .. id .. " does not exist"
-		print("",err)
-		TcpServer:send("ERROR " .. err, sock)
-		return
-	end
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end
 	
 	-- move it
 	e:set(tonumber(w[3]), tonumber(w[4]))
@@ -289,18 +301,9 @@ MOVE = function(w,sock)
 end,
 
 ROTATE = function(w,sock)
-	local cli = ClientManager.clients[sock]
 	
-	-- fetch entity
-	local id = tonumber(w[2])
-	local e = Table.ids[id]
-	
-	if not e then
-		local err = "Entity " .. id .. " does not exist"
-		print("",err)
-		TcpServer:send("ERROR " .. err, sock)
-		return
-	end
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end
 
 	-- rotate it
 	e:set(nil,nil,tonumber(w[3]))
@@ -308,6 +311,39 @@ ROTATE = function(w,sock)
 	print("", FMT("%s rotated entity %d to %d", cli.nick, id, e.a))
 	
 	-- WARN USERS
-end
+end,
+
+SCALE = function(w,sock)
+	
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end	
+
+	-- scale it
+	e:scale(tonumber(w[3]), tonumber(w[4]))
+	
+	if e.s2 then
+		print("", FMT("%s scaled entity %d to (%d,%d)", cli.nick, id, e.s, e.s2))
+	else
+		print("", FMT("%s scaled entity %d to %d", cli.nick, id, e.s))
+	end
+	
+	-- WARN USERS
+end,
+
+DELETE = function(w,sock)
+	
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end
+
+	-- delete it
+	Table:remove(id)
+	
+	print("", FMT("%s removed entity %d", cli.nick, id))
+	
+	-- WARN USERS
+end,
+
+
+
 }
 
