@@ -21,6 +21,7 @@ package.path = package.path .. ";../common/?.lua"
 require "TcpServer"
 require "ClientManager"
 require "Supervisor"
+require "Table"
 
 --[[ Initialization ]]
 

@@ -35,6 +35,7 @@ local LG = love.graphics
 
 function load()
 	
+
 	-- all singleton classes reuse the class name
 	--	MyClass = MyClass(init params)
 	
@@ -107,11 +108,9 @@ function keypressed(key)
 
 	if key == love.key_escape then
 		love.system.exit()
-		
+	
 	elseif key == love.key_f1 then
-		TcpClient:close()
-		load()
-		return
+		love.system.restart()
 	end
 	
 	-- forward to console
