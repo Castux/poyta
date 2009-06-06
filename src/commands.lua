@@ -1,6 +1,22 @@
 local FMT = string.format
 
+-- a shortcut function to get id and entity
+function fetch_entity(str)
+	local id = tonumber(str)
+	local e = Table.ids[id]
+	if not e then
+		Console:print("[Warning] Entity " .. str .. " does not exist. We are not in sync with server...")
+		return
+	else
+		return id,e
+	end
+end
+
+
+
 Supervisor.commands = {
+
+--[[Users management]]
 
 CLIENT = function(w)
 	ClientManager:add(w[2], w[3], w[4], w[5], w[6])
@@ -63,6 +79,41 @@ end,
 KICK = function(w)
 	ClientManager.nicks[w[3]] = nil
 	Console:print(FMT("%s kicked %s",w[2],w[3]))
+end,
+
+--[[Basic entities manipulation]]
+
+ENTITY = function(w)
+	Table:add(tonumber(w[3]), Entity(tonumber(w[4]),tonumber(w[5]),tonumber(w[6])))
+	Console:print(FMT("%s added an entity",w[2]))
+end,
+
+MOVE = function(w)
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+
+	e:set(tonumber(w[4]),tonumber(w[5]))	
+end,
+
+ROTATE = function(w)
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+
+	e:set(nil,nil,tonumber(w[4]))	
+end,
+
+SCALE = function(w)
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+
+	e:scale(tonumber(w[4]),tonumber(w[5]))	
+end,
+
+DELETE = function(w)
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+
+	Table:remove(id)	
 end,
 
 }

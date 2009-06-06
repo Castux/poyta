@@ -18,6 +18,7 @@
 love.filesystem.require("Console.lua")
 love.filesystem.require("TcpClient.lua")
 love.filesystem.require("ClientManager.lua")
+love.filesystem.require("Table.lua")
 
 -- common includes. must override Lua's require and take care of dependencies by hand
 -- because of Löve's integration.
@@ -26,6 +27,7 @@ love.filesystem.require("ClientManager.lua")
 require = function() end
 
 love.filesystem.require("common/Supervisor.lua")
+love.filesystem.require("Entity.lua")
 
 -- shortcut
 local LG = love.graphics
@@ -62,6 +64,9 @@ function load()
 	-- clientmanager
 	ClientManager = ClientManager()
 	
+	-- table
+	Table = Table()
+	
 	-- pluging things together
 	TcpClient.cbrecv = function(line)
 		
@@ -94,10 +99,15 @@ function update(dt)
 	
 	-- check network input
 	TcpClient:update()
+	
+	-- update stuff
+	Table:update()
 end
 
 function draw()
-
+	
+	Table:draw()
+	
 	LG.draw(love.timer.getFPS(),600,20)
 	Console:draw()
 	ClientManager:draw(0,300)
