@@ -26,13 +26,13 @@ function Table:init()
 end
 
 -- adds to the table an entity already created
--- returns the entity index
+-- returns the entity index and the entity
 function Table:add(e)
 	
 	self.last = self.last + 1
 	self.ids[self.last] = e
 	
-	return self.last
+	return self.last, e
 end
 
 -- remove the entity number id

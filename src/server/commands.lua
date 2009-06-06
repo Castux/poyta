@@ -1,58 +1,117 @@
---[[Command associated functions]]
+require "Entity"
 
-Denis.commands = {
+local FMT = string.format
+
+-- Modify the supervisor to check clearance before executing a function
+
+Supervisor.clearances = {
+
+	HANDSHAKE = -1,
+	NICK = -1,
+	COLOR = -1,
+	QUIT = -1,
+	PING = -1,
+
+	SAY = 1,
+	TELL = 1,
+
+	PROMOTE = 2,
+	KICK = 3,
+
+	ENTITY = 2,
+	MOVE = 2,
+	ROTATE = 2,
+
+}
+
+function Supervisor:parsecommand(data,sock)
+
+	local w = self:split(data)
+	
+	-- don't treat empty commands
+	if w[1] == nil then
+		return
+	end
+	
+	local func = self.commands[w[1]]
+	
+	-- does command exist?
+	if not func then
+		local err = "Command " .. w[1] .. " unknown"
+		print("", err)
+		TcpServer:send("ERROR " .. err, sock)
+		return
+	end
+	
+	-- is user allowed to call it?
+	local cli = ClientManager.clients[sock]
+	if cli.clearance < self.clearances[w[1]] then
+		local err = cli.nick .. " is not allowed to use command " .. w[1]
+		print("", err)
+		TcpServer:send("ERROR " .. err, sock)
+		return
+	end
+	
+	-- if everything ok, call it
+	func(w, sock)
+end
+
+
+Supervisor.commands = {
+
+--[[Basic user management functions]]
 
 HANDSHAKE = function(w,sock)
-	local cli = Oscar.clients[sock]
+	local cli = ClientManager.clients[sock]
 
 	if w.orig == "HANDSHAKE Do you want to play a game?" and cli.clearance == -1 then
 				
 		print("", "Accepted handshake from", sock)
 		
 		-- promote to host if there is none, or to observer instead
-		if not Oscar:istherehost() then
-			Oscar:promote(cli,3)
+		if not ClientManager:istherehost() then
+			ClientManager:promote(cli,3)
 		else
-			Oscar:promote(cli,0)
+			ClientManager:promote(cli,0)
 		end
 		
 		-- SERV -> CLIENT stuff
 		
-		local str = string.format("CLIENT %s %d %d %d %d", cli.nick, cli.clearance,
+		local str = FMT("CLIENT %s %d %d %d %d", cli.nick, cli.clearance,
 			cli.color[1], cli.color[2], cli.color[3])
 
 			-- tell everyone but him
-		Alfred:broadcast(str, sock)
+		TcpServer:broadcast(str, sock)
 			-- tell him
-		Alfred:send(string.gsub(str, "CLIENT", "YOUARE"), sock)
+		TcpServer:send(string.gsub(str, "CLIENT", "YOUARE"), sock)
 		
 		-- and tell the new one about all the other people [later: gamestate too]
 		
-		for _,other in pairs(Oscar.clients) do
+		for _,other in pairs(ClientManager.clients) do
 			if other ~= cli then
-				local str = string.format("THEREIS %s %d %d %d %d", other.nick,
+				local str = FMT("THEREIS %s %d %d %d %d", other.nick,
 					 other.clearance, other.color[1], other.color[2], other.color[3])
-				Alfred:send(str,sock)
+				TcpServer:send(str,sock)
 			end
 		end
 	end
 end,
 
 NICK = function(w,sock)
-	local oldnick = Oscar.clients[sock].nick
-	local success = Oscar:changenick(sock,w[2])
+	local oldnick = ClientManager.clients[sock].nick
+	local success = ClientManager:changenick(sock,w[2])
 	
 	if success then
-		print("", oldnick .. " changed their nick to " .. Oscar.clients[sock].nick)
+		print("", oldnick .. " changed their nick to " .. ClientManager.clients[sock].nick)
 		-- server -> clients
-		if Oscar.clients[sock].clearance >= 0 then
-			Alfred:broadcast("NICK " .. oldnick .. " " .. Oscar.clients[sock].nick)
+		if ClientManager.clients[sock].clearance >= 0 then
+			TcpServer:broadcast("NICK " .. oldnick .. " " .. ClientManager.clients[sock].nick)
 		end
 	else
 		local err = "Nick " .. w[2] .. " is already in use"
 		print("", err)
 		-- server -> client
-		Alfred:send("ERROR " .. err, sock)
+		TcpServer:send("ERROR " .. err, sock)
 	end
 	
 end,
@@ -70,57 +129,41 @@ COLOR = function(w,sock)
 	if b < 0 then b = 0 end
 	
 	-- update
-	local color = Oscar.clients[sock].color
+	local color = ClientManager.clients[sock].color
 	color[1] = r
 	color[2] = g
 	color[3] = b
 	
-	print("", Oscar.clients[sock].nick .. " changed their color to " .. 
+	print("", ClientManager.clients[sock].nick .. " changed their color to " .. 
 		"(" .. r .. "," .. g .. "," .. b .. ")")
 		
 	-- SERV -> CLIENT stuff
 	
-	if Oscar.clients[sock].clearance >= 0 then
-		local str = string.format("COLOR %s %d %d %d", Oscar.clients[sock].nick, r, g, b)
-		Alfred:broadcast(str)
+	if ClientManager.clients[sock].clearance >= 0 then
+		local str = FMT("COLOR %s %d %d %d", ClientManager.clients[sock].nick, r, g, b)
+		TcpServer:broadcast(str)
 	end
 end,
 
 SAY = function(w,sock)
-	local cli = Oscar.clients[sock]
-	
-	if cli.clearance < 1 then
-		local err = cli.nick .. " is not allowed to speak"
-		print("", err)
-		
-		Alfred:send("ERROR " .. err, sock)
-		return
-	end
+	local cli = ClientManager.clients[sock]
 	
 	local message = string.gsub(w.orig, "^SAY%s*", "")
 	print("", cli.nick .. " says: " .. message)
 	
 	-- SERV -> CLIENT stuff
-	Alfred:broadcast("SAY " .. cli.nick .. " " .. message)
+	TcpServer:broadcast("SAY " .. cli.nick .. " " .. message)
 end,
 
 TELL = function(w,sock)
-	local cli = Oscar.clients[sock]
+	local cli = ClientManager.clients[sock]
 	
-	if cli.clearance < 1 then
-		local err = cli.nick .. " is not allowed to speak"
-		print("", err)
-		
-		Alfred:send("ERROR " .. err, sock)
-		return
-	end
-	
-	local target = Oscar.nicks[w[2]]
+	local target = ClientManager.nicks[w[2]]
 	if target == nil then
 		local err = w[2] .. ": no such nick"
 		print("", err)
 		
-		Alfred:send("ERROR " .. err, sock)
+		TcpServer:send("ERROR " .. err, sock)
 		return
 	end
 	
@@ -129,41 +172,39 @@ TELL = function(w,sock)
 	print("", cli.nick .. " tells " .. w[2] .. ": " .. message)
 	
 	-- SERV -> CLIENT stuff
-	local command = string.format("TELL %s %s", cli.nick, w[2])
+	local command = FMT("TELL %s %s", cli.nick, w[2])
 	
 		-- first the two concerned
-	Alfred:send(command .. " " .. message, sock)
-	Alfred:send(command .. " " .. message, target.socket)
+	TcpServer:send(command .. " " .. message, sock)
+	TcpServer:send(command .. " " .. message, target.socket)
 		-- then the others
-	Alfred:broadcast(command, sock, target.socket)
+	TcpServer:broadcast(command, sock, target.socket)
 end,
 
 QUIT = function(w,sock)
-	local nick = Oscar.clients[sock].nick
-	local clear = Oscar.clients[sock].clearance
+	local nick = ClientManager.clients[sock].nick
+	local clear = ClientManager.clients[sock].clearance
 	
 	print("", nick .. " left")
 	
-	Alfred:removeclient(sock)
-	Oscar:remove(sock)
+	TcpServer:removeclient(sock)
+	ClientManager:remove(sock)
 	
 	-- SERV -> CLIENT stuff
 	if clear >= 0 then
-		Alfred:broadcast("QUIT " .. nick)
+		TcpServer:broadcast("QUIT " .. nick)
 	end
 end,
 
 PROMOTE = function(w,sock)
-	local cli = Oscar.clients[sock]
-	local target = Oscar.nicks[w[2]]
+	local cli = ClientManager.clients[sock]
+	local target = ClientManager.nicks[w[2]]
 	local level = tonumber(w[3])
 	
 	local err = ""
 	
 	if level == nil then
 		err = "Malformed command"
-	elseif cli.clearance < 2 then
-		err = cli.nick .. " is not allowed to change clearance levels"
 	elseif target == nil then
 		err = w[2] .. ": no such nick"
 	elseif cli.clearance == 2 and (target.clearance == 3 or level == 3) then
@@ -171,52 +212,102 @@ PROMOTE = function(w,sock)
 	end
 	
 	if err ~= "" then
-		Alfred:send("ERROR " .. err,sock)
+		TcpServer:send("ERROR " .. err,sock)
 		return
 	end
 	
-	Oscar:promote(target,level,cli.nick)
+	ClientManager:promote(target,level,cli.nick)
 	
 	-- SERV -> CLIENT stuff done in :promote()
 
 end,
 
 KICK = function(w,sock)
-	local cli = Oscar.clients[sock]
-	local target = Oscar.nicks[w[2]]
+	local cli = ClientManager.clients[sock]
+	local target = ClientManager.nicks[w[2]]
 	
-	local err = ""
-	
-	if cli.clearance < 3 then
-		err = cli.nick .. " is not allowed to kick users"
-	elseif target == nil then
-		err = w[2] .. ": no such nick"
-	end
-
-	if err ~= "" then
-		Alfred:send("ERROR " .. err,sock)
+	if target == nil then
+		TcpServer:send("ERROR " ..  w[2] .. ": no such nick",sock)
 		return
 	end
-	
+
 	print("", cli.nick .. " kicked " .. w[2])
 	
 	-- SERV -> CLIENT stuff
-	Alfred:broadcast(string.format("KICK %s %s", cli.nick, w[2]))
+	TcpServer:broadcast(FMT("KICK %s %s", cli.nick, w[2]))
 	
 	-- cleaning
-	Alfred:removeclient(target.socket)
-	Oscar:remove(target.socket)
+	TcpServer:removeclient(target.socket)
+	ClientManager:remove(target.socket)
 end,
 
 PING = function(w,sock)
-	local cli = Oscar.clients[sock]
+	local cli = ClientManager.clients[sock]
 	local time = os.time()
 	
 	print("", "Received PING from " .. cli.nick .. " at " .. time)
 	
 	-- SERV -> CLIENT stuff
-	Alfred:send("PONG " .. time, sock)
-end
+	TcpServer:send("PONG " .. time, sock)
+end,
 
+
+
+--[[Entities management]]
+
+ENTITY = function(w,sock)
+	local cli = ClientManager.clients[sock]
+	
+	-- make entity and put it on the table
+	local id,e = Table:add( Entity(tonumber(w[2]),tonumber(w[3]),tonumber(w[4])) )	
+	
+	print("", FMT("%s created entity %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
+	
+	-- WARN USERS
+end,
+
+MOVE = function(w,sock)
+	local cli = ClientManager.clients[sock]
+	
+	-- fetch entity
+	local id = tonumber(w[2])
+	local e = Table.ids[id]
+	
+	if not e then
+		local err = "Entity " .. id .. " does not exist"
+		print("",err)
+		TcpServer:send("ERROR " .. err, sock)
+		return
+	end
+	
+	-- move it
+	e:set(tonumber(w[3]), tonumber(w[4]))
+	
+	print("", FMT("%s moved entity %d to (%d,%d)", cli.nick, id, e.x, e.y))
+	
+	-- WARN USERS
+end,
+
+ROTATE = function(w,sock)
+	local cli = ClientManager.clients[sock]
+	
+	-- fetch entity
+	local id = tonumber(w[2])
+	local e = Table.ids[id]
+	
+	if not e then
+		local err = "Entity " .. id .. " does not exist"
+		print("",err)
+		TcpServer:send("ERROR " .. err, sock)
+		return
+	end
+
+	-- rotate it
+	e:set(nil,nil,tonumber(w[3]))
+	
+	print("", FMT("%s rotated entity %d to %d", cli.nick, id, e.a))
+	
+	-- WARN USERS
+end
 }
 

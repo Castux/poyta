@@ -24,85 +24,88 @@ require "Supervisor"
 require "Table"
 
 --[[ Initialization ]]
+	-- (singleton classes reuse the name of the class)
 
-
--- Alfred the TcpServer
+-- TcpServer
 
 local port = 6666
 
-Alfred = TcpServer(port,1)
+TcpServer = TcpServer(port,1)
 
-if not Alfred then
+if not TcpServer then
 	print("Could not run server on port " .. port .. ". Exiting.")
 	return
 end
 
-print("Server up", Alfred.ip .. ":" .. Alfred.port)
+print("Server up", TcpServer.ip .. ":" .. TcpServer.port)
 
--- Oscar the ClientManager
+-- ClientManager
 
-Oscar = ClientManager()
+ClientManager = ClientManager()
 
-if not Oscar then
+if not ClientManager then
 	print("Could not build ClientManager. Exiting.")
 	return
 end
 
--- Denis the Supervisor
+-- Supervisor
 
-Denis = Supervisor()
+Supervisor = Supervisor()
 
-if not Denis then
+if not Supervisor then
 	print("Could not build Supervisor. Exiting.")
 	return
 end
 
 dofile("commands.lua")
 
+-- Table
+
+Table = Table()
+
+if not Table then
+	print("Could not build Table. Exiting.")
+	return
+end
+
+
 --[[Callbacks for the server]]
 
-Alfred.cbconnect = function(cli)
+TcpServer.cbconnect = function(cli)
 
 	if not cli then return end
 	
 	local ip,port = cli:getpeername()
 	
 	-- add it
-	local tmp = Oscar:add(cli)
+	local tmp = ClientManager:add(cli)
 	
 	-- tell about it
 	print("New connection from " .. ip .. ":" .. port)
 	io.write("\t")
-	Oscar:printclient(cli)
+	ClientManager:printclient(cli)
 	
 	-- no broadcast is done here. only at handshake
 end
 
-Alfred.cbrecv = function(data,sock)
+TcpServer.cbrecv = function(data,sock)
 
 	print(sock,data)
-		
-	local success,w = Denis:parsecommand(data,sock)
-	
-	if not success then
-		local err = "Command " .. w[1] .. " unknown"
-		print("", err)
-		Alfred:send("ERROR " .. err, sock)
-	end
+	Supervisor:parsecommand(data,sock)
 end
 
-Alfred.cbdisconnect = function(sock)
+TcpServer.cbdisconnect = function(sock)
 	
-	print("Lost connection from " .. Oscar.clients[sock].nick)
+	print("Lost connection from " .. ClientManager.clients[sock].nick)
 	io.write("\t")
-	Oscar:printclient(sock)
+	ClientManager:printclient(sock)
 	
 	--[[ SERV -> CLIENT ]]
 	
-	Alfred:broadcast("LOST " .. Oscar.clients[sock].nick)
+	TcpServer:broadcast("LOST " .. ClientManager.clients[sock].nick)
 	
 	-- and clean
-	Oscar:remove(sock)
+	ClientManager:remove(sock)
 end
 
 --[[Main loop]]
@@ -112,8 +115,8 @@ local quit = false
 while not quit do
 
 	-- blocking call to the server
-	Alfred:update()
+	TcpServer:update()
 	
 	-- check if some clients without handshake have expired
-	Oscar:checktimeouts()
+	ClientManager:checktimeouts()
 end

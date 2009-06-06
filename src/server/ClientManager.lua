@@ -77,12 +77,12 @@ end
 
 -- change the clearance level of a client, and broadcast about it
 -- by is an optional string that gives the nick of the origin of the request
--- defaults to <server>
+-- defaults to =server=
 
 function ClientManager:promote(cli,level,by)
 
 	local level = level
-	local by = by or "<server>"
+	local by = by or "=server="
 	local prev = cli.clearance
 	
 	if level < 0 then level = 0 end
@@ -94,7 +94,7 @@ function ClientManager:promote(cli,level,by)
 	-- SERV -> CLI
 	if prev >= 0 then
 		local str = string.format("PROMOTE %s %s %d", by, cli.nick, level)
-		Alfred:broadcast(str)
+		TcpServer:broadcast(str)
 	end
 end
 
@@ -158,7 +158,7 @@ function ClientManager:checktimeouts()
 			io.write("\t")
 			self:printclient(sock)
 			
-			Alfred:removeclient(sock)
+			TcpServer:removeclient(sock)
 			self:remove(sock)
 		end
 	end

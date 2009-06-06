@@ -34,7 +34,7 @@ function Entity:init(x,y,a)
 	
 	self:set(x,y,a)
 	self:scale(s,s2)
-	self:visibility(visible)
+	self:setvisible(visible)
 	
 	return self
 end
@@ -68,7 +68,7 @@ end
 
 -- if the boolean flag is given, sets visibility to it.
 -- return visibility in any case
-function Entity:visible(flag)
+function Entity:setvisible(flag)
 	if flag == true then
 		self.visible = true
 	elseif flag == false then
