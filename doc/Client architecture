@@ -7,7 +7,7 @@ Basic elements:
 - Supervisor. Analyses commands from server, and applies them.
 - Client manager. Same as in server but has no socket information, so they are referenced only by nickname.
 - Table. Same as in server, with an additional drawing method, and a coordinate to id converter. Also has a local zoom + position, for the displaying.
-- Event handler. Records user input (keyboard and mouse) and calls appropriate callbacks. These can either change local game status or send requests to the server.
+- Event handler. Records user input (keyboard and mouse) and calls appropriate callbacks. These can either change local game status or send requests to the server. It also takes care of tracking the hot elements (at global level, to allow drag and dropping between UI elements, for instance).
 - Drawer. Handles the loading of packs and the resolving of sprite name -> actual sprite. Has the graphical part to make it appear on screen, and the event handling that goes with it.
 
 The main loop is never blocked, since we need constant refreshing and input possibility.

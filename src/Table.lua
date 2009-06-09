@@ -34,7 +34,9 @@ function Table:init()
 	self.dragy = nil
 	
 	self.hot = nil	-- points to the current hot (under mouse) entity, if any
-	
+			-- this info is relayed to the EventHandler, which knows more
+			-- (all elements should use the EventHandler's hot)
+				
 	self.sprite = LG.newImage("background.png")
 	
 	return self
@@ -87,8 +89,8 @@ end
 function Table:draw()
 	
 	-- background
-	--local x,y = self:game2screen(0,0)
-	--LG.draw(self.sprite,x,y,0,self.zoom)
+	local x,y = self:game2screen(0,0)
+	LG.draw(self.sprite,x,y,0,self.zoom)
 	
 	-- simply draw the things in order
 	for id,e in self:pairs() do

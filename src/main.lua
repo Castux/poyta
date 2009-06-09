@@ -19,6 +19,7 @@ love.filesystem.require("Console.lua")
 love.filesystem.require("TcpClient.lua")
 love.filesystem.require("ClientManager.lua")
 love.filesystem.require("Table.lua")
+love.filesystem.require("EventHandler.lua")
 
 -- common includes. must override Lua's require and take care of dependencies by hand
 -- because of Löve's integration.
@@ -42,7 +43,7 @@ function load()
 	--	MyClass = MyClass(init params)
 	
 	-- console
-	Console = Console(80,24,"VeraMono.ttf",12)
+	Console = Console(80,10,"VeraMono.ttf",12)
 	Console.callback = function(self,line)
 		TcpClient:send(line)
 	end
@@ -65,7 +66,12 @@ function load()
 	-- table
 	Table = Table()
 	
-	-- pluging things together
+	-- event handler
+	EventHandler = EventHandler()
+	EventHandler:register(GlobalEvents)
+	EventHandler:register(Console)
+	
+	-- pluging things together: network callbacks
 	TcpClient.cbrecv = function(line)
 		
 		local success,w = Supervisor:parsecommand(line)
@@ -98,8 +104,11 @@ function update(dt)
 	-- check network input
 	TcpClient:update(dt)
 	
-	-- update stuff
+	-- update stuff on the table
 	Table:update(dt)
+	
+	-- take care of hotness
+	EventHandler:update(dt)
 	
 
 end
@@ -114,25 +123,4 @@ function draw()
 	
 end
 
-function keypressed(key)
 
-	if key == love.key_escape then
-		love.system.exit()
-	
-	elseif key == love.key_f1 then
-		love.system.restart()
-	end
-	
-	-- forward to console
-	Console:input(key)
-end
-
-function mousepressed(x,y,button)
-
-	Table:mousepressed(x,y,button)
-end
-
-function mousereleased(x,y,button)
-
-	Table:mousereleased(x,y,button)
-end

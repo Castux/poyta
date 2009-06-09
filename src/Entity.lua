@@ -45,7 +45,7 @@ local function polygon(p,x,y,r,sx,sy,self)
 	LG.setColor(LG.newColor(100,100,100))
 	LG.polygon(love.draw_fill,q)
 	
-	if self == Table.hot then
+	if self == EventHandler.hot then
 		LG.setColor(LG.newColor(255,0,0))
 		LG.setLineWidth(4)
 	else
@@ -121,7 +121,7 @@ end
 function Entity:mousepressed(x,y,button)
 
 	-- Left click: start dragging if we're hot
-	if button == love.mouse_left and Table.hot == self then
+	if button == love.mouse_left and EventHandler.hot == self then
 		local cx,cy = Table:game2screen(self.x,self.y)
 		self.dragged = true
 		self.dragx = x - cx

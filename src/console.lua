@@ -26,6 +26,10 @@ function Console:init(w,h,font,size,callback)
 		
 	self.font = LG.newFont(font or love.default_font, self.size)
 	
+	self.charwidth = self.font:getWidth(" ")
+	
+	self.x,self.y = 0,0	-- these are defined by draw() params, but we need them for isinside()
+	
 	-- display
 	self.lines = {}
 	self.current = 1
@@ -48,11 +52,18 @@ end
 function Console:draw(x,y)
 	local x,y = x or 1, y or 1
 	
-	LG.setColor(LG.newColor(0,0,150))
-	LG.setLineWidth(1)
-	-- frame
+	self.x, self.y = x,y
 	
-	LG.rectangle(love.draw_line, x, y, self.w*self.size*0.6 + 4 , self.h*self.size + 4)
+	
+	-- frame
+	LG.setColor(LG.newColor(0,0,150))
+	if self:isinside(love.mouse.getX(),love.mouse.getY()) then
+		LG.setLineWidth(3)
+	else
+		LG.setLineWidth(1)
+	end
+	
+	LG.rectangle(love.draw_line, x, y, self.w*self.charwidth + 4 , self.h*self.size + 4)
 	
 	LG.setFont(self.font)
 	
@@ -154,4 +165,22 @@ function Console:insert(char)
 		self.command = string.sub(self.command,1,self.cursor-2) .. string.sub(self.command,self.cursor)
 		self.cursor = self.cursor - 1
 	end
+end
+
+function Console:isinside(x,y)
+	
+	return x >= self.x and x <= self.x + self.w*self.charwidth + 4 and
+		y >= self.y and y <= self.y + self.h*self.size + 4
+end
+
+function Console:keypressed(key)
+	
+	-- intercept all key events if we're hot
+	if EventHandler.hot == self then
+		self:input(key)
+		return
+	end
+	
+	-- else forward them
+	return key
 end
