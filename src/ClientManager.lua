@@ -65,7 +65,8 @@ function ClientManager:changenick(oldnick,newnick)
 	
 	-- shouldn't happen
 	if self.nicks[newnick] ~= nil then
-		Console:print("[Warning] Changing old nick ".. oldnick .. " to existing nick: " .. newnick)
+		Console:print("[Warning] Changing old nick ".. oldnick
+			.. " to existing nick: " .. newnick)
 		ret = false
 	end
 		
@@ -75,7 +76,7 @@ function ClientManager:changenick(oldnick,newnick)
 	self.nicks[newnick] = cli
 	cli.nick = newnick
 	
-	return ret	
+	return ret
 end
 
 

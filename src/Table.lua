@@ -32,10 +32,6 @@ function Table:init()
 	self.dragged = false	-- dragging stuff
 	self.dragx = nil
 	self.dragy = nil
-	
-	self.hot = nil	-- points to the current hot (under mouse) entity, if any
-			-- this info is relayed to the EventHandler, which knows more
-			-- (all elements should use the EventHandler's hot)
 				
 	self.sprite = LG.newImage("background.png")
 	
@@ -118,7 +114,7 @@ end
 -- event handling
 
 function Table:mousepressed(x,y,button)
-	
+		
 	-- first forward event to entities
 	for id,e in self:pairs() do
 		e:mousepressed(x,y,button)
@@ -127,7 +123,7 @@ function Table:mousepressed(x,y,button)
 	-- Left click
 	if button == love.mouse_left then
 		-- if no hot entity, start dragging the table
-		if not self.hot then	
+		if not EventHandler.hot then	
 			self.dragged = true
 			self.dragx = x
 			self.dragy = y
@@ -142,6 +138,8 @@ function Table:mousepressed(x,y,button)
 			self.zoomtarget = self.zoomtarget - 0.1
 		end
 	end
+	
+	return nil	-- in any case, intercept the event
 end
 
 function Table:mousereleased(x,y,button)
@@ -152,9 +150,27 @@ function Table:mousereleased(x,y,button)
 	end
 	
 	-- if we were dragging the table, stop
-	if button == 1 and self.dragged then
+	if button == love.mouse_left and self.dragged then
 		self.dragged = false
 	end
+	
+	return nil	-- in any case, intercept the event
+end
+
+-- return (to EventHandler) the object in which the pointer is, if any
+function Table:isinside(x,y)
+
+	-- checking hotness of entities
+	local x,y = self:screen2game(x,y)
+	local hot = nil
+
+	for id,e in self:pairs() do
+		if e:isinside(x,y) then
+			hot = e		-- this will keep only the top one hot
+		end
+	end
+	
+	return hot
 end
 
 function Table:update(dt)
@@ -172,14 +188,6 @@ function Table:update(dt)
 	end
 	self:incrzoom(dzoom)
 	
-	-- checking hotness of entities
-	local x,y = self:screen2game(love.mouse.getX(),love.mouse.getY())
-	self.hot = nil
-	for id,e in self:pairs() do
-		if e:isinside(x,y) then
-			self.hot = e		-- this will keep only the top one hot
-		end
-	end
 	
 	-- dragging the table
 	if self.dragged then

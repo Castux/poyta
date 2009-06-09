@@ -30,7 +30,7 @@ EventHandler = class()
 -- Löve callbacks. They can return they arguments modified or not, that will be forwarded, or nil
 -- to intercept the event.
 
--- it also keeps track of the hot element, by sending the registered object the message ishot()
+-- it also keeps track of the hot element, by sending the registered object the message isinside()
 -- which should return either nil or a pointer to an object.
 
 function EventHandler:init()
@@ -56,13 +56,14 @@ function EventHandler:update(dt)
 	local x,y = love.mouse.getX(),love.mouse.getY()
 	self.hot = nil
 	
-		--first the console
-	if Console:isinside(x,y) then
-		self.hot = Console
-		
-		--then the hot entity on the table, if any
-	elseif Table.hot then
-		self.hot = Table.hot
+	for i,v in ipairs(self.reg) do
+		-- check if they have the method
+		if v.isinside then
+			-- call the method if they do have it
+			self.hot = v:isinside(x,y)
+		end
+		-- break if they have/are a hot element
+		if self.hot then break end
 	end
 
 end
@@ -72,11 +73,11 @@ function EventHandler:treatevent(e)
 
 	if e[1] == "kdown" then
 		func = "keypressed"
-	elseif e[2] == "kup" then
+	elseif e[1] == "kup" then
 		func = "keyreleased"
-	elseif e[2] == "mdown" then
+	elseif e[1] == "mdown" then
 		func = "mousepressed"
-	elseif e[2] == "mup" then
+	elseif e[1] == "mup" then
 		func = "mousereleased"
 	end
 	
@@ -85,7 +86,7 @@ function EventHandler:treatevent(e)
 	for i,v in ipairs(self.reg) do
 		local e = e
 		if v.treatevent then
-			e = v.treatevent(e)
+			e = v:treatevent(e)
 		elseif v[func] then
 			e[2],e[3],e[4] = v[func](v,e[2],e[3],e[4])	-- calls v:func(...)
 		end
@@ -93,26 +94,6 @@ function EventHandler:treatevent(e)
 		if not e or not e[2] then break end
 	end
 	
-end
-
--- a table of totally priority events
-
-GlobalEvents = {}
-function GlobalEvents:keypressed(key)
-	
-	-- intercept these events
-	
-	if key == love.key_escape then
-		love.system.exit()
-		return
-	elseif key == love.key_f1 then
-		love.system.restart()
-		return
-	end
-	
-	-- forward the others
-	
-	return key
 end
 
 -- plugging things with Löve's callbacks

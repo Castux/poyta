@@ -43,7 +43,7 @@ function load()
 	--	MyClass = MyClass(init params)
 	
 	-- console
-	Console = Console(80,10,"VeraMono.ttf",12)
+	Console = Console(4,4,80,10,"VeraMono.ttf",12)
 	Console.callback = function(self,line)
 		TcpClient:send(line)
 	end
@@ -70,6 +70,7 @@ function load()
 	EventHandler = EventHandler()
 	EventHandler:register(GlobalEvents)
 	EventHandler:register(Console)
+	EventHandler:register(Table)
 	
 	-- pluging things together: network callbacks
 	TcpClient.cbrecv = function(line)
@@ -124,3 +125,22 @@ function draw()
 end
 
 
+-- a table of priority events
+
+GlobalEvents = {}
+function GlobalEvents:keypressed(key)
+	
+	-- intercept these events
+	
+	if key == love.key_escape then
+		love.system.exit()
+		return
+	elseif key == love.key_f1 then
+		love.system.restart()
+		return
+	end
+	
+	-- forward the others
+	
+	return key
+end

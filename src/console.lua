@@ -18,8 +18,10 @@ love.filesystem.require("common/class.lua")
 
 Console = class()
 
-function Console:init(w,h,font,size,callback)
+function Console:init(x,y,w,h,font,size,callback)
 	
+	self.x = x or 0
+	self.y = y or 0
 	self.w = w or 80
 	self.h = h or 24
 	self.size = size or 12
@@ -28,8 +30,7 @@ function Console:init(w,h,font,size,callback)
 	
 	self.charwidth = self.font:getWidth(" ")
 	
-	self.x,self.y = 0,0	-- these are defined by draw() params, but we need them for isinside()
-	
+
 	-- display
 	self.lines = {}
 	self.current = 1
@@ -49,15 +50,12 @@ function Console:init(w,h,font,size,callback)
 	return self
 end
 
-function Console:draw(x,y)
-	local x,y = x or 1, y or 1
-	
-	self.x, self.y = x,y
-	
+function Console:draw()
+	local x,y = self.x, self.y
 	
 	-- frame
 	LG.setColor(LG.newColor(0,0,150))
-	if self:isinside(love.mouse.getX(),love.mouse.getY()) then
+	if EventHandler.hot == self then
 		LG.setLineWidth(3)
 	else
 		LG.setLineWidth(1)
@@ -167,11 +165,20 @@ function Console:insert(char)
 	end
 end
 
+-- answer to EventHandler by returning self if x,y is in the console
+
 function Console:isinside(x,y)
 	
-	return x >= self.x and x <= self.x + self.w*self.charwidth + 4 and
+	if x >= self.x and x <= self.x + self.w*self.charwidth + 4 and
 		y >= self.y and y <= self.y + self.h*self.size + 4
+	then
+		return self
+	else
+		return nil
+	end
 end
+
+-- Event management methods
 
 function Console:keypressed(key)
 	
