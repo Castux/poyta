@@ -54,6 +54,21 @@ local function polygon(p,x,y,r,sx,sy,self)
 	end
 	LG.polygon(love.draw_line,q)
 	
+	-- corners hovering
+	local x,y = love.mouse.getX(),love.mouse.getY()
+	local x2,y2 = Table:screen2game(x,y)
+	
+	local cx,cy = self:isnearcorner(x2,y2,10)
+	if cx and cy then
+		cx,cy = Table:game2screen(cx,cy)
+		LG.setColor(LG.newColor(255,0,0,100))
+		LG.circle(love.draw_fill,cx,cy,10)
+	end
+	
+end
+
+local function dist2(x,y,u,v)
+	return (x-u)^2 + (y-v)^2
 end
 
 
@@ -61,6 +76,38 @@ end
 
 love.filesystem.require("common/Entity.lua")
 
+-- compute position of corners in gamespace, return them as a list
+-- {x1,y1,x2,y2,...}
+function Entity:corners()
+	
+	local w,h = self:getsize()
+	w,h = w/2, h/2
+	local p = {-w,-h,w,-h,w,h,-w,h}
+	
+	local q = {}
+	local N = #p/2
+	
+	local cx = self.x
+	local cy = self.y
+	
+	local r = math.rad(self.a)
+	
+	local sx = self.s
+	local sy = self.y or sx
+	
+	for i = 1,N do
+		local u = (p[2*i-1] - cx) * sx
+		local v = (p[2*i] - cy) * sy
+		
+		local u2 = u * math.cos(r) - v * math.sin(r) + x
+		local v2 = u * math.sin(r) + v * math.cos(r) + y
+		
+		q[2*i-1] = u2
+		q[2*i] = v2
+	end
+	
+	return q
+end
 
 -- draws a rectangle of the size of the entity
 -- usefull for the generic dummy entity
@@ -71,19 +118,13 @@ function Entity:draw()
 	
 	LG.setColor(LG.newColor(100,100,100))
 	
-	local x,y = Table:game2screen(self.x,self.y)
-	local s2
-	if self.s2 then
-		s2 = self.s2 * Table.zoom
-	else
-		s2 = nil
+	local p = self:corners()	-- game space
+	local q = {}			-- screen space
+	
+	for i = 1,4 do
+		q[2*i-1],q[2*i] = Table:game2screen(p[2*i-1],p[2*i])
 	end
-	
-	local w,h = self:getsize()
-	w,h = w/2, h/2
-	local p = {-w,-h,w,-h,w,h,-w,h}
-	polygon(p,x,y,self.a,self.s*Table.zoom,s2,self)
-	
+	cd
 	-- draw dragging ghost
 	if self.dragged then
 		polygon(p,love.mouse.getX()-self.dragx,
@@ -114,6 +155,36 @@ function Entity:isinside(x,y)
 	return x2 <= w/2*sx and x2 >= -w/2*sx and y2 <= h/2*sy and y2 >= -h/2*sy
 end
 
+-- tell if given coords are at less than rad of a corner of the entity,
+-- and returns the coordinates in gamespace and the number (1 is top left, then clockwise)
+-- returns nil if no corner is nearby
+
+function Entity:isnearcorner(x,y,rad)
+	local w,h = self:getsize()
+	local r = math.rad(self.a)
+	local sx,sy = self.s, self.s2 or self.s
+	
+	-- put the point in the shape's referential
+	local x,y = x - self.x, y - self.y
+	
+	-- in rotation too
+	local x2 = x * math.cos(r) - y * math.sin(r)
+	local y2 = x * math.sin(r) + y * math.cos(r)
+	
+	-- check corners proximity
+	if dist2(x2,y2,-w/2,-h/2) < rad^2 then
+		return -w/2,-h/2, 1
+	elseif dist2(x2,y2,w/2,-h/2) < rad^2 then
+		return w/2,-h/2, 2
+	elseif dist2(x2,y2,w/2,h/2) < rad^2 then
+		return w/2,h/2, 3
+	elseif dist2(x2,y2,-w/2,h/2) < rad^2 then
+		return -w/2,h/2, 4
+	end
+	
+	-- if none, return nil
+	return nil
+end
 
 -- mousepressed/released are called for all entities
 -- x,y are in screen space
