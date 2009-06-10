@@ -14,32 +14,62 @@
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
 -- make handy shortcut
-local function polygon(p,x,y,r,sx,sy,self)
 
+local function dist2(x,y,u,v)
+	return (x-u)^2 + (y-v)^2
+end
+
+
+-- The entities on client side are the common ones, with added stuff for drawing, etc.
+
+love.filesystem.require("common/Entity.lua")
+
+-- compute position of corners in gamespace, return them as a list of 8 elements
+-- {x1,y1,x2,y2,...}
+-- takes optional argument a, which is added to the angle during computation
+
+function Entity:corners(a)
+	
+	local w,h = self:getsize()
+	w,h = w/2, h/2
+	local p = {-w,-h,w,-h,w,h,-w,h}
+	
 	local q = {}
 	local N = #p/2
 	
-	local cx = p.cx or 0
-	local cy = p.cy or 0
+	local cx = self.currx
+	local cy = self.curry
 	
-	x = x or 0
-	y = y or 0
+	local r = math.rad(self.curra + (a or 0))
 	
-	r = r or 0
-	r = r/180*math.pi
-	
-	sx = sx or 1
-	sy = sy or sx
+	local sx = self.s
+	local sy = self.s2 or sx
 	
 	for i = 1,N do
-		local u = (p[2*i-1] - cx) * sx
-		local v = (p[2*i] - cy) * sy
+		local u = p[2*i-1] * sx
+		local v = p[2*i] * sy
 		
-		local u2 = u * math.cos(r) - v * math.sin(r) + x
-		local v2 = u * math.sin(r) + v * math.cos(r) + y
+		local u2 = u * math.cos(r) - v * math.sin(r)
+		local v2 = u * math.sin(r) + v * math.cos(r)
 		
-		q[2*i-1] = u2
-		q[2*i] = v2
+		q[2*i-1] = u2 + cx
+		q[2*i] = v2 + cy
+	end
+	
+	return q
+end
+
+-- draws a rectangle of the size of the entity
+-- usefull for the generic dummy entity
+-- or as a debug draw for others
+function Entity:draw()
+	
+	if not self.visible then return end
+
+	local q = {}			-- screen space
+	
+	for i = 1,4 do
+		q[2*i-1],q[2*i] = Table:game2screen(self.poly[2*i-1], self.poly[2*i])
 	end
 	
 	LG.setColor(LG.newColor(100,100,100))
@@ -54,85 +84,49 @@ local function polygon(p,x,y,r,sx,sy,self)
 	end
 	LG.polygon(love.draw_line,q)
 	
-	-- corners hovering
-	local x,y = love.mouse.getX(),love.mouse.getY()
-	local x2,y2 = Table:screen2game(x,y)
-	
-	local cx,cy = self:isnearcorner(x2,y2,10)
-	if cx and cy then
-		cx,cy = Table:game2screen(cx,cy)
-		LG.setColor(LG.newColor(255,0,0,100))
-		LG.circle(love.draw_fill,cx,cy,10)
+	-- corner proximity
+	if not (self.dragged or self.rotated) then
+		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
+		x,y = self:isnearcorner(x,y,20*Table.zoom)
+		if x and y then
+			x,y = Table:game2screen(x,y)
+			
+			LG.setColor(LG.newColor(255,0,0,100))
+			LG.circle(love.draw_fill,x,y,20*Table.zoom)
+		end
 	end
 	
-end
-
-local function dist2(x,y,u,v)
-	return (x-u)^2 + (y-v)^2
-end
-
-
--- The entities on client side are the common ones, with added stuff for drawing, etc.
-
-love.filesystem.require("common/Entity.lua")
-
--- compute position of corners in gamespace, return them as a list
--- {x1,y1,x2,y2,...}
-function Entity:corners()
-	
-	local w,h = self:getsize()
-	w,h = w/2, h/2
-	local p = {-w,-h,w,-h,w,h,-w,h}
-	
-	local q = {}
-	local N = #p/2
-	
-	local cx = self.x
-	local cy = self.y
-	
-	local r = math.rad(self.a)
-	
-	local sx = self.s
-	local sy = self.y or sx
-	
-	for i = 1,N do
-		local u = (p[2*i-1] - cx) * sx
-		local v = (p[2*i] - cy) * sy
-		
-		local u2 = u * math.cos(r) - v * math.sin(r) + x
-		local v2 = u * math.sin(r) + v * math.cos(r) + y
-		
-		q[2*i-1] = u2
-		q[2*i] = v2
-	end
-	
-	return q
-end
-
--- draws a rectangle of the size of the entity
--- usefull for the generic dummy entity
--- or as a debug draw for others
-function Entity:draw()
-	
-	if not self.visible then return end
-	
-	LG.setColor(LG.newColor(100,100,100))
-	
-	local p = self:corners()	-- game space
-	local q = {}			-- screen space
-	
-	for i = 1,4 do
-		q[2*i-1],q[2*i] = Table:game2screen(p[2*i-1],p[2*i])
-	end
-	cd
 	-- draw dragging ghost
 	if self.dragged then
-		polygon(p,love.mouse.getX()-self.dragx,
-			love.mouse.getY()-self.dragy,self.a,self.s*Table.zoom,s2,self)
+		local x,y = Table:game2screen(self.x,self.y)
+		for i = 1,4 do
+			q[2*i-1] = q[2*i-1] + love.mouse.getX() - x - self.dragx 
+			q[2*i] = q[2*i] + love.mouse.getY() - y - self.dragy
+		end
+		
+		LG.setColor(LG.newColor(100,100,100,100))
+		LG.polygon(love.draw_fill,q)
 	end
+	
+	-- or rotating ghost
+	if self.rotated then
+		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
+		local ang = math.deg(math.atan2(y-self.y,x-self.x)) - self.rotang
+		
+		local p = self:corners(ang)	-- get the corners, with added angle equal to what we dragged
+		
+		for i = 1,4 do
+			p[2*i-1],p[2*i] = Table:game2screen(p[2*i-1], p[2*i])
+		end
+		
+		LG.setColor(LG.newColor(100,255,100,100))
+		LG.polygon(love.draw_fill,p)
+		
+		
+	end	
 end
 
--- on this generic entity, it's dummy
+-- on this generic entity, it's fixed
 -- will be overloaded by others
 function Entity:getsize()
 	return 100,100
@@ -141,11 +135,11 @@ end
 -- tells if the game coordinates x,y are inside the rectangle
 function Entity:isinside(x,y)
 	local w,h = self:getsize()
-	local r = math.rad(-self.a)
+	local r = math.rad(-self.curra)
 	local sx,sy = self.s, self.s2 or self.s
 	
 	-- put the point in the shape's referential
-	local x,y = x - self.x, y - self.y
+	local x,y = x - self.currx, y - self.curry
 	
 	-- in rotation too
 	local x2 = x * math.cos(r) - y * math.sin(r)
@@ -160,28 +154,13 @@ end
 -- returns nil if no corner is nearby
 
 function Entity:isnearcorner(x,y,rad)
-	local w,h = self:getsize()
-	local r = math.rad(self.a)
-	local sx,sy = self.s, self.s2 or self.s
 	
-	-- put the point in the shape's referential
-	local x,y = x - self.x, y - self.y
-	
-	-- in rotation too
-	local x2 = x * math.cos(r) - y * math.sin(r)
-	local y2 = x * math.sin(r) + y * math.cos(r)
-	
-	-- check corners proximity
-	if dist2(x2,y2,-w/2,-h/2) < rad^2 then
-		return -w/2,-h/2, 1
-	elseif dist2(x2,y2,w/2,-h/2) < rad^2 then
-		return w/2,-h/2, 2
-	elseif dist2(x2,y2,w/2,h/2) < rad^2 then
-		return w/2,h/2, 3
-	elseif dist2(x2,y2,-w/2,h/2) < rad^2 then
-		return -w/2,h/2, 4
+	for i = 1,4 do
+		if dist2(x,y,self.poly[2*i-1],self.poly[2*i]) < rad^2 then
+			return self.poly[2*i-1],self.poly[2*i],i
+		end
 	end
-	
+
 	-- if none, return nil
 	return nil
 end
@@ -190,13 +169,24 @@ end
 -- x,y are in screen space
 
 function Entity:mousepressed(x,y,button)
-
-	-- Left click: start dragging if we're hot
+	
+	
+	-- Left click: start dragging if we're hot, or rotating if near corner
 	if button == love.mouse_left and EventHandler.hot == self then
-		local cx,cy = Table:game2screen(self.x,self.y)
-		self.dragged = true
-		self.dragx = x - cx
-		self.dragy = y - cy
+		local gx,gy = Table:screen2game(x,y)
+		local cox,coy = self:isnearcorner(gx,gy,20*Table.zoom)
+		
+		if cox and coy then	-- rotate
+			self.rotated = true
+			self.rotang = math.deg(math.atan2(gy - self.y, gx - self.x))
+			
+		else			-- drag
+			local cx,cy = Table:game2screen(self.x,self.y)
+			self.dragged = true
+			self.dragx = x - cx
+			self.dragy = y - cy
+		end
+		
 	end
 end
 
@@ -206,13 +196,59 @@ function Entity:mousereleased(x,y,button)
 	if button == love.mouse_left and self.dragged then
 		self.dragged = false
 		
-		local x,y = Table:screen2game(x,y)
-		TcpClient:send(FMT("MOVE %d %d %d", self.id, x-self.dragx, y-self.dragy))
+		local x,y = Table:screen2game(x-self.dragx,y-self.dragy)
+		TcpClient:send(FMT("MOVE %d %d %d", self.id, x, y))
+	
+	elseif button == love.mouse_left and self.rotated then
+		self.rotated = false
+		
+		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
+		local ang = math.deg(math.atan2(y-self.y,x-self.x)) - self.rotang + self.a
+		
+		TcpClient:send(FMT("ROTATE %d %f", self.id, ang % 360))
 	end
 end
 
 function Entity:update(dt)
 
+	-- the smooth movement thing
+		-- initialize for the first try
+	if not self.currx then self.currx = self.x end
+	if not self.curry then self.curry = self.y end
+	
+	local speed = 10
+	
+		-- make self.curr* closer to self.*
+	local diffx = self.x - self.currx
+	local dx = diffx * speed * dt
+	if math.abs(dx) > math.abs(diffx) then
+		dx = diffx	-- avoid passing over the target and jumping around it
+	end
+	self.currx = self.currx + dx
+	
+	local diffy = self.y - self.curry
+	local dy = diffy * speed * dt
+	if math.abs(dy) > math.abs(diffy) then
+		dy = diffy	-- avoid passing over the target and jumping around it
+	end
+	self.curry = self.curry + dy
+	
+	-- smooth rotation
+		-- initialize for the first try
+	if not self.curra then self.curra = self.a end
+	
+	local speed = 6
+	
+	local diffa = (self.a - self.curra)%360 - 180	-- take shortest path
+
+	local da = diffa * speed * dt
+	if math.abs(da) > math.abs(diffa) then
+		da = diffa	-- avoid passing over the target and jumping around it
+	end
+	self.curra = self.curra + da
+	
+	-- update the corners data
+	self.poly = self:corners()
 	
 end
 
