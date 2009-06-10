@@ -82,7 +82,8 @@ end
 function Console:input(key)
 	local key = key
 	
-	-- ascii character
+	-- ascii character 
+	-- WAITING FOR LÖVE 0.6 AND A PROPER TEXT INPUT
 	if key <= 126 and key >= 32 then
 		local shift = love.keyboard.isDown(love.key_lshift) or love.keyboard.isDown(love.key_rshift)
 
@@ -91,9 +92,10 @@ function Console:input(key)
 			key = key - (97-65)
 		end
 		
-		if #self.command < self.w then
-			self:insert(string.char(key))
-		end
+		self:insert(string.char(key))
+	
+	elseif key >= love.key_kp0 and key <= love.key_kp9 then
+		self:insert(string.char(key - love.key_kp0 + love.key_0))
 	
 	-- special commands
 	elseif key == love.key_backspace then	-- remove last
@@ -156,7 +158,7 @@ end
 -- insert a character at cursor, or backspace is char is nil
 function Console:insert(char)
 	
-	if char then
+	if char and #self.command < self.w then
 		self.command = string.sub(self.command,1,self.cursor-1) .. char .. string.sub(self.command,self.cursor)
 		self.cursor = self.cursor + 1
 	elseif self.cursor > 1 then	-- can't backspace if at beginning

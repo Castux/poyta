@@ -49,7 +49,7 @@ function load()
 	end
 		
 	-- network
-	TcpClient = TcpClient("192.168.0.5",6666,0)
+	TcpClient = TcpClient("localhost",6666,0)
 	if not TcpClient.socket then
 		Console:print("Impossible to connect to server")
 	else

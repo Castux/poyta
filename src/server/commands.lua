@@ -9,6 +9,13 @@ local fetch_entity = function(str,sock)
 	local id = tonumber(str)
 	local e = Table.ids[id]
 	
+	if not id then
+		local err = "Malformed command, entity missing"
+		print("",err)
+		TcpServer:send("ERROR " .. err, sock)
+		return
+	end
+	
 	if not e then
 		local err = "Entity " .. id .. " does not exist"
 		print("",err)
