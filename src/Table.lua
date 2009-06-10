@@ -183,7 +183,7 @@ function Table:update(dt)
 	-- the smooth zoom
 	local zoomdiff = self.zoomtarget - self.zoom
 	local dzoom = zoomdiff*5*dt
-	if dzoom > math.abs(zoomdiff) then 	-- avoid passing over the target and jumping around it
+	if math.abs(dzoom) > math.abs(zoomdiff) then 	-- avoid passing over the target and jumping around it
 		dzoom = zoomdiff
 	end
 	self:incrzoom(dzoom)

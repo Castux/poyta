@@ -49,7 +49,7 @@ function load()
 	end
 		
 	-- network
-	TcpClient = TcpClient("localhost",6666,0)
+	TcpClient = TcpClient("192.168.0.5",6666,0)
 	if not TcpClient.socket then
 		Console:print("Impossible to connect to server")
 	else
@@ -91,7 +91,7 @@ function load()
 	TcpClient:send("NICK Alfredo")
 	TcpClient:send("HANDSHAKE Do you want to play a game?")
 	
-	TcpClient:send("ENTITY 10 40 20")
+	TcpClient:send("ENTITY 10 40 10")
 	
 	-- graphics
 	love.graphics.setBackgroundColor(LG.newColor(255,255,255))
