@@ -1,6 +1,11 @@
 Pöytä design doc
 ================
 
+Summary
+-------
+
+pöytä is a networked board game system that pretends to be almost "universal" in the sense that it does not implement individual games, but instead provide users the possibility to use the images they want as assets, and the most common mechanisms found in board games (movable elements, cards, dice, etc.)
+
 I. Motivation
 -------------
 
