@@ -83,8 +83,9 @@ function EventHandler:treatevent(e)
 	
 	if not func then return end
 	
+	local e = e
 	for i,v in ipairs(self.reg) do
-		local e = e
+		
 		if v.treatevent then
 			e = v:treatevent(e)
 		elseif v[func] then

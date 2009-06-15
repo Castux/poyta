@@ -20,6 +20,7 @@ love.filesystem.require("TcpClient.lua")
 love.filesystem.require("ClientManager.lua")
 love.filesystem.require("Table.lua")
 love.filesystem.require("EventHandler.lua")
+love.filesystem.require("Drawer.lua")
 
 -- common includes. must override Lua's require and take care of dependencies by hand
 -- because of Löve's integration.
@@ -33,6 +34,7 @@ love.filesystem.require("Entity.lua")
 -- shortcuts
 LG = love.graphics
 FMT = string.format
+LF = love.filesystem
 
 --[[ THE REAL THING ]]
 
@@ -65,11 +67,15 @@ function load()
 	
 	-- table
 	Table = Table()
-	
+
+	-- drawer
+	Drawer = Drawer()
+
 	-- event handler
 	EventHandler = EventHandler()
 	EventHandler:register(GlobalEvents)
 	EventHandler:register(Console)
+	EventHandler:register(Drawer)
 	EventHandler:register(Table)
 	
 	-- pluging things together: network callbacks
@@ -94,10 +100,9 @@ function load()
 	TcpClient:send("ENTITY 10 40 10")
 	
 	-- graphics
-	love.graphics.setBackgroundColor(LG.newColor(255,255,255))
+	love.graphics.setBackgroundColor(LG.newColor(10,255,10))
 
-
-	
+	-- love.system.exit()
 end
 
 function update(dt)
@@ -121,9 +126,8 @@ function draw()
 	LG.draw(love.timer.getFPS(),600,20)
 	Console:draw()
 	ClientManager:draw(0,300)
-	
+	Drawer:draw()
 end
-
 
 -- a table of priority events
 

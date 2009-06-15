@@ -17,7 +17,7 @@ Why bother with rulesets? Real board games rely on the player to follow the rule
 
 I propose a system that allows players to play any board game they like, by implementing - instead of multiple games along with their rules and mechanisms - a table simulator.
 
-Board games are most of the time cardboard setting on which the players move little objects. Many games involve throwing dices, drawing cards, sometimes counting time. Some elements can have two faces, revealed by flipping them. But all in all, most games are cover by very few mechanisms.
+Board games are most of the time cardboard setting on which the players move little objects. Many games involve throwing dices, drawing cards, sometimes counting time. Some elements can have two faces, revealed by flipping them. But all in all, most games are covered by very few mechanisms.
 
 Implementing these features in a networked application would allow people to play basically every game that doesn't use physical laws or special mechanical devices. Thus making it "universal" (handle term with care).
 
