@@ -100,7 +100,7 @@ HANDSHAKE = function(w,sock)
 		if not ClientManager:istherehost() then
 			ClientManager:promote(cli,3)
 		else
-			ClientManager:promote(cli,0)
+			ClientManager:promote(cli,2)
 		end
 		
 		-- SERV -> CLIENT stuff
