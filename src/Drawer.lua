@@ -35,7 +35,7 @@ function Drawer:init(w)
 	self.lineh = 20		-- height of the lines in packs list view
 	self.imgh = 100		-- size of the squares in pack view
 	
-	self.view = nil		-- nil when seeing the list of packs, a pack when seeing this pack
+	self.view = nil		-- nil when seeing the list of packs, a pack name when seeing this pack
 	self.items = {}		-- table holding the elements of the current pack as DrawerItems
 	
 	self.font = LG.newFont(love.default_font, self.lineh)
@@ -56,8 +56,8 @@ function Drawer:init(w)
 		end
 	end
 	
-	--TEMP
-	self.view = "basic"
+	-- create the items in the view for the first time
+	-- (then it's updated each time the drawer is resized)
 	self:makepackview()
 	
 	return self
@@ -114,24 +114,8 @@ function Drawer:draw()
 	-- contents (only if unfolded...)
 	if self.folded then return end
 	
-	LG.setFont(self.font)
-
-	if not self.view then
-		local i = 1
-		for k,v in pairs(self.packs) do
-			if hot == i then
-				LG.setColor(LG.newColor(200,0,0))
-			else
-				LG.setColor(LG.newColor(0,0,0))
-			end
-			
-			LG.draw(k,self.x + 10,i*self.lineh)
-			i = i + 1
-		end
-	else
-		for i,v in ipairs(self.items) do
-			v:draw()
-		end
+	for i,v in ipairs(self.items) do
+		v:draw()
 	end
 end
 
@@ -159,26 +143,44 @@ end
 function Drawer:makepackview()
 	
 	local p = self.packs[self.view]
-	if not p then return end
 	
 	-- clean it up first
 	self.items = {}
 	
-	-- how many wide?
-	local nw = math.floor(self.w / self.imgh)
-	
-	local i = 0
-	for k,v in pairs(p) do
-		local x = i%nw * self.imgh + self.imgh/2 + self.x + self.dragw
-		local y = math.floor(i/nw) * self.imgh + self.imgh/2
-		local tmp = DrawerItem(x,y,k,v)
-		table.insert(self.items,tmp)
+	-- in pack view
+	if p then
+		-- make title first
+		table.insert(self.items,DrawerTextItem(self.x + self.dragw, self.lineh, self.view) )
 		
-		i = i + 1
+		-- how many wide?
+		local nw = math.floor( (self.w - self.dragw) / self.imgh)
+	
+		local i = 0
+		for k,v in pairs(p) do
+			local x = i%nw * self.imgh + self.imgh/2 + self.x + self.dragw
+			local y = math.floor(i/nw) * self.imgh + self.imgh/2 + self.lineh
+			local tmp = DrawerItem(x,y,k,v)
+			table.insert(self.items,tmp)
+		
+			i = i + 1
+		end
+		
+	-- in pack list view
+	else
+		local i = 1
+		for k,v in pairs(self.packs) do
+			table.insert(self.items, DrawerTextItem(self.x + self.dragw, i*self.lineh, k) )
+			i = i + 1
+		end
 	end
 end
 
 function Drawer:mousepressed(x,y,button)
+	
+	-- forward to items first
+	for i,v in ipairs(self.items) do
+		v:mousepressed(x,y,button)	
+	end
 	
 	-- unfold if necessary
 	if button == love.mouse_left and self:isinsidedrag(x) and self.folded then
@@ -250,4 +252,11 @@ function Drawer:update(dt)
 		self.w = LG.getWidth() - self.x
 		self:makepackview()
 	end
+end
+
+-- changes the view to pack of name "p", or the pack list if nil
+function Drawer:changeview(p)
+
+	self.view = p
+	self:makepackview()
 end

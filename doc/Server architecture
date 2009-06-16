@@ -71,7 +71,7 @@ Upon connecting, a user gets special clearance -1 (connecting) and has to handsh
 
 HANDSHAKE Do you want to play a game?
 
-When done, the user gets clearance level 0 (observer. If there are no hosts yet, user get level 3) and is revealed to the other users. If a user doesn't handshake before a given time, the server can drop him.
+When done, the user gets clearance level 2 (hand. If there are no hosts yet, user get level 3) and is revealed to the other users. If a user doesn't handshake before a given time, the server can drop him.
 
 Commands NICK and COLOR can be sent before the HANDSHAKE so that the client will appear directly to the others with appropriate settings.
 
