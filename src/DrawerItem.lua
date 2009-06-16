@@ -38,13 +38,13 @@ function DrawerItem:draw()
 		LG.setColor(LG.newColor(0,0,255,100))
 	end
 	
-	LG.draw(self.sprite, self.x, self.y, 0, zoom)
+	LG.draw(self.sprite, self.x, self.y - Drawer.camy, 0, zoom)
 	LG.setColorMode(love.color_normal)	
 end
 
 
 function DrawerItem:isinside(x,y)
-	if math.abs(self.x - x) <= Drawer.imgh/2 and math.abs(self.y - y) <= Drawer.imgh/2 then
+	if math.abs(self.x - x) <= Drawer.imgh/2 and math.abs(self.y - Drawer.camy - y) <= Drawer.imgh/2 then
 		return self
 	end
 end
@@ -74,12 +74,12 @@ function DrawerTextItem:draw()
 	end
 	
 	LG.setFont(Drawer.font)
-	LG.draw(self.name, self.x, self.y)
+	LG.draw(self.name, self.x, self.y - Drawer.camy)
 end
 
 
 function DrawerTextItem:isinside(x,y)
-	if x >= self.x and y <= self.y and y >= self.y - Drawer.lineh then
+	if x >= self.x and y <= self.y - Drawer.camy and y >= self.y - Drawer.camy - Drawer.lineh then
 		return self
 	end
 end

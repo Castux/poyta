@@ -85,7 +85,7 @@ function Entity:draw()
 	LG.polygon(love.draw_line,q)
 	
 	-- corner proximity
-	if not (self.dragged or self.rotated) then
+	if not (self.dragged or self.rotated) and EventHandler.hot == self then
 		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
 		x,y = self:isnearcorner(x,y,20*Table.zoom)
 		if x and y then

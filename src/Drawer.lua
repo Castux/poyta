@@ -30,23 +30,28 @@ function Drawer:init(w)
 	
 	self.packs = {}
 	self.pdir = "packs"
-	self.w = 320
-	self.x = LG.getWidth() - self.w
+	self.w = 320		-- width
+	self.x = LG.getWidth() - self.w	-- left border
+	
 	self.lineh = 20		-- height of the lines in packs list view
 	self.imgh = 100		-- size of the squares in pack view
 	
 	self.view = nil		-- nil when seeing the list of packs, a pack name when seeing this pack
 	self.items = {}		-- table holding the elements of the current pack as DrawerItems
-	
-	self.font = LG.newFont(love.default_font, self.lineh)
-	
-	self.dragw = 15		-- width of the band left of the drawer where you can drag it
+		
+	self.dragw = 16		-- width of the band left of the drawer where you can drag it
 	
 	self.dragged = false	-- drag stuff
-	self.dragx = nil
+	self.dragx = nil	-- click position when started dragging
 	
-	self.folded = false		-- folding stuff
-	self.oldw = nil
+	self.folded = false	-- folding stuff
+	self.oldw = nil		-- width before folding
+	
+	self.scrolling = false	-- do we need a scroll bar?
+	self.totalh = 0		-- summed height of all items
+	self.hratio = 0		-- totalh / getHeight()
+	self.camy = 0		-- camera shift (value of the top pixel in the drawer's variable view)
+	self.scrolled = false	-- is the user actually scrolling the view now?
 	
 	-- scanning the packs folder (expected to be in the "save directory")
 	local ls = LF.enumerate(self.pdir)
@@ -56,8 +61,12 @@ function Drawer:init(w)
 		end
 	end
 	
+	-- load some data
+	self.defaultsprite = LG.newImage("default.png")
+	self.font = LG.newFont(love.default_font, self.lineh)
+	
 	-- create the items in the view for the first time
-	-- (then it's updated each time the drawer is resized)
+	-- (then it's updated each time the drawer is resized or the view is changed)
 	self:makepackview()
 	
 	return self
@@ -117,17 +126,44 @@ function Drawer:draw()
 	for i,v in ipairs(self.items) do
 		v:draw()
 	end
+	
+	-- scrolling bar
+	-- we map 0..totalh to 0..getHeight()
+	-- and window size is camy..camy+getHeight()
+	local margin = 3
+	
+	if self.scrolling then
+		-- bar
+		LG.setColor(LG.newColor(255,255,255))
+		LG.rectangle(love.draw_fill, LG.getWidth() - self.dragw, 0, self.dragw, LG.getHeight())
+		
+		-- indicator
+		LG.setColor(LG.newColor(100,100,100))
+		
+		LG.rectangle(love.draw_fill, 
+			LG.getWidth() - self.dragw + margin, self.camy * self.hratio + margin, 
+			self.dragw - 2*margin, LG.getHeight() * self.hratio - 2*margin)
+	end
 end
 
 -- needed by EventHandler. returns the hot object
 function Drawer:isinside(x,y)
 	
 	if x >= self.x then
+	
+		-- check drag bar
+		if x >= LG.getWidth() - self.dragw then
+			return self
+		end
+		
+		-- check items
 		for i,v in ipairs(self.items) do
 			if v:isinside(x,y) then
 				return v
 			end
 		end
+		
+		-- all is left is the drawer it self
 		return self
 	end
 end
@@ -137,6 +173,11 @@ end
 function Drawer:isinsidedrag(x)
 	local mx = x or love.mouse.getX()
 	return mx <= self.x + self.dragw and mx >= self.x
+end
+
+function Drawer:isinsidescroll(x)
+	local mx = x or love.mouse.getX()
+	return mx >= LG.getWidth() - self.dragw and self.scrolling
 end
 
 -- fills the self.items table with DrawerItems placed correctly in the drawer
@@ -165,6 +206,8 @@ function Drawer:makepackview()
 			i = i + 1
 		end
 		
+		self.totalh = self.lineh + math.ceil( i/nw ) * self.imgh
+		
 	-- in pack list view
 	else
 		local i = 1
@@ -172,6 +215,21 @@ function Drawer:makepackview()
 			table.insert(self.items, DrawerTextItem(self.x + self.dragw, i*self.lineh, k) )
 			i = i + 1
 		end
+		
+		self.totalh = (i-1)*self.lineh
+	end
+	
+	-- update scroll view
+	local oldratio = self.hratio
+	local oldy = self.camy + LG.getHeight()/2	-- middle of the view
+	oldy = oldy * self.hratio			-- converted to "scrollbar space"
+	
+	self.hratio = LG.getHeight() / self.totalh
+	self.scrolling = self.hratio < 1
+	if self.scrolling and oldratio < 1 then
+		self:scroll(oldy)
+	else
+		self.camy = 0
 	end
 end
 
@@ -195,6 +253,12 @@ function Drawer:mousepressed(x,y,button)
 		self.clicky = y
 				
 		return
+	
+	-- scroll the view
+	elseif button == love.mouse_left and self:isinsidescroll(x) then
+		self.scrolled = true
+		self:scroll(y)
+	
 	end
 	
 	-- forward if we're not interested
@@ -214,6 +278,9 @@ function Drawer:mousereleased(x,y,button)
 		if x == self.clickx and y == self.clicky then
 			self:switchfold()
 		end
+	elseif button == love.mouse_left and self.scrolled then
+		-- stop scrolling
+		self.scrolled = false
 	end
 	
 	-- forward
@@ -244,13 +311,17 @@ function Drawer:update(dt)
 	if self.dragged then
 		self.x = love.mouse.getX() - self.dragx
 		
-		-- avoid losing the handle by having a maximum value for self.x
-		if self.x > LG.getWidth() - self.dragw then
-			self.x = LG.getWidth() - self.dragw
+		-- avoid having empty drawer by having a maximum value for self.x
+		if self.x > LG.getWidth() - self.imgh - self.dragw then
+			self.x = LG.getWidth() - self.imgh - self.dragw
 		end
 		
 		self.w = LG.getWidth() - self.x
 		self:makepackview()
+	
+	-- and scrolling
+	elseif self.scrolled then
+		self:scroll(love.mouse.getY())
 	end
 end
 
@@ -259,4 +330,39 @@ function Drawer:changeview(p)
 
 	self.view = p
 	self:makepackview()
+end
+
+-- changes scroll value, where y is in pixel
+function Drawer:scroll(y)
+	
+	-- consider the click point the middle of the target zone
+	local y = y / self.hratio
+	
+	y = y - LG.getHeight()/2
+	
+	-- clip
+	if y < 0 then 
+		y = 0
+	elseif y + LG.getHeight() > self.totalh then
+		y = self.totalh - LG.getHeight()
+	end
+	
+	self.camy = y
+end
+
+-- returns the Image associated with the string "pack/filename",
+-- or the default "not found" sprite.
+function Drawer:resolvename(s)
+	
+	local _,_,pack,name = string.find(s, "(.+)/(.+)")
+	
+	local p = self.packs[pack]
+	if not p then return end
+	
+	local i = p[name]
+	if not i then
+		i = self.defaultsprite
+	end
+	
+	return i
 end
