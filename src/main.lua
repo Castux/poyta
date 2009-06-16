@@ -74,8 +74,8 @@ function load()
 	-- event handler
 	EventHandler = EventHandler()
 	EventHandler:register(GlobalEvents)
-	EventHandler:register(Console)
 	EventHandler:register(Drawer)
+	EventHandler:register(Console)
 	EventHandler:register(Table)
 	
 	-- pluging things together: network callbacks
@@ -115,6 +115,9 @@ function update(dt)
 	
 	-- take care of hotness
 	EventHandler:update(dt)
+	
+	-- drawer can haz update too
+	Drawer:update(dt)
 	
 
 end

@@ -14,7 +14,7 @@
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
 love.filesystem.require("common/class.lua")
-
+love.filesystem.require("DrawerItem.lua")
 
 Drawer = class()
 
@@ -27,13 +27,20 @@ function Drawer:init(w)
 	
 	self.packs = {}
 	self.pdir = "packs"
-	self.w = w or 100
+	self.w = 320
+	self.x = LG.getWidth() - self.w
 	self.lineh = 20		-- height of the lines in packs list view
 	self.imgh = 100		-- size of the squares in pack view
 	
 	self.view = nil		-- nil when seeing the list of packs, a pack when seeing this pack
+	self.items = {}		-- table holding the elements of the current pack as DrawerItems
 	
 	self.font = LG.newFont(love.default_font, self.lineh)
+	
+	self.dragw = 10		-- width of the band left of the drawer where you can drag it
+	
+	self.dragged = false	-- drag stuff
+	self.dragx = nil
 	
 	-- scanning the packs folder (expected to be in the "save directory")
 	local ls = LF.enumerate(self.pdir)
@@ -42,6 +49,10 @@ function Drawer:init(w)
 			self:loadpack(v)
 		end
 	end
+	
+	--TEMP
+	self.view = "basic"
+	self:makepackview()
 	
 	return self
 end
@@ -79,21 +90,21 @@ end
 
 function Drawer:draw()
 	
-	local x = LG.getWidth() - self.w
-	local hot
+	local hot = math.floor(love.mouse.getY()/self.lineh) + 1
 	
-	if EventHandler.hot == self then
+	-- background
+	LG.setColor(LG.newColor(255,255,255,100))	
+	LG.rectangle(love.draw_fill,self.x,0,self.w,LG.getHeight())
+	
+	-- dragging handle
+	if self:isinsidedrag() then
 		LG.setColor(LG.newColor(255,255,255,200))
-		hot = math.floor(love.mouse.getY()/self.lineh) + 1
-	else
-		LG.setColor(LG.newColor(255,255,255,100))
+		LG.rectangle(love.draw_fill,self.x,0,self.dragw,LG.getHeight())
 	end
 	
-	LG.rectangle(love.draw_fill,x,0,self.w,LG.getHeight())
-	
+	-- contents
 	LG.setFont(self.font)
 
-	self.view = "basic"
 	if not self.view then
 		local i = 1
 		for k,v in pairs(self.packs) do
@@ -103,29 +114,76 @@ function Drawer:draw()
 				LG.setColor(LG.newColor(0,0,0))
 			end
 			
-			LG.draw(k,x + 10,i*self.lineh)
+			LG.draw(k,self.x + 10,i*self.lineh)
 			i = i + 1
 		end
 	else
-		local i = 0
-		for k,v in pairs(self.packs[self.view]) do
-			local max = math.max(v:getHeight(), v:getWidth())
-			local zoom = 1
-			if max > self.imgh then
-				zoom = self.imgh/max
-			end
-			LG.draw(v,x + self.w/2, i*self.imgh + self.imgh/2,zoom)
-			i = i + 1
+		for i,v in ipairs(self.items) do
+			v:draw()
 		end
-	
-	
-	
 	end
 end
 
 function Drawer:isinside(x,y)
 	
-	if x >= LG.getWidth() - self.w then
+	if x >= self.x then
+		for i,v in ipairs(self.items) do
+			if v:isinside(x,y) then
+				return v
+			end
+		end
 		return self
+	end
+end
+
+function Drawer:isinsidedrag(x)
+	local mx = x or love.mouse.getX()
+	return mx <= self.x + self.dragw and mx >= self.x
+end
+
+function Drawer:makepackview()
+	
+	local p = self.packs[self.view]
+	if not p then return end
+	
+	-- clean it up first
+	self.items = {}
+	
+	-- how many wide?
+	local nw = math.floor(self.w / self.imgh)
+	
+	local i = 0
+	for k,v in pairs(p) do
+		local x = i%nw * self.imgh + self.imgh/2 + self.x + self.dragw
+		local y = math.floor(i/nw) * self.imgh + self.imgh/2
+		local tmp = DrawerItem(x,y,k,v)
+		table.insert(self.items,tmp)
+		
+		i = i + 1
+	end
+end
+
+function Drawer:mousepressed(x,y,button)
+	
+	if button == love.mouse_left and self:isinsidedrag(x) then
+		self.dragged = true
+		self.dragx = x - self.x
+	end
+end
+
+function Drawer:mousereleased(x,y,button)
+
+	if button == love.mouse_left and self.dragged then
+		self.dragged = false
+		self.dragx = nil
+	end
+end
+
+function Drawer:update(dt)
+
+	if self.dragged then
+		self.x = love.mouse.getX() - self.dragx
+		self.w = LG.getWidth() - self.x
+		self:makepackview()
 	end
 end
