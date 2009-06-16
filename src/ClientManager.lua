@@ -91,7 +91,7 @@ end
 function ClientManager:draw(x,y)
 	
 	LG.setColor(LG.newColor(100,0,150))
-	LG.setLineWidth(1)
+	LG.setLineWidth(2)
 	
 	local i = 1
 	for k,v in pairs(self.nicks) do

@@ -30,7 +30,7 @@ function Drawer:init(w)
 	
 	self.packs = {}
 	self.pdir = "packs"
-	self.w = 320		-- width
+	self.w = 200		-- width
 	self.x = LG.getWidth() - self.w	-- left border
 	
 	self.lineh = 20		-- height of the lines in packs list view

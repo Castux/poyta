@@ -58,7 +58,7 @@ function Console:draw()
 	if EventHandler.hot == self then
 		LG.setLineWidth(3)
 	else
-		LG.setLineWidth(1)
+		LG.setLineWidth(2)
 	end
 	
 	LG.rectangle(love.draw_line, x, y, self.w*self.charwidth + 4 , self.h*self.size + 4)

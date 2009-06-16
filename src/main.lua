@@ -58,6 +58,9 @@ function load()
 		Console:print("Connected to server ".. TcpClient.ip .. ":" .. TcpClient.port)
 	end
 	
+	TcpClient:send("NICK Alfredo")
+	TcpClient:send("HANDSHAKE Do you want to play a game?")
+	
 	-- supervisor
 	Supervisor = Supervisor()
 	love.filesystem.include("commands.lua")
@@ -93,9 +96,6 @@ function load()
 		Console:print("Disconnected from server")
 	end
 	
-	-- tell the server about us
-	TcpClient:send("NICK Alfredo")
-	TcpClient:send("HANDSHAKE Do you want to play a game?")
 	
 	TcpClient:send("ENTITY 10 40 10")
 	
@@ -132,7 +132,7 @@ function draw()
 	Drawer:draw()
 end
 
--- a table of priority events
+-- a table of top priority events
 
 GlobalEvents = {}
 function GlobalEvents:keypressed(key)
@@ -147,7 +147,7 @@ function GlobalEvents:keypressed(key)
 		love.system.restart()
 		return
 		
-	-- convert page up/down into wheel up/down (for compatibility with crappy mouses)
+	-- convert page up/down into wheel up/down (for compatibility with crappy mice)
 	elseif key == love.key_pageup then
 		EventHandler:treatevent{"mdown",love.mouse.getX(),love.mouse.getY(),love.mouse_wheelup}
 		return

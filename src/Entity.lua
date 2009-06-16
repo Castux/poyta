@@ -239,8 +239,12 @@ function Entity:update(dt)
 	
 	local speed = 6
 	
-	local diffa = (self.a - self.curra)%360 - 180	-- take shortest path
-
+		-- take shortest path
+	local diffa = (self.a - self.curra)%360
+	if diffa > 180 then
+		diffa = diffa - 360
+	end
+	
 	local da = diffa * speed * dt
 	if math.abs(da) > math.abs(diffa) then
 		da = diffa	-- avoid passing over the target and jumping around it

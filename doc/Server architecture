@@ -135,6 +135,7 @@ LABEL x y a text [id]
 
 IMAGE x y a N sprite1 [sprite2 ...] [r g b]
 	Create a N-Image at (x,y,a) with strings sprite* as sprites, and optionnal color (r,g,b) as modulating color.
+	The in the strings sprite*, spaces are replaced by % and % by %% (we need space separated arguments)
 	
 COUNTER x y a [value]
 	Create a counter at (x,y,a) with value value (which defaults to 0).
