@@ -220,17 +220,10 @@ function Drawer:makepackview()
 	end
 	
 	-- update scroll view
-	local oldratio = self.hratio
-	local oldy = self.camy + LG.getHeight()/2	-- middle of the view
-	oldy = oldy * self.hratio			-- converted to "scrollbar space"
-	
 	self.hratio = LG.getHeight() / self.totalh
 	self.scrolling = self.hratio < 1
-	if self.scrolling and oldratio < 1 then
-		self:scroll(oldy)
-	else
-		self.camy = 0
-	end
+
+	self:scroll(self.camy)
 end
 
 function Drawer:mousepressed(x,y,button)
@@ -254,10 +247,18 @@ function Drawer:mousepressed(x,y,button)
 				
 		return
 	
-	-- scroll the view
+	-- scroll the view if holding a click in the scroll bar
 	elseif button == love.mouse_left and self:isinsidescroll(x) then
 		self.scrolled = true
-		self:scroll(y)
+		self:scroll(y/self.hratio - LG.getHeight()/2)	-- convert from scrollbar space to
+								-- view space, and make the click be
+								-- the middle of the new view
+	
+	-- scroll the view if using the wheel
+	elseif button == love.mouse_wheelup and self:isinside(x,y) then
+		self:scroll(self.camy - LG.getHeight()/2)
+	elseif button == love.mouse_wheeldown and self:isinside(x,y) then
+		self:scroll(self.camy + LG.getHeight()/2)
 	
 	end
 	
@@ -321,7 +322,9 @@ function Drawer:update(dt)
 	
 	-- and scrolling
 	elseif self.scrolled then
-		self:scroll(love.mouse.getY())
+		-- convert from scrollbar space to view space, and make the click be
+		-- the middle of the new view
+		self:scroll(love.mouse.getY()/self.hratio - LG.getHeight()/2)
 	end
 end
 
@@ -332,19 +335,17 @@ function Drawer:changeview(p)
 	self:makepackview()
 end
 
--- changes scroll value, where y is in pixel
+-- changes scroll value, where y is the wanted value for camy
 function Drawer:scroll(y)
 	
-	-- consider the click point the middle of the target zone
-	local y = y / self.hratio
-	
-	y = y - LG.getHeight()/2
-	
+	local y = y
+
 	-- clip
+	if y + LG.getHeight() > self.totalh then
+		y = self.totalh - LG.getHeight()
+	end
 	if y < 0 then 
 		y = 0
-	elseif y + LG.getHeight() > self.totalh then
-		y = self.totalh - LG.getHeight()
 	end
 	
 	self.camy = y
