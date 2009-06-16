@@ -23,6 +23,9 @@ Drawer = class()
 -- a table of Images if they are.
 -- (for now we load everything, we'll care about memory later)
 
+-- it has two views, the list of packs, of the contents of a pack.
+-- it can be resized by dragging the left-end handle, or folded by clicking it
+
 function Drawer:init(w)
 	
 	self.packs = {}
@@ -37,10 +40,13 @@ function Drawer:init(w)
 	
 	self.font = LG.newFont(love.default_font, self.lineh)
 	
-	self.dragw = 10		-- width of the band left of the drawer where you can drag it
+	self.dragw = 15		-- width of the band left of the drawer where you can drag it
 	
 	self.dragged = false	-- drag stuff
 	self.dragx = nil
+	
+	self.folded = false		-- folding stuff
+	self.oldw = nil
 	
 	-- scanning the packs folder (expected to be in the "save directory")
 	local ls = LF.enumerate(self.pdir)
@@ -56,6 +62,9 @@ function Drawer:init(w)
 	
 	return self
 end
+
+-- for now, loadpack() just loads all the sprites in the folder and adds them
+-- the the pack's table
 
 function Drawer:loadpack(str)
 	local path = self.pdir .. "/" .. str
@@ -96,13 +105,15 @@ function Drawer:draw()
 	LG.setColor(LG.newColor(255,255,255,100))	
 	LG.rectangle(love.draw_fill,self.x,0,self.w,LG.getHeight())
 	
-	-- dragging handle
+	-- dragging handle when it's hot
 	if self:isinsidedrag() then
 		LG.setColor(LG.newColor(255,255,255,200))
 		LG.rectangle(love.draw_fill,self.x,0,self.dragw,LG.getHeight())
 	end
 	
-	-- contents
+	-- contents (only if unfolded...)
+	if self.folded then return end
+	
 	LG.setFont(self.font)
 
 	if not self.view then
@@ -124,6 +135,7 @@ function Drawer:draw()
 	end
 end
 
+-- needed by EventHandler. returns the hot object
 function Drawer:isinside(x,y)
 	
 	if x >= self.x then
@@ -136,11 +148,14 @@ function Drawer:isinside(x,y)
 	end
 end
 
+-- can take an argument x, but defaults to mouse's current x position
+-- returns a boolean
 function Drawer:isinsidedrag(x)
 	local mx = x or love.mouse.getX()
 	return mx <= self.x + self.dragw and mx >= self.x
 end
 
+-- fills the self.items table with DrawerItems placed correctly in the drawer
 function Drawer:makepackview()
 	
 	local p = self.packs[self.view]
@@ -165,24 +180,73 @@ end
 
 function Drawer:mousepressed(x,y,button)
 	
-	if button == love.mouse_left and self:isinsidedrag(x) then
+	-- unfold if necessary
+	if button == love.mouse_left and self:isinsidedrag(x) and self.folded then
+		self:switchfold()
+		return
+	
+	-- drag the drawer
+	elseif button == love.mouse_left and self:isinsidedrag(x) then
 		self.dragged = true
 		self.dragx = x - self.x
+		self.clickx = x
+		self.clicky = y
+				
+		return
+	end
+	
+	-- forward if we're not interested
+	if not self:isinside(love.mouse.getX(),love.mouse.getY()) then
+		return x,y,button
 	end
 end
 
 function Drawer:mousereleased(x,y,button)
 
 	if button == love.mouse_left and self.dragged then
+		-- stop dragging
 		self.dragged = false
 		self.dragx = nil
+		
+		-- if it was just a click, fold/unfold the drawer
+		if x == self.clickx and y == self.clicky then
+			self:switchfold()
+		end
+	end
+	
+	-- forward
+	return x,y,button
+end
+
+-- folds or unfolds the drawer.
+-- we don't need to recompute the contents, since unfolding will put everything back in place
+function Drawer:switchfold()
+
+	if not self.folded then
+		self.folded = true
+		self.oldw = self.w
+		
+		self.w = self.dragw
+		self.x = LG.getWidth() - self.w
+	else
+		self.folded = false
+		
+		self.w = self.oldw
+		self.x = LG.getWidth() - self.w
 	end
 end
 
 function Drawer:update(dt)
-
+	
+	-- take care of dragging
 	if self.dragged then
 		self.x = love.mouse.getX() - self.dragx
+		
+		-- avoid losing the handle by having a maximum value for self.x
+		if self.x > LG.getWidth() - self.dragw then
+			self.x = LG.getWidth() - self.dragw
+		end
+		
 		self.w = LG.getWidth() - self.x
 		self:makepackview()
 	end

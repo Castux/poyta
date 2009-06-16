@@ -137,17 +137,38 @@ end
 GlobalEvents = {}
 function GlobalEvents:keypressed(key)
 	
-	-- intercept these events
+	local key = key
 	
+	-- intercept these events
 	if key == love.key_escape then
 		love.system.exit()
 		return
 	elseif key == love.key_f1 then
 		love.system.restart()
 		return
+		
+	-- convert page up/down into wheel up/down (for compatibility with crappy mouses)
+	elseif key == love.key_pageup then
+		EventHandler:treatevent{"mdown",love.mouse.getX(),love.mouse.getY(),love.mouse_wheelup}
+		return
+	elseif key == love.key_pagedown then
+		EventHandler:treatevent{"mdown",love.mouse.getX(),love.mouse.getY(),love.mouse_wheeldown}
+		return
 	end
 	
 	-- forward the others
-	
 	return key
+end
+
+function GlobalEvents:mousepressed(x,y,button)
+
+	-- convert ctrl-click to right-click
+	if button == love.mouse_left and ( love.keyboard.isDown(love.key_lctrl) or
+		love.keyboard.isDown(love.key_rctrl) ) then
+		
+		return x,y,love.mouse_right
+	end
+	
+	-- forward all the rest
+	return x,y,button
 end
