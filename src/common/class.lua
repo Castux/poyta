@@ -15,8 +15,13 @@
 
 --[[
 A simple class system in Lua for OOP programming
-version 1.0 (2009-02-13)
+version 1.1 (2009-06-17)
 by Noé Falzon
+
+New in 1.1:
+- init() *must* return self
+- added isa() method
+- corrected doc about super
 
 Creation of a class:
 ====================
@@ -66,7 +71,7 @@ Note the special member class which points to the class of an object:
 
 if object.class == Class then end
 
-of for instance from inside a method: self.class
+or for instance from inside a method: self.class
 
 (class is actually a member of the Class table, but is accessible like methods to each instance)
 
@@ -92,11 +97,22 @@ Method overloading:
 Defining a method with the same name as a parent method will replace it.
 Accessing parent methods is possible through the member super. Typically in a method:
 
-self.super:method()
+self.super.method(self, ...)
 
-Or outside the methods definition, instance.super:method() if you know what you're doing.
+Or outside the methods definition, instance.super.method(instance, ...) if you know what you're doing.
 
-Trying to index super in a base class fails.
+- Trying to index super in a base class fails.
+- Do NOT try instance.super:method(), as it will pass the whole super class as the instance and mess
+with its members.
+
+isa()
+=====
+
+All instances (and classes) have the method isa(C) that returns true if C is a parent class of the
+object (or class). These work, for instance:
+
+obj:isa(A)
+A:isa(B)
 
 Recommended design:
 ===================
@@ -105,7 +121,7 @@ Recommended design:
   and always return self, since this is what is returned by the hidden method new().
 
 function Child:init(a,b,c)
-	self.super:init(a,b)
+	self.super.init(self,a,b)
 	self.c = c
 	
 	return self
@@ -134,6 +150,7 @@ Summary of reserved names:
 ==========================
 
 :new()
+:isa()
 .class
 .super
 and self as a parameter (used by Lua's : method calling syntax)
@@ -145,16 +162,23 @@ class = function(base)
 	c.__index = c
 	c.class = c
 	
-	-- default constructor (sets metatable and calls init)
+	-- constructor (sets metatable and calls init)
 	c.new = function(...)
 		local obj = {}
 		setmetatable(obj,c)
 	
 		-- automatically call init method with same arguments
 		return obj:init(...)
-	
-		-- return obj
 	end
+	
+	-- isa() method
+	c.isa = function(obj,cla)
+		if obj.super then
+			return obj.class == cla or obj.super:isa(cla)
+		else
+			return obj.class == cla
+		end
+	end 
 	
 	-- inheritance
 	if base then
@@ -172,4 +196,4 @@ class = function(base)
 	
 	return c
 end
-
+of

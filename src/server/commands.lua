@@ -1,4 +1,5 @@
 require "Entity"
+require "BasicEntity"
 
 local FMT = string.format
 
