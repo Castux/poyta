@@ -104,3 +104,16 @@ function TcpClient:close()
 	-- close server
 	self.socket:close()
 end
+
+-- replace spaces by %s and % by %p
+function TcpClient:escapestring(s)
+	local s2 = string.gsub(s, "%%", "%%p")
+	
+	return string.gsub(s2, "%s", "%%s")
+end
+
+function TcpClient:unescapestring(s)
+	local s2 = string.gsub(s, "%%s", " ")
+	
+	return string.gsub(s2, "%%p", "%%")
+end

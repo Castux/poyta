@@ -24,6 +24,30 @@ end
 
 love.filesystem.require("common/Entity.lua")
 
+function Entity:initview()
+	
+	-- smooth movement
+	self.currx = self.x
+	self.curry = self.y
+	
+	-- smooth rotation
+	self.curra = self.a 
+	
+	-- geometry information
+	self.poly = {}
+	
+	-- GUI stuff
+	self.dragged = false
+	self.dragx = 0		-- relative position of the mouse wrt entity center at click time
+	self.dragy = 0
+		
+	self.rotated = false
+	self.rotang = 0 	-- angle of the click point around the entity center at click time
+
+
+	return self
+end
+
 -- compute position of corners in gamespace, return them as a list of 8 elements
 -- {x1,y1,x2,y2,...}
 -- takes optional argument a, which is added to the angle during computation
@@ -87,12 +111,12 @@ function Entity:draw()
 	-- corner proximity
 	if not (self.dragged or self.rotated) and EventHandler.hot == self then
 		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
-		x,y = self:isnearcorner(x,y,20*Table.zoom)
+		x,y = self:isnearcorner(x,y,self:getcornerradius())
 		if x and y then
 			x,y = Table:game2screen(x,y)
 			
 			LG.setColor(LG.newColor(255,0,0,100))
-			LG.circle(love.draw_fill,x,y,20*Table.zoom)
+			LG.circle(love.draw_fill,x,y,self:getcornerradius()*Table.zoom, 50)
 		end
 	end
 	
@@ -131,6 +155,12 @@ end
 function Entity:getsize()
 	return 100,100
 end
+
+function Entity:getcornerradius()
+	local w,h = self:getsize()
+	return math.min(w,h) / 4
+end
+
 
 -- tells if the game coordinates x,y are inside the rectangle
 function Entity:isinside(x,y)
@@ -174,7 +204,7 @@ function Entity:mousepressed(x,y,button)
 	-- Left click: start dragging if we're hot, or rotating if near corner
 	if button == love.mouse_left and EventHandler.hot == self then
 		local gx,gy = Table:screen2game(x,y)
-		local cox,coy = self:isnearcorner(gx,gy,20*Table.zoom)
+		local cox,coy = self:isnearcorner(gx,gy,self:getcornerradius())
 		
 		if cox and coy then	-- rotate
 			self.rotated = true
@@ -212,10 +242,6 @@ end
 function Entity:update(dt)
 
 	-- the smooth movement thing
-		-- initialize for the first try
-	if not self.currx then self.currx = self.x end
-	if not self.curry then self.curry = self.y end
-	
 	local speed = 10
 	
 		-- make self.curr* closer to self.*
@@ -234,9 +260,6 @@ function Entity:update(dt)
 	self.curry = self.curry + dy
 	
 	-- smooth rotation
-		-- initialize for the first try
-	if not self.curra then self.curra = self.a end
-	
 	local speed = 6
 	
 		-- take shortest path

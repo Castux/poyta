@@ -366,6 +366,10 @@ IMAGE = function(w,sock)
 	
 	-- gather string arguments
 	local N = tonumber(w[5])
+	if not N then
+		return
+	end
+	
 	local strings = {}
 	
 	for i = 6,6+N-1 do
@@ -373,7 +377,7 @@ IMAGE = function(w,sock)
 	end
 	
 	-- make image
-	local tmp = NImage(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]))
+	local tmp = NImage(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]), unpack(strings))
 	
 	local r = tonumber(w[6+N])
 	local g = tonumber(w[7+N])
@@ -385,10 +389,18 @@ IMAGE = function(w,sock)
 	-- add to table
 	local id,e = Table:add(tmp)	
 	
-	print("", FMT("%s created entity %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
+	print("", FMT("%s created %d-image %d at (%d,%d) with angle %d", cli.nick, #e.sprites, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(FMT("ENTITY %s %d %d %d %d", cli.nick, id, e.x, e.y, e.a))
+	local str = FMT("IMAGE %s %d %d %d %d %d ", cli.nick, id, e.x, e.y, e.a, #e.sprites)
+	
+	for i,v in ipairs(e.sprites) do
+		str = str .. v .. " "
+	end
+	
+	str = str .. FMT("%d %d %d", e.r, e.g, e.b)
+	
+	TcpServer:broadcast(str)
 end,
 
 }

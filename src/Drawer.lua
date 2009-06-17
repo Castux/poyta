@@ -358,12 +358,10 @@ function Drawer:resolvename(s)
 	local _,_,pack,name = string.find(s, "(.+)/(.+)")
 	
 	local p = self.packs[pack]
-	if not p then return end
-	
-	local i = p[name]
-	if not i then
-		i = self.defaultsprite
+	if p and p[name] then
+		return p[name]
+	else
+		Console:print("[Warning] Impossible to find image " .. s)
+		return self.defaultsprite
 	end
-	
-	return i
 end

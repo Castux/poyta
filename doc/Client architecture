@@ -101,3 +101,8 @@ MOVE nick id x y
 ROTATE nick id a	
 SCALE nick id s1 [s2]
 DELETE nick id
+
+c. Basic entities
+-----------------
+
+IMAGE nick id x y a N sprite1 [sprite2 ...] r g b

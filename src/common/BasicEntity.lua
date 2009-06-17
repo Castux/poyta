@@ -85,6 +85,6 @@ function NImage:flip(random)
 	if random then
 		self.curr = math.random(1,#self.sprites)
 	else
-		self.curr = self.curr % #self.sprites + 1	-- indexing from 0 is weird with mod math
+		self.curr = self.curr % #self.sprites + 1	-- indexing from 1 is weird with mod math
 	end
 end

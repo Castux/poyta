@@ -35,7 +35,7 @@ function DrawerItem:draw()
 	
 	if EventHandler.hot == self then
 		LG.setColorMode(love.color_modulate)
-		LG.setColor(LG.newColor(0,0,255,100))
+		LG.setColor(LG.newColor(255,200,200))
 	end
 	
 	LG.draw(self.sprite, self.x, self.y - Drawer.camy, 0, zoom)
@@ -51,6 +51,9 @@ end
 
 function DrawerItem:mousepressed(x,y,button)
 	-- add an image to the table
+	if button == love.mouse_left and EventHandler.hot == self then
+		TcpClient:send("IMAGE 0 0 0 1 " .. TcpClient:escapestring(Drawer.view .. "/" .. self.name))
+	end
 end
 
 ------------------------------------------------------------

@@ -30,6 +30,7 @@ require = function() end
 
 love.filesystem.require("common/Supervisor.lua")
 love.filesystem.require("Entity.lua")
+love.filesystem.require("BasicEntity.lua")
 
 -- shortcuts
 LG = love.graphics
@@ -95,12 +96,9 @@ function load()
 	TcpClient.cbdisconnect = function()
 		Console:print("Disconnected from server")
 	end
-	
-	
-	TcpClient:send("ENTITY 10 40 10")
-	
+		
 	-- graphics
-	love.graphics.setBackgroundColor(LG.newColor(10,255,10))
+	love.graphics.setBackgroundColor(LG.newColor(240,240,240))
 
 	-- love.system.exit()
 end

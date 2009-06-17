@@ -98,7 +98,10 @@ end,
 --[[Basic entities manipulation]]
 
 ENTITY = function(w)
-	Table:add(tonumber(w[3]), Entity(tonumber(w[4]),tonumber(w[5]),tonumber(w[6])))
+	local tmp = Entity(tonumber(w[4]),tonumber(w[5]),tonumber(w[6]))
+	tmp:initview()
+	
+	Table:add(tonumber(w[3]), tmp)
 	Console:print(FMT("%s added an entity",w[2]))
 end,
 
@@ -128,6 +131,28 @@ DELETE = function(w)
 	if not e then return end
 
 	Table:remove(id)	
+end,
+
+--[[Basic entities]]
+
+IMAGE = function(w)
+
+	-- gather strings
+	local N = tonumber(w[7])
+	local strings = {}
+	
+	for i = 8,8+N-1 do
+		local s = TcpClient:unescapestring(w[i])
+		table.insert(strings, s)
+	end
+	
+	local tmp = NImage(tonumber(w[4]),tonumber(w[5]),tonumber(w[6]), unpack(strings))
+	tmp:setcolor(tonumber(w[8+N]),tonumber(w[9+N]),tonumber(w[10+N]))
+	
+	tmp:initview()
+	
+	-- add to table
+	Table:add(tonumber(w[3]), tmp)
 end,
 
 }
