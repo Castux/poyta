@@ -40,7 +40,7 @@ The God of the house. It parses incoming commands, rejects the malformed ones an
 ----------------
 
 Entity: has a position,angle,scale,second scale (if there is a second then they are for x and y), a visibility flag (turned off when in a container for instance)
-	BasicE: can be added to collections (pile, stack, bag). Can be compared to another one.
+	BasicEntity: can be added to collections (pile, stack, bag). Can be compared to another one.
 		Label: has a string. Can also be attached to another entity, in which case it follows it (has relative position). Can have a second string. Has a flipping capacity (= hiding if only one string).
 		N-Image: has an indefinite number of sprite names  (string "package/filename"). Has a current sprite number (the "up" side). Can be flipped to the next, or to a random one. Has a modulating color.
 			[Image: has only one sprite, so doesn't present flipping ability. Unsure.]

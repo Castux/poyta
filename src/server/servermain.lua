@@ -28,7 +28,7 @@ require "Table"
 
 -- TcpServer
 
-local port = 6666
+local port = ... or 6666	-- take first CLI argument as the port
 
 TcpServer = TcpServer(port,1)
 

@@ -50,6 +50,9 @@ Supervisor.clearances = {
 	ROTATE = 2,
 	SCALE = 2,
 	DELETE = 2,
+	
+	-- basic entities
+	IMAGE = 2,
 
 }
 
@@ -356,7 +359,37 @@ DELETE = function(w,sock)
 	TcpServer:broadcast(FMT("DELETE %s %d", cli.nick, id))
 end,
 
+--[[Basic Entities]]
 
+IMAGE = function(w,sock)
+	local cli = ClientManager.clients[sock]
+	
+	-- gather string arguments
+	local N = tonumber(w[5])
+	local strings = {}
+	
+	for i = 6,6+N-1 do
+		table.insert(strings, w[i])
+	end
+	
+	-- make image
+	local tmp = NImage(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]))
+	
+	local r = tonumber(w[6+N])
+	local g = tonumber(w[7+N])
+	local b = tonumber(w[8+N])
+	if r or g or b then
+		tmp:setcolor(r,g,b)
+	end
+	
+	-- add to table
+	local id,e = Table:add(tmp)	
+	
+	print("", FMT("%s created entity %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
+	
+	-- WARN USERS
+	TcpServer:broadcast(FMT("ENTITY %s %d %d %d %d", cli.nick, id, e.x, e.y, e.a))
+end,
 
 }
 
