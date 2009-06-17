@@ -91,19 +91,24 @@ Child will inherit all methods of Parent, including init(). "Members" are inheri
 methods that define them are not overloaded.
 New methods are added the same way as before.
 
-Method overloading:
-===================
+Method overloading and super:
+=============================
 
 Defining a method with the same name as a parent method will replace it.
-Accessing parent methods is possible through the member super. Typically in a method:
+Accessing parent methods is possible through the member super. Typically:
 
-self.super.method(self, ...)
-
-Or outside the methods definition, instance.super.method(instance, ...) if you know what you're doing.
+instance.super.method(instance, ...) if you know what you're doing.
 
 - Trying to index super in a base class fails.
 - Do NOT try instance.super:method(), as it will pass the whole super class as the instance and mess
 with its members.
+
+- This is not a "real" super like in Objective-C: self.super is always *just* the parent class of the
+object, NOT the class parent to the one in which is defined the current method.
+Therefore, to allow recursive calls to parent methods in a method definition (notably in init()),
+use directly the class name:
+
+Class.super.method(instance, ...)
 
 isa()
 =====
@@ -121,7 +126,7 @@ Recommended design:
   and always return self, since this is what is returned by the hidden method new().
 
 function Child:init(a,b,c)
-	self.super.init(self,a,b)
+	Child.super.init(self,a,b)
 	self.c = c
 	
 	return self
@@ -196,4 +201,3 @@ class = function(base)
 	
 	return c
 end
-of
