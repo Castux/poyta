@@ -126,7 +126,6 @@ DELETE id
 c. Creation of simple game entities
 -----------------------------------
 
-//Temporary
 ENTITY x y a
 	Create a "generic entity" (debug purpose) at (x,y) with angle a.
 
@@ -137,13 +136,13 @@ IMAGE x y a N sprite1 [sprite2 ...] [r g b]
 	Create a N-Image at (x,y,a) with strings sprite* as sprites, and optionnal color (r,g,b) as modulating color.
 	The in the strings sprite*, spaces are replaced by % and % by %% (we need space separated arguments)
 	
-COUNTER x y a [value]
+COUNTER x y [value]
 	Create a counter at (x,y,a) with value value (which defaults to 0).
 
-DIE x y a [faces]
+DIE x y [faces]
 	Create a die at (x,y,a) with faces faces (which defaults to 6). The initial face is random.
 
-CLOCK x y a
+CLOCK x y
 	Create a clock at (x,y,a), initialised at 0 and in paused state.
 
 d. Special commands to simple entities

@@ -34,7 +34,6 @@ function Entity:init(x,y,a)
 	
 	self:set(x,y,a)
 	self:scale(s,s2)
-	self:setvisible(visible)
 	
 	return self
 end
@@ -78,4 +77,12 @@ function Entity:setvisible(flag)
 	-- (if it's nil, do nothing)
 	
 	return self.visible
+end
+
+-- is used by the server when someone connects
+-- (later for savegames?)
+-- should be overloaded, of course
+function Entity:dumpstatus(nick, id)
+
+	return FMT("ENTITY %s %d %d %d %d", nick, id, self.x, self.y, self.a)
 end

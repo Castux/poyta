@@ -23,6 +23,10 @@ require "ClientManager"
 require "Supervisor"
 require "Table"
 
+--[[ Shortcuts ]]
+
+FMT = string.format
+
 --[[ Initialization ]]
 	-- (singleton classes reuse the name of the class)
 

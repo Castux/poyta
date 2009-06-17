@@ -88,3 +88,16 @@ function NImage:flip(random)
 		self.curr = self.curr % #self.sprites + 1	-- indexing from 1 is weird with mod math
 	end
 end
+
+-- overload parent's one
+function Entity:dumpstatus(nick, id)
+	
+	local str = FMT("IMAGE %s %d %d %d %d %d ", nick, id, self.x, self.y, self.a, #self.sprites)
+	
+	for i,v in ipairs(self.sprites) do
+		str = str .. v .. " "
+	end
+	
+	str = str .. FMT("%d %d %d", self.r, self.g, self.b)
+	return str
+end

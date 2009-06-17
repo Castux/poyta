@@ -1,8 +1,6 @@
 require "Entity"
 require "BasicEntity"
 
-local FMT = string.format
-
 -- to be used by every command that tries to manipulate an entity
 -- checks if an id is valid, and if not, warns the original user
 local fetch_entity = function(str,sock)
@@ -117,7 +115,7 @@ HANDSHAKE = function(w,sock)
 			-- tell him
 		TcpServer:send(string.gsub(str, "CLIENT", "YOUARE"), sock)
 		
-		-- and tell the new one about all the other people [later: gamestate too]
+		-- and tell the new one about all the other people
 		
 		for _,other in pairs(ClientManager.clients) do
 			if other ~= cli then
@@ -126,6 +124,13 @@ HANDSHAKE = function(w,sock)
 				TcpServer:send(str,sock)
 			end
 		end
+		
+		-- and about the gamestate
+		
+		for id,e in Table:pairs() do
+			TcpServer:send(e:dumpstatus("=server=",id),sock)
+		end
+		
 	end
 end,
 
@@ -296,7 +301,7 @@ ENTITY = function(w,sock)
 	print("", FMT("%s created entity %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(FMT("ENTITY %s %d %d %d %d", cli.nick, id, e.x, e.y, e.a))
+	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
 end,
 
 MOVE = function(w,sock)
@@ -392,15 +397,7 @@ IMAGE = function(w,sock)
 	print("", FMT("%s created %d-image %d at (%d,%d) with angle %d", cli.nick, #e.sprites, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	local str = FMT("IMAGE %s %d %d %d %d %d ", cli.nick, id, e.x, e.y, e.a, #e.sprites)
-	
-	for i,v in ipairs(e.sprites) do
-		str = str .. v .. " "
-	end
-	
-	str = str .. FMT("%d %d %d", e.r, e.g, e.b)
-	
-	TcpServer:broadcast(str)
+	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
 end,
 
 }
