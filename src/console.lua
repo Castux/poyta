@@ -184,12 +184,6 @@ end
 
 function Console:keypressed(key)
 	
-	-- intercept all key events if we're hot
-	if EventHandler.hot == self then
-		self:input(key)
-		return
-	end
-	
-	-- else forward them
-	return key
+	-- intercept all key events
+	self:input(key)	
 end
