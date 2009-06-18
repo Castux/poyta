@@ -15,12 +15,14 @@
 
 
 -- client specific includes
+
 love.filesystem.require("Console.lua")
 love.filesystem.require("TcpClient.lua")
 love.filesystem.require("ClientManager.lua")
 love.filesystem.require("Table.lua")
 love.filesystem.require("EventHandler.lua")
 love.filesystem.require("Drawer.lua")
+love.filesystem.require("Menu.lua")
 
 -- common includes. must override Lua's require and take care of dependencies by hand
 -- because of Löve's integration.
@@ -74,10 +76,14 @@ function load()
 
 	-- drawer
 	Drawer = Drawer()
-
+	
+	-- contextual menu
+	Menu = Menu()
+	
 	-- event handler
 	EventHandler = EventHandler()
 	EventHandler:register(GlobalEvents)
+	EventHandler:register(Menu)
 	EventHandler:register(Drawer)
 	EventHandler:register(Console)
 	EventHandler:register(Table)
@@ -98,9 +104,11 @@ function load()
 	end
 		
 	-- graphics
-	love.graphics.setBackgroundColor(LG.newColor(240,240,240))
+	LG.setBackgroundColor(LG.newColor(240,240,240))
+	
+	-- some more sprite loading
+	LF.require("uisprites.lua")
 
-	-- love.system.exit()
 end
 
 function update(dt)
@@ -128,6 +136,7 @@ function draw()
 	Console:draw()
 	ClientManager:draw(0,300)
 	Drawer:draw()
+	Menu:draw()
 end
 
 -- a table of top priority events

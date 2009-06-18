@@ -43,8 +43,7 @@ function Entity:initview()
 		
 	self.rotated = false
 	self.rotang = 0 	-- angle of the click point around the entity center at click time
-
-
+	
 	return self
 end
 
@@ -217,6 +216,15 @@ function Entity:mousepressed(x,y,button)
 			self.dragy = y - cy
 		end
 		
+	end
+	
+	-- right click: start contextual menu
+	if button == love.mouse_right and EventHandler.hot == self then
+		Menu:init(x,y)
+		
+		Menu:add("Delete", function()
+			TcpClient:send("DELETE " .. self.id)
+		end)
 	end
 end
 
