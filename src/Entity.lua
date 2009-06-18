@@ -44,6 +44,8 @@ function Entity:initview()
 	self.rotated = false
 	self.rotang = 0 	-- angle of the click point around the entity center at click time
 	
+	self.locked = false	-- trying to drag a locked entity drags the table instead
+	
 	return self
 end
 
@@ -201,7 +203,7 @@ function Entity:mousepressed(x,y,button)
 	
 	
 	-- Left click: start dragging if we're hot, or rotating if near corner
-	if button == love.mouse_left and EventHandler.hot == self then
+	if button == love.mouse_left and EventHandler.hot == self and not self.locked then
 		local gx,gy = Table:screen2game(x,y)
 		local cox,coy = self:isnearcorner(gx,gy,self:getcornerradius())
 		
@@ -222,8 +224,20 @@ function Entity:mousepressed(x,y,button)
 	if button == love.mouse_right and EventHandler.hot == self then
 		Menu:init(x,y)
 		
+		-- delete
 		Menu:add("Delete", function()
 			TcpClient:send("DELETE " .. self.id)
+		end)
+		
+		-- switch lock
+		local str
+		if self.locked then
+			str = "Unlock"	
+		else
+			str = "Lock"
+		end
+		Menu:add(str, function()
+			self.locked = not self.locked
 		end)
 	end
 end

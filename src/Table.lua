@@ -122,8 +122,8 @@ function Table:mousepressed(x,y,button)
 
 	-- Left click
 	if button == love.mouse_left then
-		-- if no hot entity, start dragging the table
-		if not EventHandler.hot then	
+		-- if no hot entity, or the hot one is locked to the table, start dragging the table
+		if not EventHandler.hot or EventHandler.hot.locked then	
 			self.dragged = true
 			self.dragx = x
 			self.dragy = y
