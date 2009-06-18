@@ -61,7 +61,10 @@ function NImage:draw()
 		LG.polygon(love.draw_line,q)
 	end
 	
+	LG.setColor(LG.newColor(self.r,self.g,self.b))
+	LG.setColorMode(love.color_modulate)
 	LG.draw(self.images[self.curr], x, y, self.curra, self.s*Table.zoom, s2*Table.zoom)
+	LG.setColorMode(love.color_normal)
 	
 	-- corner proximity
 	if not (self.dragged or self.rotated) and EventHandler.hot == self then
@@ -77,7 +80,7 @@ function NImage:draw()
 		x = love.mouse.getX() - self.dragx
 		y = love.mouse.getY() - self.dragy
 		
-		LG.setColor(LG.newColor(255,255,255,100))
+		LG.setColor(LG.newColor(self.r,self.g,self.b,100))
 		LG.setColorMode(love.color_modulate)
 		LG.draw(self.images[self.curr], x, y, self.curra, self.s*Table.zoom, s2*Table.zoom)
 		LG.setColorMode(love.color_normal)
@@ -95,4 +98,35 @@ function NImage:draw()
 		LG.draw(self.images[self.curr], x, y, self.curra + ang, self.s*Table.zoom, s2*Table.zoom)
 		LG.setColorMode(love.color_normal)
 	end	
+end
+
+function NImage:mousepressed(x,y,button)
+	
+	-- inherit all the fancy stuff from parent class
+	NImage.super.mousepressed(self,x,y,button)
+	
+	-- add others specific to NImage
+	
+	-- right click: add stuff to contextual menu
+	if button == love.mouse_right and EventHandler.hot == self then
+		
+		-- flipping the NImage
+		if #self.sprites > 1 then
+			Menu:add("Flip", function()
+				self:flip()
+			end)
+			Menu:add("Flip randomly", function()
+				self:flip(true)
+			end)
+		end
+		
+		-- pick color
+		Menu:add("Change color", function()
+			colorpicker(function(r,g,b)
+				TcpClient:send(FMT("SETCOLOR %d %d %d %d", self.id, r, g, b))
+			end)
+			
+			return true	-- tell menu we don't want it to be erased, since colopicker sets it up again
+		end)
+	end
 end

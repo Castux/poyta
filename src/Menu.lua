@@ -73,6 +73,9 @@ function Menu:mousepressed(x,y,button)
 end
 
 -- the important thing: adding elements to the menu
+-- if callback return true, menu is not initialised after it returns,
+-- allowing for chain-menuing
+
 function Menu:add(img, callback)
 	
 	-- add a new MenuItem to the list
@@ -174,11 +177,13 @@ function MenuItem:mousepressed(x,y,button)
 	
 	-- if left click on us
 	if EventHandler.hot == self and button == love.mouse_left then
+		
 		-- call callback
-		self.callback()
-		-- kill menu
-		Menu:init()
-	
+		if not self.callback() then
+			-- kill menu if callback didn't ask to keep it up by returning true
+			Menu:init()
+		end
+		
 	-- forward otherwise	
 	else
 		return x,y,button

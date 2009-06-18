@@ -106,3 +106,4 @@ c. Basic entities
 -----------------
 
 IMAGE nick id x y a N sprite1 [sprite2 ...] r g b
+SETCOLOR nick id r g b

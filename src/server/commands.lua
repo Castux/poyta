@@ -51,6 +51,7 @@ Supervisor.clearances = {
 	
 	-- basic entities
 	IMAGE = 2,
+	SETCOLOR = 2,
 
 }
 
@@ -398,6 +399,21 @@ IMAGE = function(w,sock)
 	
 	-- WARN USERS
 	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+end,
+
+SETCOLOR = function(w,sock)
+
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end
+	
+	local r = tonumber(w[3])
+	local g = tonumber(w[4])
+	local b = tonumber(w[5])
+	
+	e:setcolor(r,g,b)
+	
+	-- WARN USERS
+	TcpServer:broadcast(FMT("SETCOLOR %s %d %d %d %d", cli.nick, id, e.r, e.g, e.b))
 end,
 
 }

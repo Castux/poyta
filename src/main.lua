@@ -24,6 +24,8 @@ love.filesystem.require("EventHandler.lua")
 love.filesystem.require("Drawer.lua")
 love.filesystem.require("Menu.lua")
 
+love.filesystem.require("colorpicker.lua")
+
 -- common includes. must override Lua's require and take care of dependencies by hand
 -- because of Löve's integration.
 -- (since these are used by the pure Lua server also, we can't put Löve's require in them)

@@ -123,7 +123,7 @@ SCALE = function(w)
 	local id,e = fetch_entity(w[3])
 	if not e then return end
 
-	e:scale(tonumber(w[4]),tonumber(w[5]))	
+	e:scale(tonumber(w[4]),tonumber(w[5]))
 end,
 
 DELETE = function(w)
@@ -153,6 +153,14 @@ IMAGE = function(w)
 	
 	-- add to table
 	Table:add(tonumber(w[3]), tmp)
+end,
+
+SETCOLOR = function(w)
+	
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+
+	e:setcolor(tonumber(w[4]),tonumber(w[5]),tonumber(w[6]))
 end,
 
 }
