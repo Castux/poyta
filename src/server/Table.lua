@@ -43,6 +43,30 @@ function Table:remove(id)
 	return self
 end
 
+-- special insertion that moves all the others up until they find an empty space
+-- (that might be sooner than the top, since the table can have holes)
+-- returns the number of values that have been moved up
+function Table:insert(e,pos)
+
+	-- simple case: the top
+	if pos > self.last then
+		self:add(e)
+		return 0
+	end
+	
+	local count = 0	-- count how many we've moved up
+	
+	-- if it's not a hole, first move up who's there
+	if self.ids[pos] then
+		count = self:insert(self.ids[pos], pos + 1) + 1
+	end
+	
+	-- now that it's empty, take the place
+	self.ids[pos] = e
+	
+	return count
+end
+
 -- an iterator factory to go over all entities, but in order (which is not assured by pairs()
 -- and ipairs() stops at the first nil)
 function Table:pairs()

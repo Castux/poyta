@@ -133,6 +133,13 @@ DELETE = function(w)
 	Table:remove(id)	
 end,
 
+MOVEZ = function(w)
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+
+	Table:remove(id)
+	Table:insert(e,tonumber(w[4]),tonumber(w[5]))
+end,
 --[[Basic entities]]
 
 IMAGE = function(w)

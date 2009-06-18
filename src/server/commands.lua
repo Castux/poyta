@@ -48,6 +48,7 @@ Supervisor.clearances = {
 	ROTATE = 2,
 	SCALE = 2,
 	DELETE = 2,
+	MOVEZ = 2,
 	
 	-- basic entities
 	IMAGE = 2,
@@ -363,6 +364,27 @@ DELETE = function(w,sock)
 	
 	-- WARN USERS
 	TcpServer:broadcast(FMT("DELETE %s %d", cli.nick, id))
+end,
+
+MOVEZ = function(w,sock)
+	
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end
+	
+	local pos = tonumber(w[3])
+	if not pos then 
+		TcpServer:send("ERROR " ..  w[3] .. ": incorrect position",sock)
+		return
+	end
+	
+	-- insert it
+	Table:remove(id)
+	local count = Table:insert(e, pos)	-- insert and count how many moved up in the process
+	
+	print("", FMT("%s movez'd entity %d to %d", cli.nick, id, pos))
+	
+	-- WARN USERS
+	TcpServer:broadcast(FMT("MOVEZ %s %d %d %d", cli.nick, id, pos, count))
 end,
 
 --[[Basic Entities]]

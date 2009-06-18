@@ -122,6 +122,10 @@ FLIP id ["random"]
 
 DELETE id
 	Remove entity id from the table.
+	
+MOVEZ id pos
+	Change entity's id to pos by inserting it there (others shall move up until they find an unused id), as described by Table's :insert() method.
+	This is useful to change "altitude" of entities, ie their drawing order.
 
 c. Creation of simple game entities
 -----------------------------------

@@ -54,6 +54,26 @@ function Table:add(id,e)
 	return self
 end
 
+-- special insertion that moves up num elements to make room
+-- here we trust server about this num, because it knows more than us
+
+function Table:insert(e,pos,num)
+
+	-- move them up (start with the top
+	-- to avoid losing data)
+	for i = pos + num - 1,pos,-1 do
+		local elem = self.ids[i]
+		if elem then
+			self.ids[i+1] = elem
+			elem.id = i+1
+		end
+	end
+	
+	-- now that we've made room, take the place
+	self.ids[pos] = e
+	e.id = pos
+end
+
 -- remove the entity number id
 function Table:remove(id)
 	
@@ -62,7 +82,7 @@ function Table:remove(id)
 	return self
 end
 
--- an iterator factory to go over all entities, but in order (which is not assured by pairs()
+-- an iterator factory to go over all entities, but in order (which is not assured by pairs(),
 -- and ipairs() stops at the first nil)
 function Table:pairs()
 	local i = 0
