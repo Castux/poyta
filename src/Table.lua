@@ -102,6 +102,24 @@ function Table:pairs()
 	end
 end
 
+-- returns the next non nil element after position pos
+-- or nil if there is none
+-- step can be set to -1 to go backwards
+function Table:next(pos,step)
+	local i = pos
+	local step = step or 1
+	
+	-- find the next non nil element
+	repeat
+		i = i + step
+	until self.ids[i] ~= nil or i > self.last or i < 0
+	
+	-- return it 
+	if self.ids[i] then
+		return i, self.ids[i]
+	end
+end
+
 function Table:draw()
 	
 	-- background

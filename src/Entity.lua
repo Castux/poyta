@@ -239,6 +239,28 @@ function Entity:mousepressed(x,y,button)
 		Menu:add(str, function()
 			self.locked = not self.locked
 		end)
+		
+		-- change altitude
+		Menu:add("Altitude" , function()
+			Menu:init(x,y)
+			Menu:add("Move to back", function()
+				TcpClient:send("MOVEZ " .. self.id .. " 1")
+			end)
+			
+			Menu:add("Move to front", function()
+				TcpClient:send("MOVEZ " .. self.id .. " " .. (Table.last + 1))
+			end)
+			
+			Menu:add("Move up", function()
+				TcpClient:send("MOVEZ " .. self.id .. " " .. (Table:next(self.id) + 1))
+			end)
+			
+			Menu:add("Move down", function()
+				TcpClient:send("MOVEZ " .. self.id .. " " .. (Table:next(self.id,-1)))
+			end)
+			
+			return true	-- prevent re-initing the menu
+		end)
 	end
 end
 
