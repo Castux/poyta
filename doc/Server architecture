@@ -62,6 +62,10 @@ Text based, encoded in UTF8. Words are space separated. All commands have the fo
 COMMAND [arguments...]
 
 Where arguments is a sequence of space separated strings. Arguments in brackets are optionnal. Arguments in quote mean the strings appear there litteraly (without the quotes).
+All strings arguments are escaped with the following conversion, to be sure to have space separated arguments:
+	spaces => %s
+	newlines => %n
+	% => %p
 
 
 x. Connecting
@@ -133,12 +137,12 @@ c. Creation of simple game entities
 ENTITY x y a
 	Create a "generic entity" (debug purpose) at (x,y) with angle a.
 
-LABEL x y a text [id]
+LABEL x y a text text2 [id]
 	Create a label with text text at (x,y) with angle a. If id, attach it to entity id (x,y,a are then relative to id's).
+	text2 can be reduced to a simple space (escaped) to signify an empty string.
 
 IMAGE x y a N sprite1 [sprite2 ...] [r g b]
 	Create a N-Image at (x,y,a) with strings sprite* as sprites, and optionnal color (r,g,b) as modulating color.
-	The in the strings sprite*, spaces are replaced by % and % by %% (we need space separated arguments)
 	
 COUNTER x y [value]
 	Create a counter at (x,y,a) with value value (which defaults to 0).

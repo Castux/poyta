@@ -140,6 +140,7 @@ MOVEZ = function(w)
 	Table:remove(id)
 	Table:insert(e,tonumber(w[4]),tonumber(w[5]))
 end,
+
 --[[Basic entities]]
 
 IMAGE = function(w)
@@ -154,7 +155,8 @@ IMAGE = function(w)
 	end
 	
 	local tmp = NImage(tonumber(w[4]),tonumber(w[5]),tonumber(w[6]), unpack(strings))
-	tmp:setcolor(tonumber(w[8+N]),tonumber(w[9+N]),tonumber(w[10+N]))
+	tmp.curr = tonumber(w[8+N])
+	tmp:setcolor(tonumber(w[9+N]),tonumber(w[10+N]),tonumber(w[11+N]))
 	
 	tmp:initview()
 	
@@ -170,4 +172,14 @@ SETCOLOR = function(w)
 	e:setcolor(tonumber(w[4]),tonumber(w[5]),tonumber(w[6]))
 end,
 
+LABEL = function(w)
+
+	local tmp = Label(tonumber(w[4]), tonumber(w[5]), tonumber(w[6]), w[7], w[8], tonumber(w[10]))
+	tmp.curr = tonumber(w[9])
+
+	tmp:initview()
+
+	-- add to table
+	Table:add(tonumber(w[3]), tmp)
+end,
 }

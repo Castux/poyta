@@ -105,15 +105,17 @@ function TcpClient:close()
 	self.socket:close()
 end
 
--- replace spaces by %s and % by %p
+-- replace spaces by %s and % by %p, new lines by %n
 function TcpClient:escapestring(s)
 	local s2 = string.gsub(s, "%%", "%%p")
+	s2 = string.gsub(s2, "%s", "%%s")
 	
-	return string.gsub(s2, "%s", "%%s")
+	return string.gsub(s2, "\n", "%%n")
 end
 
 function TcpClient:unescapestring(s)
-	local s2 = string.gsub(s, "%%s", " ")
+	local s2 = string.gsub(s, "%%n", "\n")
+	s2 = string.gsub(s, "%%s", " ")
 	
 	return string.gsub(s2, "%%p", "%%")
 end

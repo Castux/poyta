@@ -34,7 +34,8 @@ function Entity:initview()
 	self.curra = self.a 
 	
 	-- geometry information
-	self.poly = {}
+	self.poly = {}		-- in game space
+	self.spoly = {}		-- in screen space
 	
 	-- GUI stuff
 	self.dragged = false
@@ -84,53 +85,33 @@ function Entity:corners(a)
 	return q
 end
 
--- draws a rectangle of the size of the entity
--- usefull for the generic dummy entity
--- or as a debug draw for others
+-- calls all the other drawing functions depending on a lot of stuff
+-- overload the other functions to inherit dragging, rotation and corner proximity
 function Entity:draw()
 	
 	if not self.visible then return end
 
-	local q = {}			-- screen space
-	
-	for i = 1,4 do
-		q[2*i-1],q[2*i] = Table:game2screen(self.poly[2*i-1], self.poly[2*i])
-	end
-	
-	LG.setColor(LG.newColor(100,100,100))
-	LG.polygon(love.draw_fill,q)
-	
+	-- hot frame
 	if self == EventHandler.hot then
-		LG.setColor(LG.newColor(255,0,0))
-		LG.setLineWidth(4)
-	else
-		LG.setColor(LG.newColor(0,0,0))
-		LG.setLineWidth(1)
+		self:drawhotframe()
 	end
-	LG.polygon(love.draw_line,q)
+	
+	-- the entity itself
+	self:drawentity()
 	
 	-- corner proximity
 	if not (self.dragged or self.rotated) and EventHandler.hot == self then
 		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
 		x,y = self:isnearcorner(x,y,self:getcornerradius())
 		if x and y then
-			x,y = Table:game2screen(x,y)
-			
-			LG.setColor(LG.newColor(255,0,0,100))
-			LG.circle(love.draw_fill,x,y,self:getcornerradius()*Table.zoom, 50)
+			self:drawcornerproximity()
 		end
 	end
 	
 	-- draw dragging ghost
 	if self.dragged then
 		local x,y = Table:game2screen(self.x,self.y)
-		for i = 1,4 do
-			q[2*i-1] = q[2*i-1] + love.mouse.getX() - x - self.dragx 
-			q[2*i] = q[2*i] + love.mouse.getY() - y - self.dragy
-		end
-		
-		LG.setColor(LG.newColor(100,100,100,100))
-		LG.polygon(love.draw_fill,q)
+		self:drawentity(100, love.mouse.getX() - x - self.dragx, love.mouse.getY() - y - self.dragy)
 	end
 	
 	-- or rotating ghost
@@ -138,17 +119,47 @@ function Entity:draw()
 		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
 		local ang = math.deg(math.atan2(y-self.y,x-self.x)) - self.rotang
 		
-		local p = self:corners(ang)	-- get the corners, with added angle equal to what we dragged
-		
-		for i = 1,4 do
-			p[2*i-1],p[2*i] = Table:game2screen(p[2*i-1], p[2*i])
-		end
-		
-		LG.setColor(LG.newColor(100,255,100,100))
-		LG.polygon(love.draw_fill,p)
-		
-		
+		self:drawentity(100,nil,nil,ang)
 	end	
+end
+
+-- this is call when entity is hot
+function Entity:drawhotframe()
+	-- draw thin frame
+	
+	LG.setColor(LG.newColor(100,100,100))
+	LG.setLineWidth(1)
+	LG.polygon(love.draw_line,self.spoly)
+end
+
+-- draw with shifts in screen space
+function Entity:drawentity(alpha,dx,dy,da)
+	
+	local alpha = alpha or 255
+	local poly = self.spoly
+	
+	if da then
+		poly = self:corners(da)
+		for i = 1,4 do
+			poly[2*i-1],poly[2*i] = Table:game2screen(poly[2*i-1], poly[2*i])
+		end
+	end
+	
+	if dx and dy then
+		for i = 1,4 do
+			poly[2*i-1] = poly[2*i-1] + dx
+			poly[2*i] = poly[2*i] + dy
+		end
+	end
+	
+	LG.setColor(LG.newColor(220,220,220,alpha))
+	LG.polygon(love.draw_fill,poly)
+end
+
+-- this is called when mouse is near a corner
+function Entity:drawcornerproximity()
+	LG.setColor(LG.newColor(0,0,0,100))
+	LG.circle(love.draw_fill, love.mouse.getX(), love.mouse.getY(), 5) 
 end
 
 -- on this generic entity, it's fixed
@@ -320,6 +331,8 @@ function Entity:update(dt)
 	
 	-- update the corners data
 	self.poly = self:corners()
-	
+	for i = 1,4 do
+		self.spoly[2*i-1],self.spoly[2*i] = Table:game2screen(self.poly[2*i-1], self.poly[2*i])
+	end
 end
 

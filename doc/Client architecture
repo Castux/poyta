@@ -107,5 +107,6 @@ MOVEZ nick id pos num	(num is the number of elements that had to be moved up by 
 c. Basic entities
 -----------------
 
-IMAGE nick id x y a N sprite1 [sprite2 ...] r g b
+IMAGE nick id x y a N sprite1 [sprite2 ...] curr r g b
 SETCOLOR nick id r g b
+LABEL nick id x y a text text2 curr [id]

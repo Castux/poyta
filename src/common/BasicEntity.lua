@@ -24,7 +24,7 @@ BasicEntity = class(Entity)
 function BasicEntity:compare(other)
 
 	-- all BasicEntities are the same, so...
-	return other:isa(BasicEntity)
+	return other.class == BasicEntity
 end
 
 
@@ -79,6 +79,21 @@ function NImage:setcolor(r,g,b)
 	if self.b > 255 then self.b = 255 end
 end
 
+function NImage:compare(other)
+
+	if other.class ~= NImage or self.r ~= other.r or self.g ~= other.g or self.b ~= other.b or #self.sprites ~= #other.sprites then
+		return false
+	end
+	
+	for i,v in ipairs(self.sprites) do
+		if v ~= other.sprites[i] then
+			return false
+		end
+	end
+	
+	return true
+end
+
 -- flips to the next image, or a random one if random is true
 function NImage:flip(random)
 	
@@ -90,7 +105,7 @@ function NImage:flip(random)
 end
 
 -- overload parent's one
-function Entity:dumpstatus(nick, id)
+function NImage:dumpstatus(nick, id)
 	
 	local str = FMT("IMAGE %s %d %d %d %d %d ", nick, id, self.x, self.y, self.a, #self.sprites)
 	
@@ -98,6 +113,61 @@ function Entity:dumpstatus(nick, id)
 		str = str .. v .. " "
 	end
 	
-	str = str .. FMT("%d %d %d", self.r, self.g, self.b)
+	str = str .. FMT("%d %d %d %d", self.curr, self.r, self.g, self.b)
+	return str
+end
+
+
+-------------------------------------------------------------
+--[[ Label ]]------------------------------------------------
+-------------------------------------------------------------
+
+Label = class(BasicEntity)
+
+function Label:init(x,y,a,text,text2,id)
+
+	-- init as an Entity
+	Label.super.init(self,x,y,a)
+	
+	-- add text
+	self.text = {
+		text,
+		text2,
+	}
+	
+	self.curr = 1
+	
+	-- attach to entity
+	if id then
+		self.attach = id
+	end
+
+	return self
+end
+
+function Label:compare(other)
+	
+	return self.text[1] == other.text[1] and self.text[2] == other.text[2]
+end
+
+-- flips to the other side, or to a random one if random is true
+function Label:flip(random)
+	
+	if random then
+		self.curr = math.random(1,2)
+	else
+		self.curr = self.curr % 2 + 1	-- indexing from 1 is weird with mod math
+	end
+end
+
+-- overload parent's one
+function Label:dumpstatus(nick, id)
+	
+	local str = FMT("LABEL %s %d %d %d %d %s %s %d ", nick, id, self.x, self.y, self.a, self.text[1], self.text[2], self.curr)
+	
+	if self.attach then
+		str = str .. self.attach
+	end
+	
 	return str
 end

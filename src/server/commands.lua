@@ -53,7 +53,8 @@ Supervisor.clearances = {
 	-- basic entities
 	IMAGE = 2,
 	SETCOLOR = 2,
-
+	LABEL = 2,
+	
 }
 
 function Supervisor:parsecommand(data,sock)
@@ -437,6 +438,20 @@ SETCOLOR = function(w,sock)
 	-- WARN USERS
 	TcpServer:broadcast(FMT("SETCOLOR %s %d %d %d %d", cli.nick, id, e.r, e.g, e.b))
 end,
+
+LABEL = function(w,sock)
+	local cli = ClientManager.clients[sock]
+	
+	local tmp = Label(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]), w[5], w[6], tonumber(w[7]))
+	
+	-- add to table
+	local id,e = Table:add(tmp)	
+	
+	print("", FMT("%s created label %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
+	
+	-- WARN USERS
+	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+end
 
 }
 

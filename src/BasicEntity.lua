@@ -40,64 +40,20 @@ function NImage:getsize()
 	return self.images[self.curr]:getWidth(), self.images[self.curr]:getHeight()
 end
 
-function NImage:draw()
-
-	if not self.visible then return end
+-- overload the partial drawing method only, to inherit the computations done at Entity level
+function NImage:drawentity(alpha,dx,dy,da)
 	
-	-- basic drawing
+	local alpha = alpha or 255
+	local dx,dy,da = dx or 0, dy or 0, da or 0
+	
 	local x,y = Table:game2screen(self.currx, self.curry)
+	
 	local s2 = self.s2 or self.s
 	
-	if EventHandler.hot == self then
-		-- draw thin frame
-		local q = {}			-- screen space
-
-		for i = 1,4 do
-			q[2*i-1],q[2*i] = Table:game2screen(self.poly[2*i-1], self.poly[2*i])
-		end
-		
-		LG.setColor(LG.newColor(100,100,100))
-		LG.setLineWidth(1)
-		LG.polygon(love.draw_line,q)
-	end
-	
-	LG.setColor(LG.newColor(self.r,self.g,self.b))
+	LG.setColor(LG.newColor(self.r,self.g,self.b,alpha))
 	LG.setColorMode(love.color_modulate)
-	LG.draw(self.images[self.curr], x, y, self.curra, self.s*Table.zoom, s2*Table.zoom)
+	LG.draw(self.images[self.curr], x + dx, y + dy, self.curra + da, self.s*Table.zoom, s2*Table.zoom)
 	LG.setColorMode(love.color_normal)
-	
-	-- corner proximity
-	if not (self.dragged or self.rotated) and EventHandler.hot == self then
-		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
-		x,y = self:isnearcorner(x,y,self:getcornerradius())
-		if x and y then
-			LG.circle(love.draw_fill, love.mouse.getX(), love.mouse.getY(), 5) 
-		end
-	end
-	
-	-- dragging ghost
-	if self.dragged then
-		x = love.mouse.getX() - self.dragx
-		y = love.mouse.getY() - self.dragy
-		
-		LG.setColor(LG.newColor(self.r,self.g,self.b,100))
-		LG.setColorMode(love.color_modulate)
-		LG.draw(self.images[self.curr], x, y, self.curra, self.s*Table.zoom, s2*Table.zoom)
-		LG.setColorMode(love.color_normal)
-	end
-	
-	-- rotating ghost
-	if self.rotated then
-		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
-		local ang = math.deg(math.atan2(y-self.y,x-self.x)) - self.rotang
-		
-		x,y = Table:game2screen(self.currx, self.curry)
-		
-		LG.setColor(LG.newColor(255,255,255,100))
-		LG.setColorMode(love.color_modulate)
-		LG.draw(self.images[self.curr], x, y, self.curra + ang, self.s*Table.zoom, s2*Table.zoom)
-		LG.setColorMode(love.color_normal)
-	end	
 end
 
 function NImage:mousepressed(x,y,button)
@@ -129,4 +85,57 @@ function NImage:mousepressed(x,y,button)
 			return true	-- tell menu we don't want it to be erased, since colopicker sets it up again
 		end)
 	end
+end
+
+
+-------------------------------------------------------------
+--[[ Label ]]------------------------------------------------
+-------------------------------------------------------------
+
+function Label:initview()
+	
+	-- init as a regular entity
+	Label.super.initview(self)
+	
+	-- the font
+	self.lineh = 20
+	self.font = LG.newFont(love.default_font, self.lineh)
+	
+end
+
+function Label:getsize()
+	return self.font:getWidth(self.text[self.curr]), self.lineh
+end
+
+function Label:draw()
+
+	if not self.visible then return end
+
+	local w,h = self:getsize()
+	local x,y = self.currx - w/2, self.curry + h/2
+	
+	if self.attach then
+		x = x + Table.ids[id].x
+		y = y + Table.ids[id].y
+	end
+	
+	x,y = Table:game2screen(x,y)
+	
+	local q = {}			-- screen space
+		
+	for i = 1,4 do
+		q[2*i-1],q[2*i] = Table:game2screen(self.poly[2*i-1], self.poly[2*i])
+	end
+	
+	if EventHandler.hot == self then
+		
+		
+		LG.setColor(LG.newColor(0,0,0,100))
+		LG.polygon(love.draw_fill, q)
+	end
+	
+	LG.setFont(self.font)
+	LG.setColor(LG.newColor(0,0,0))
+	LG.draw(self.text[self.curr], q[7], q[8], self.curra, Table.zoom)
+
 end
