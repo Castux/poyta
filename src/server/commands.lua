@@ -47,6 +47,7 @@ Supervisor.clearances = {
 	MOVE = 2,
 	ROTATE = 2,
 	SCALE = 2,
+	FLIP = 2,
 	DELETE = 2,
 	MOVEZ = 2,
 	
@@ -349,6 +350,33 @@ SCALE = function(w,sock)
 	else
 		print("", FMT("%s scaled entity %d to %f", cli.nick, id, e.s))
 		TcpServer:broadcast(FMT("SCALE %s %d %f", cli.nick, id, e.s))
+	end
+	
+end,
+
+FLIP = function(w,sock)
+	
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end	
+	
+	local rand = (w[3] == "random")
+	
+	-- flip it if you can
+	if e.flip then
+		e:flip(rand)
+		
+		print("", FMT("%s flipped entity %d", cli.nick, id))
+		
+		local str = FMT("FLIP %s %d", cli.nick, id)
+		if rand then
+			str = str .. " " .. e.curr
+		end
+		TcpServer:broadcast(str)
+	else
+		local err = "Entity " .. id .. " cannot be flipped"
+		print("", err)
+		-- server -> client
+		TcpServer:send("ERROR " .. err, sock)
 	end
 	
 end,

@@ -100,6 +100,7 @@ ENTITY nick id x y a
 MOVE nick id x y
 ROTATE nick id a	
 SCALE nick id s1 [s2]
+FLIP nick id [current]	(if the flip was random, current indicates the new top)
 DELETE nick id
 MOVEZ nick id pos num	(num is the number of elements that had to be moved up by one.
 	Since client might not have all info about entities, this is necessary)

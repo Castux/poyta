@@ -152,7 +152,9 @@ end
 -- event handling
 
 function Table:mousepressed(x,y,button)
-		
+	
+	local gx, gy = self:screen2game(x,y)
+	
 	-- first forward event to entities
 	for id,e in self:pairs() do
 		e:mousepressed(x,y,button)
@@ -175,6 +177,14 @@ function Table:mousepressed(x,y,button)
 		if self.zoomtarget > 0.2 then 
 			self.zoomtarget = self.zoomtarget - 0.1
 		end
+	
+	-- Right click on nothing: contextual menu
+	elseif not EventHandler.hot and button == love.mouse_right then
+		Menu:init(x,y)
+				
+		Menu:add("Make label", function()
+			TcpClient:send(FMT("LABEL %d %d %d %s", gx, gy, 0, "<text>"))
+		end)
 	end
 	
 	return nil	-- in any case, intercept the event

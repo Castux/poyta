@@ -126,6 +126,19 @@ SCALE = function(w)
 	e:scale(tonumber(w[4]),tonumber(w[5]))
 end,
 
+FLIP = function(w)
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+	
+	local new = tonumber(w[4])
+	
+	if new then
+		e.curr = new
+	else
+		e:flip()
+	end
+end,
+
 DELETE = function(w)
 	local id,e = fetch_entity(w[3])
 	if not e then return end

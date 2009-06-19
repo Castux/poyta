@@ -69,10 +69,10 @@ function NImage:mousepressed(x,y,button)
 		-- flipping the NImage
 		if #self.sprites > 1 then
 			Menu:add("Flip", function()
-				self:flip()
+				TcpClient:send("FLIP " .. self.id)
 			end)
 			Menu:add("Flip randomly", function()
-				self:flip(true)
+				TcpClient:send("FLIP " .. self.id .. " random")
 			end)
 		end
 		
@@ -97,6 +97,11 @@ function Label:initview()
 	-- init as a regular entity
 	Label.super.initview(self)
 	
+	-- check we know of the entity before accessing its fields all the time
+	if self.attach and not Table.ids[self.attach] then
+		self.attach = nil
+	end
+	
 	if self.attach then
 		-- remember the initial difference with attach
 		self.dx = self.x
@@ -118,7 +123,7 @@ function Label:initview()
 end
 
 -- when we receive a move command, we have to make it relative, if we're attached
-function Entity:set(x,y,a)
+function Label:set(x,y,a)
 	
 	self.a = a or self.a
 	
@@ -133,8 +138,15 @@ function Entity:set(x,y,a)
 	return self
 end
 
+function Label:getstring()
+	local s = self.text[self.curr]
+	if s == "" then s = "<***>" end
+	
+	return s
+end
+
 function Label:getsize()
-	return self.font:getWidth(self.text[self.curr]), self.lineh
+	return self.font:getWidth(self:getstring()), self.lineh
 end
 
 function Label:update(dt)
@@ -163,9 +175,15 @@ function Label:drawentity(alpha,dx,dy,da)
 	
 	x,y = Table:game2screen(x,y)
 	
+	-- the annoying part where we have to compute the position of the corner
+	if self.curra + da ~= 0 then
+		local poly = self:corners(da)
+		x,y = Table:game2screen(poly[7], poly[8])
+	end
+	
 	LG.setFont(self.font)
 	LG.setColor(LG.newColor(0,0,0,alpha))
-	LG.draw(self.text[self.curr], x + dx, y + dy, self.curra, Table.zoom)
+	LG.draw(self:getstring(), x + dx, y + dy, self.curra + da, Table.zoom)
 end
 
 -- in case of attachment, the order to send when dropping is different (relative)
@@ -191,5 +209,26 @@ function Entity:mousereleased(x,y,button)
 		local ang = math.deg(math.atan2(y-self.y,x-self.x)) - self.rotang + self.a
 		
 		TcpClient:send(FMT("ROTATE %d %f", self.id, ang % 360))
+	end
+end
+
+function Label:mousepressed(x,y,button)
+	
+	-- inherit all the fancy stuff from parent class
+	NImage.super.mousepressed(self,x,y,button)
+	
+	-- add others specific to NImage
+	
+	-- right click: add stuff to contextual menu
+	if button == love.mouse_right and EventHandler.hot == self then
+		
+		-- flipping		
+		Menu:add("Flip", function()
+			TcpClient:send("FLIP " .. self.id)
+		end)
+		Menu:add("Flip randomly", function()
+			TcpClient:send("FLIP " .. self.id .. " random")
+		end)
+
 	end
 end
