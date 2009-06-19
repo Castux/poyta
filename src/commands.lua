@@ -174,7 +174,12 @@ end,
 
 LABEL = function(w)
 
-	local tmp = Label(tonumber(w[4]), tonumber(w[5]), tonumber(w[6]), w[7], w[8], tonumber(w[10]))
+	local text = TcpClient:unescapestring(w[7])
+	local text2 = TcpClient:unescapestring(w[8])
+	
+	if text2 == " " then text2 = nil end
+	
+	local tmp = Label(tonumber(w[4]), tonumber(w[5]), tonumber(w[6]), text, text2, tonumber(w[10]))
 	tmp.curr = tonumber(w[9])
 
 	tmp:initview()

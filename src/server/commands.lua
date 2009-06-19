@@ -442,7 +442,7 @@ end,
 LABEL = function(w,sock)
 	local cli = ClientManager.clients[sock]
 	
-	local tmp = Label(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]), w[5], w[6], tonumber(w[7]))
+	local tmp = Label(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]), w[5] or "%s", w[6] or "%s", tonumber(w[7]))
 	
 	-- add to table
 	local id,e = Table:add(tmp)	

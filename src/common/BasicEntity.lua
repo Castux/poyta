@@ -131,8 +131,8 @@ function Label:init(x,y,a,text,text2,id)
 	
 	-- add text
 	self.text = {
-		text,
-		text2,
+		text or "",
+		text2 or "",
 	}
 	
 	self.curr = 1

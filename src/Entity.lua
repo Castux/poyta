@@ -123,7 +123,7 @@ function Entity:draw()
 	end	
 end
 
--- this is call when entity is hot
+-- this is called when entity is hot
 function Entity:drawhotframe()
 	-- draw thin frame
 	
@@ -133,6 +133,8 @@ function Entity:drawhotframe()
 end
 
 -- draw with shifts in screen space
+-- this is only a rectangle, for debug purpose
+-- overload this for each other entity
 function Entity:drawentity(alpha,dx,dy,da)
 	
 	local alpha = alpha or 255

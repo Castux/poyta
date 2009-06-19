@@ -97,45 +97,99 @@ function Label:initview()
 	-- init as a regular entity
 	Label.super.initview(self)
 	
+	if self.attach then
+		-- remember the initial difference with attach
+		self.dx = self.x
+		self.dy = self.y
+		
+		-- attach yourself
+		self.x = self.dx + Table.ids[self.attach].x
+		self.y = self.dy + Table.ids[self.attach].y
+		
+		-- avoid movement when loading
+		self.currx = self.dx + Table.ids[self.attach].x
+		self.curry = self.dy + Table.ids[self.attach].y
+	end
+		
 	-- the font
 	self.lineh = 20
 	self.font = LG.newFont(love.default_font, self.lineh)
 	
 end
 
+-- when we receive a move command, we have to make it relative, if we're attached
+function Entity:set(x,y,a)
+	
+	self.a = a or self.a
+	
+	if self.attach then
+		self.dx = x or self.dx
+		self.dy = y or self.dy
+	else
+		self.x = x or self.x
+		self.y = y or self.y
+	end
+	
+	return self
+end
+
 function Label:getsize()
 	return self.font:getWidth(self.text[self.curr]), self.lineh
 end
 
-function Label:draw()
+function Label:update(dt)
 
-	if not self.visible then return end
+	Label.super.update(self,dt)
+	
+	-- if our attach died, become independent
+	if not Table.ids[self.attach] then
+		self.attach = nil
+	end
+	
+	-- if we're attached, update our coords
+	if self.attach then
+		self.x = self.dx + Table.ids[self.attach].x
+		self.y = self.dy + Table.ids[self.attach].y
+	end
+end
 
+function Label:drawentity(alpha,dx,dy,da)
+	
+	local alpha = alpha or 255
+	local dx,dy,da = dx or 0, dy or 0, da or 0
+	
 	local w,h = self:getsize()
 	local x,y = self.currx - w/2, self.curry + h/2
 	
-	if self.attach then
-		x = x + Table.ids[id].x
-		y = y + Table.ids[id].y
-	end
-	
 	x,y = Table:game2screen(x,y)
 	
-	local q = {}			-- screen space
-		
-	for i = 1,4 do
-		q[2*i-1],q[2*i] = Table:game2screen(self.poly[2*i-1], self.poly[2*i])
-	end
-	
-	if EventHandler.hot == self then
-		
-		
-		LG.setColor(LG.newColor(0,0,0,100))
-		LG.polygon(love.draw_fill, q)
-	end
-	
 	LG.setFont(self.font)
-	LG.setColor(LG.newColor(0,0,0))
-	LG.draw(self.text[self.curr], q[7], q[8], self.curra, Table.zoom)
+	LG.setColor(LG.newColor(0,0,0,alpha))
+	LG.draw(self.text[self.curr], x + dx, y + dy, self.curra, Table.zoom)
+end
 
+-- in case of attachment, the order to send when dropping is different (relative)
+
+function Entity:mousereleased(x,y,button)
+
+	-- if we were dragging, stop and ask server to move entity
+	if button == love.mouse_left and self.dragged then
+		self.dragged = false
+		
+		local x,y = Table:screen2game(x-self.dragx,y-self.dragy)
+		if self.attach then
+			x = x - Table.ids[self.attach].x
+			y = y - Table.ids[self.attach].y
+		end
+		
+		TcpClient:send(FMT("MOVE %d %d %d", self.id, x, y))
+	
+	elseif button == love.mouse_left and self.rotated then
+		self.rotated = false
+		
+		local x,y = Table:screen2game(love.mouse.getX(),love.mouse.getY())
+		local ang = math.deg(math.atan2(y-self.y,x-self.x)) - self.rotang + self.a
+		
+		TcpClient:send(FMT("ROTATE %d %f", self.id, ang % 360))
+	end
 end
