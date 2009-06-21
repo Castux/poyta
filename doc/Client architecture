@@ -9,8 +9,14 @@ Basic elements:
 - Table. Same as in server, with an additional drawing method, and a coordinate to id converter. Also has a local zoom + position, for the displaying.
 - Event handler. Records user input (keyboard and mouse) and calls appropriate callbacks. These can either change local game status or send requests to the server. It also takes care of tracking the hot elements (at global level, to allow drag and dropping between UI elements, for instance).
 - Drawer. Handles the loading of packs and the resolving of sprite name -> actual sprite. Has the graphical part to make it appear on screen, and the event handling that goes with it.
+- Contextual menu. It's a singleton object, since only one can appear at one time. It is actually always there, but only visible when activated. Any object can activate the menu and fill it with elements associated to callbacks.
+- Text Input box. Same as menu, there is only one, it is always there, and only activated when needed.
 
 The main loop is never blocked, since we need constant refreshing and input possibility.
+
+All these classes are used as singleton, so the global name of the class is reused for the instance.
+
+Some of these classes are copied and modified from the server ones, while some are actually the same (from directory "common"), with additional methods in another file (from main source directory). Some objects need a second init() method, called initview(), to be called after the original init().
 
 x. Dealing with delay
 ---------------------
@@ -33,7 +39,7 @@ Identical to the server's one, only socket information is not given.
 --------
 
 Follows closely the server's model. Indexed by game entity id, as given by the server. A draw method takes care of forwarding to all game entities, taking in account the general viewing zoom/position. It must be able to know in which object happened a click. Game objects are built upon server game objects, see additions later.
-Has a coordinated converter between game world and screen (to be used with id/coord conversion).
+Has a coordinateS converter between game world and screen (to be used with id/coord conversion).
 
 4. Event handler
 ----------------
@@ -42,16 +48,18 @@ The tough part, especially since the UI actions have not been decided yet. Will 
 - drag & drop to move objects
 - drag on the table to move viewing position
 - wheel up and down to change viewing zoom
-- right click (or ctrl-click) for basic action
-[- click on an object to select, click on the table to deselect]
+- right click (or ctrl-click) for contextual menu
+
+All objects interested in input events register to the Event Handler, who forwards them.
+It also takes care of keeping track of the hot object (the one under the mouse).
 
 5. Game entities
 ----------------
 
-Are basically the same as server's ones, with added methods (in another source, for instance, or "category").
+Are basically the same as server's ones, with added methods in another source.
 
 - immediate position and angle, which serves for interpolation. They are the one really drawn. At each update they go closer to the real ones, which are given by the server.
-- dragged flag, with initial relative click position. 
+- dragged/rotated flag, with initial relative click position. 
 
 - draw at immediate position/angle.
 - inside coordinates test: based on rectangular shapes with the immediate position/angle/scales.
