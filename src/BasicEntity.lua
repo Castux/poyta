@@ -188,7 +188,7 @@ end
 
 -- in case of attachment, the order to send when dropping is different (relative)
 
-function Entity:mousereleased(x,y,button)
+function Label:mousereleased(x,y,button)
 
 	-- if we were dragging, stop and ask server to move entity
 	if button == love.mouse_left and self.dragged then
@@ -202,6 +202,7 @@ function Entity:mousereleased(x,y,button)
 		
 		TcpClient:send(FMT("MOVE %d %d %d", self.id, x, y))
 	
+	-- same for rotation
 	elseif button == love.mouse_left and self.rotated then
 		self.rotated = false
 		
@@ -217,7 +218,7 @@ function Label:mousepressed(x,y,button)
 	-- inherit all the fancy stuff from parent class
 	NImage.super.mousepressed(self,x,y,button)
 	
-	-- add others specific to NImage
+	-- add others specific to label
 	
 	-- right click: add stuff to contextual menu
 	if button == love.mouse_right and EventHandler.hot == self then
@@ -229,6 +230,14 @@ function Label:mousepressed(x,y,button)
 		Menu:add("Flip randomly", function()
 			TcpClient:send("FLIP " .. self.id .. " random")
 		end)
-
+		
+		Menu:add("Change text", function()
+			TextInput:init(x,y + 1.5*self.lineh,function(line)
+				TcpClient:send("SETLABEL " .. self.id .. " " .. TcpClient:escapestring(line))
+			end)
+		end)
+		
+		
+		
 	end
 end

@@ -190,6 +190,7 @@ LABEL = function(w)
 	local text = TcpClient:unescapestring(w[7])
 	local text2 = TcpClient:unescapestring(w[8])
 	
+	if text == " " then text = nil end
 	if text2 == " " then text2 = nil end
 	
 	local tmp = Label(tonumber(w[4]), tonumber(w[5]), tonumber(w[6]), text, text2, tonumber(w[10]))
@@ -199,5 +200,17 @@ LABEL = function(w)
 
 	-- add to table
 	Table:add(tonumber(w[3]), tmp)
+end,
+
+SETLABEL = function(w)
+	
+	local id,e = fetch_entity(w[3])
+	if not e then return end
+
+	local str = TcpClient:unescapestring(w[4])
+	
+	if str == " " then str = nil end
+	
+	e.text[e.curr] = str
 end,
 }

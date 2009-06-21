@@ -23,6 +23,7 @@ love.filesystem.require("Table.lua")
 love.filesystem.require("EventHandler.lua")
 love.filesystem.require("Drawer.lua")
 love.filesystem.require("Menu.lua")
+love.filesystem.require("TextInput.lua")
 
 love.filesystem.require("colorpicker.lua")
 
@@ -82,9 +83,14 @@ function load()
 	-- contextual menu
 	Menu = Menu()
 	
+	-- text input
+	TextInput = TextInput()
+	TextInput.active = false
+	
 	-- event handler
 	EventHandler = EventHandler()
 	EventHandler:register(GlobalEvents)
+	EventHandler:register(TextInput)
 	EventHandler:register(Menu)
 	EventHandler:register(Drawer)
 	EventHandler:register(Console)
@@ -139,6 +145,7 @@ function draw()
 	ClientManager:draw(0,300)
 	Drawer:draw()
 	Menu:draw()
+	TextInput:draw()
 end
 
 -- a table of top priority events

@@ -183,7 +183,13 @@ function Table:mousepressed(x,y,button)
 		Menu:init(x,y)
 				
 		Menu:add("Make label", function()
-			TcpClient:send(FMT("LABEL %d %d %d %s", gx, gy, 0, "<text>"))
+			TextInput:init(x,y,function(line)
+				local line = line
+				if not line or line == "" then
+					line = " "
+				end
+				TcpClient:send(FMT("LABEL %d %d %d %s", gx, gy, 0, TcpClient:escapestring(line)))
+			end)
 		end)
 	end
 	

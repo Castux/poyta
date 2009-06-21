@@ -55,6 +55,7 @@ Supervisor.clearances = {
 	IMAGE = 2,
 	SETCOLOR = 2,
 	LABEL = 2,
+	SETLABEL = 2,
 	
 }
 
@@ -479,7 +480,21 @@ LABEL = function(w,sock)
 	
 	-- WARN USERS
 	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
-end
+end,
+
+SETLABEL = function(w,sock)
+
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end
+	
+	local str = w[3]
+	if not str then str = "%s" end
+	
+	e.text[e.curr] = str
+	
+	-- WARN USERS
+	TcpServer:broadcast(FMT("SETLABEL %s %d %s", cli.nick, id, e.text[e.curr]))
+end,
 
 }
 

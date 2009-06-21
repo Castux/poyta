@@ -111,3 +111,4 @@ c. Basic entities
 IMAGE nick id x y a N sprite1 [sprite2 ...] curr r g b
 SETCOLOR nick id r g b
 LABEL nick id x y a text text2 curr [id]
+SETLABEL nick id text

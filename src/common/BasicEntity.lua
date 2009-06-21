@@ -163,7 +163,10 @@ end
 -- overload parent's one
 function Label:dumpstatus(nick, id)
 	
-	local str = FMT("LABEL %s %d %d %d %d %s %s %d ", nick, id, self.x, self.y, self.a, self.text[1], self.text[2], self.curr)
+	local text = self.text[1] or "%s"
+	local text2 = self.text[2] or "%s"
+	
+	local str = FMT("LABEL %s %d %d %d %d %s %s %d ", nick, id, self.x, self.y, self.a, text, text2, self.curr)
 	
 	if self.attach then
 		str = str .. self.attach

@@ -188,5 +188,4 @@ function MenuItem:mousepressed(x,y,button)
 	else
 		return x,y,button
 	end
-	
 end
