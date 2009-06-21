@@ -140,7 +140,7 @@ function draw()
 	
 	Table:draw()
 	
-	LG.draw(love.timer.getFPS(),600,20)
+	-- LG.draw(love.timer.getFPS(),600,20)
 	Console:draw()
 	ClientManager:draw(4,134)
 	Drawer:draw()

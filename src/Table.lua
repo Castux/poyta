@@ -124,7 +124,11 @@ function Table:draw()
 	
 	-- background
 	local x,y = self:game2screen(0,0)
+	
+	LG.setColor(LG.newColor(255,255,255,50))
+	LG.setColorMode(love.color_modulate)
 	LG.draw(self.sprite,x,y,0,self.zoom)
+	LG.setColorMode(love.color_normal)
 	
 	-- simply draw the things in order
 	for id,e in self:pairs() do
