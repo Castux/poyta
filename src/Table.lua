@@ -185,6 +185,43 @@ function Table:mousepressed(x,y,button)
 	-- Right click on nothing: contextual menu
 	elseif not EventHandler.hot and button == love.mouse_right then
 		Menu:init(x,y)
+		
+		Menu:add("Reset view", function()
+			self.x = 0
+			self.y = 0
+			self.zoomtarget = 1
+			self.zoom = 1
+		end)
+		
+		Menu:add("Connect", function()
+			TextInput:init(x,y,function(line)
+				local line = line
+				if not line or line == "" then
+					initconnection()
+				else
+					local _,_,host,port = string.find(line, "(.*):(.*)")
+					initconnection(host,tonumber(port))
+				end
+			end, "localhost:6666")
+		end)
+		
+		Menu:add("Change nick", function()
+			TextInput:init(x,y,function(line)
+				local line = line
+				if not line or line == "" then
+					return
+				end
+				TcpClient:send("NICK " .. line)
+			end)
+		end)
+		
+		Menu:add("Change color", function()
+			colorpicker(function(r,g,b)
+				TcpClient:send(FMT("COLOR %d %d %d", r, g, b))
+			end)
+			
+			return true	-- tell menu we don't want it to be erased, since colopicker sets it up again
+		end)
 				
 		Menu:add("Make label", function()
 			TextInput:init(x,y,function(line)
@@ -194,21 +231,6 @@ function Table:mousepressed(x,y,button)
 				end
 				TcpClient:send(FMT("LABEL %d %d %d %s", gx, gy, 0, TcpClient:escapestring(line)))
 			end)
-		end)
-		
-		Menu:add("Reset view", function()
-			self.x = 0
-			self.y = 0
-			self.zoomtarget = 1
-			self.zoom = 1
-		end)
-		
-		Menu:add("Change player color", function()
-			colorpicker(function(r,g,b)
-				TcpClient:send(FMT("COLOR %d %d %d", r, g, b))
-			end)
-			
-			return true	-- tell menu we don't want it to be erased, since colopicker sets it up again
 		end)
 	end
 	

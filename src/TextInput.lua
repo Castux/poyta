@@ -17,7 +17,7 @@ love.filesystem.require("common/class.lua")
 
 TextInput = class()
 
-function TextInput:init(x,y,callback,lineh)
+function TextInput:init(x,y,callback,default,lineh)
 	
 	self.x = x or 0
 	self.y = y or 0
@@ -26,9 +26,9 @@ function TextInput:init(x,y,callback,lineh)
 	self.font = LG.newFont("VeraMono.ttf", self.lineh)
 
 	-- text
-	self.cursor = 1
-	self.text = ""
-	
+	self.text = default or ""
+	self.cursor = #self.text + 1
+		
 	-- active or not
 	if x and y and callback then
 		self.active = true
@@ -110,18 +110,10 @@ function TextInput:input(key)
 	
 	-- ascii character 
 	-- WAITING FOR LÖVE 0.6 AND A PROPER TEXT INPUT
-	if key <= 126 and key >= 32 then
-		local shift = love.keyboard.isDown(love.key_lshift) or love.keyboard.isDown(love.key_rshift)
-
-		if key <= 122 and key >= 97 and shift then
-			-- caps
-			key = key - (97-65)
-		end
-		
-		self:insert(string.char(key))
 	
-	elseif key >= love.key_kp0 and key <= love.key_kp9 then
-		self:insert(string.char(key - love.key_kp0 + love.key_0))
+	local char = text_input(key)
+	if char then
+		self:insert(char)
 	
 	-- special commands
 	elseif key == love.key_backspace then	-- remove last

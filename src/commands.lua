@@ -101,7 +101,6 @@ ENTITY = function(w)
 	tmp:initview()
 	
 	Table:add(tonumber(w[3]), tmp)
-	Console:print(FMT("%s added an entity",w[2]))
 end,
 
 MOVE = function(w)

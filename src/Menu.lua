@@ -157,6 +157,7 @@ function MenuItem:draw()
 		x = self.x - self:getsize()/2
 		y = self.y + self.lineh/2
 		LG.setColor(LG.newColor(0,0,0))
+		LG.setFont(self.font)
 	else
 		x,y = self.x, self.y
 	end

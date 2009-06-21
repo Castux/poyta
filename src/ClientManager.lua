@@ -48,7 +48,7 @@ function ClientManager:add(nick,clearance,r,g,b)
 	
 	--shouldnt happen
 	if self.nicks[nick] then
-		cons:print("[Warning] Adding client with existing nick: " .. nick)
+		Console:print("[Warning] Adding client with existing nick: " .. nick)
 	end
 	
 	self.nicks[nick] = tmp

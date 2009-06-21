@@ -84,19 +84,10 @@ function Console:input(key)
 	
 	-- ascii character 
 	-- WAITING FOR LÖVE 0.6 AND A PROPER TEXT INPUT
-	if key <= 126 and key >= 32 then
-		local shift = love.keyboard.isDown(love.key_lshift) or love.keyboard.isDown(love.key_rshift)
-
-		if key <= 122 and key >= 97 and shift then
-			-- caps
-			key = key - (97-65)
-		end
+	local char = text_input(key)
+	if char then
+		self:insert(char)
 		
-		self:insert(string.char(key))
-	
-	elseif key >= love.key_kp0 and key <= love.key_kp9 then
-		self:insert(string.char(key - love.key_kp0 + love.key_0))
-	
 	-- special commands
 	elseif key == love.key_backspace then	-- remove last
 		self:insert()

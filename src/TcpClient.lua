@@ -46,6 +46,8 @@ end
 
 function TcpClient:connect(host,port)
 	
+	self:close()
+	
 	self.socket = socket.connect(host,port)
 	
 	if not self.socket then

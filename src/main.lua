@@ -26,6 +26,7 @@ love.filesystem.require("Menu.lua")
 love.filesystem.require("TextInput.lua")
 
 love.filesystem.require("colorpicker.lua")
+love.filesystem.require("text_input.lua")
 
 -- common includes. must override Lua's require and take care of dependencies by hand
 -- because of Löve's integration.
@@ -52,20 +53,35 @@ function load()
 	
 	-- console
 	Console = Console(4,4,80,10,"VeraMono.ttf",12)
+	
+	-- console sends directly everything that looks like a command, and SAYs the rest
 	Console.callback = function(self,line)
-		TcpClient:send(line)
+		local _,_,word = string.find(line,"^(%w+)")
+		if Supervisor.commands[word] then
+			TcpClient:send(line)
+		else
+			TcpClient:send("SAY " .. line)
+		end
 	end
 		
 	-- network
-	TcpClient = TcpClient("localhost",6666,0)
-	if not TcpClient.socket then
-		Console:print("Impossible to connect to server")
-	else
-		Console:print("Connected to server ".. TcpClient.ip .. ":" .. TcpClient.port)
+	TcpClient = TcpClient()
+	
+	TcpClient.cbrecv = function(line)
+		
+		local success,w = Supervisor:parsecommand(line)
+		if not success then
+			Console:print("[recv unknown cmd]" .. w.orig)
+		end
+		
+		-- later, all commands will go to a hidden console,
+		-- since every command will have repercussions in game/chat
 	end
 	
-	TcpClient:send("NICK Alfredo")
-	TcpClient:send("HANDSHAKE Do you want to play a game?")
+	TcpClient.cbdisconnect = function()
+		Console:print("Disconnected from server")
+		reset()
+	end
 	
 	-- supervisor
 	Supervisor = Supervisor()
@@ -96,27 +112,18 @@ function load()
 	EventHandler:register(Console)
 	EventHandler:register(Table)
 	
-	-- pluging things together: network callbacks
-	TcpClient.cbrecv = function(line)
-		
-		local success,w = Supervisor:parsecommand(line)
-		if not success then
-			Console:print("[recv unknown cmd]" .. w.orig)
-		end
-		
-		-- later, all commands will go to a hidden console,
-		-- since every command will have repercussions in game/chat
-	end
-	TcpClient.cbdisconnect = function()
-		Console:print("Disconnected from server")
-	end
-		
 	-- graphics
 	LG.setBackgroundColor(LG.newColor(240,240,240))
 	
 	-- some more sprite loading
 	LF.require("uisprites.lua")
+end
 
+function reset()
+
+	TcpClient:close()
+	ClientManager:init()
+	Table:init()
 end
 
 function update(dt)
@@ -187,4 +194,22 @@ function GlobalEvents:mousepressed(x,y,button)
 	
 	-- forward all the rest
 	return x,y,button
+end
+
+function initconnection(host,port)
+	
+	local host = host or "localhost"
+	local port = port or 6666
+	
+	reset()
+	
+	TcpClient:connect(host,port)
+	
+	if not TcpClient.socket then
+		Console:print("Impossible to connect to server " .. host .. ":" .. port)
+	else
+		Console:print("Connected to server ".. TcpClient.ip .. ":" .. TcpClient.port)
+	end
+
+	TcpClient:send("HANDSHAKE Do you want to play a game?")
 end
