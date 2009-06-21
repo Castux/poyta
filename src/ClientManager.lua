@@ -83,24 +83,34 @@ end
 function ClientManager:printclient(nick)
 
 	local tmp = self.nicks[nick]
-	local col = "(" .. tmp.color[1] .. "," .. tmp.color[2] .. "," .. tmp.color[3] .. ")"
+	local clear
+
+	if tmp.clearance == 0 then
+		clear = "observer"
+	elseif tmp.clearance == 1 then
+		clear = "voice"
+	elseif tmp.clearance == 2 then
+		clear = "hand"
+	elseif tmp.clearance == 3 then
+		clear = "host"
+	end
 	
-	return string.format("%s %s %s", tmp.nick, tmp.clearance, col)
+	return FMT("%s (%s)", tmp.nick, clear)
 end
 
 function ClientManager:draw(x,y)
-	
-	LG.setColor(LG.newColor(100,0,150))
-	LG.setLineWidth(2)
 	
 	local i = 1
 	for k,v in pairs(self.nicks) do
 		local us = ""
 		if k == self.us.nick then us = "*" end
 		
+		LG.setColor(LG.newColor(v.color[1],v.color[2],v.color[3]))
 		LG.draw(us .. self:printclient(k), x + 2, y + i*10 + 2)
 		i = i + 1
 	end
 	
+	LG.setColor(LG.newColor(100,0,150))
+	LG.setLineWidth(2)
 	LG.rectangle(love.draw_line, x, y, 200 + 4 , i*10 + 4)
 end

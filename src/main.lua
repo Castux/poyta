@@ -142,7 +142,7 @@ function draw()
 	
 	LG.draw(love.timer.getFPS(),600,20)
 	Console:draw()
-	ClientManager:draw(0,300)
+	ClientManager:draw(4,134)
 	Drawer:draw()
 	Menu:draw()
 	TextInput:draw()

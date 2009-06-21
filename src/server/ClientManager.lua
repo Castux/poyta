@@ -46,7 +46,7 @@ function ClientManager:add(sock)
 		socket = sock,
 		nick = nick,
 		clearance = -1,
-		color = {math.random(0,255),math.random(0,255),math.random(0,255)},
+		color = {0,0,0},
 		time = os.time()
 	}
 	
@@ -86,7 +86,7 @@ function ClientManager:promote(cli,level,by)
 	local prev = cli.clearance
 	
 	if level < 0 then level = 0 end
-	
+	if level > 3 then level = 3 end
 	
 	cli.clearance = level
 	print("", cli.nick .. " was promoted to level " .. level)

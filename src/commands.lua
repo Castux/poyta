@@ -33,17 +33,17 @@ Supervisor.commands = {
 --[[Users management]]
 
 CLIENT = function(w)
-	ClientManager:add(w[2], w[3], w[4], w[5], w[6])
+	ClientManager:add(w[2], tonumber(w[3]), tonumber(w[4]), tonumber(w[5]), tonumber(w[6]))
 	Console:print(w[2] .. " joined")
 end,
 
 YOUARE = function(w)
-	ClientManager:add(w[2], w[3], w[4], w[5], w[6])
+	ClientManager:add(w[2], tonumber(w[3]), tonumber(w[4]), tonumber(w[5]), tonumber(w[6]))
 	ClientManager.us = ClientManager.nicks[w[2]]
 end,
 
 THEREIS = function(w)
-	ClientManager:add(w[2], w[3], w[4], w[5], w[6])
+	ClientManager:add(w[2], tonumber(w[3]), tonumber(w[4]), tonumber(w[5]), tonumber(w[6]))
 end,
 
 NICK = function(w)
@@ -58,7 +58,6 @@ COLOR = function(w)
 	color[3] = w[5]
 	
 	color = FMT("%d,%d,%d",w[3],w[4],w[5])
-	Console:print(w[2] .. " changed color to " .. color)
 end,
 
 SAY = function(w)

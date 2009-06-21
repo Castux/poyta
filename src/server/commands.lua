@@ -141,6 +141,9 @@ HANDSHAKE = function(w,sock)
 end,
 
 NICK = function(w,sock)
+
+	if not w[2] then return end
+	
 	local oldnick = ClientManager.clients[sock].nick
 	local success = ClientManager:changenick(sock,w[2])
 	
@@ -200,6 +203,8 @@ end,
 
 TELL = function(w,sock)
 	local cli = ClientManager.clients[sock]
+	
+	if not w[2] then return end
 	
 	local target = ClientManager.nicks[w[2]]
 	if target == nil then
@@ -268,6 +273,8 @@ end,
 KICK = function(w,sock)
 	local cli = ClientManager.clients[sock]
 	local target = ClientManager.nicks[w[2]]
+	
+	if not w[2] then return end
 	
 	if target == nil then
 		TcpServer:send("ERROR " ..  w[2] .. ": no such nick",sock)

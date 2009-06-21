@@ -198,6 +198,14 @@ function Table:mousepressed(x,y,button)
 			self.zoomtarget = 1
 			self.zoom = 1
 		end)
+		
+		Menu:add("Change player color", function()
+			colorpicker(function(r,g,b)
+				TcpClient:send(FMT("COLOR %d %d %d", r, g, b))
+			end)
+			
+			return true	-- tell menu we don't want it to be erased, since colopicker sets it up again
+		end)
 	end
 	
 	return nil	-- in any case, intercept the event
