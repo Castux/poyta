@@ -122,35 +122,25 @@ function Label:initview()
 	
 end
 
+-- this is different than the server one because here, x and y are the actual position,
+-- instead of the relative one
+
 function Label:attachto(target)
 	
-	-- reproduce normal label code
-	
-		-- the detach case
+	-- the detach case
 	if not target and self.attach then
-		self.x = self.x + Table.ids[self.attach].x
-		self.y = self.y + Table.ids[self.attach].y
-		
 		self.attach = nil
 	
-		-- the attach case
+	-- the attach case
 	else
 		self.attach = target
-		if Table.ids[self.attach] then
-			self.x = self.x - Table.ids[self.attach].x
-			self.y = self.y - Table.ids[self.attach].y
-		end
 	end
 	
 	-- and then update view related variables
 	if self.attach then
 		-- remember the initial difference with attach
-		self.dx = self.x
-		self.dy = self.y
-		
-		-- avoid movement
-		self.currx = self.dx + Table.ids[self.attach].x
-		self.curry = self.dy + Table.ids[self.attach].y
+		self.dx = self.x - Table.ids[self.attach].x
+		self.dy = self.y - Table.ids[self.attach].y
 	end
 end
 

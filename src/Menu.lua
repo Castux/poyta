@@ -93,8 +93,8 @@ function Menu:add(img, callback)
 	local N = #self.items
 	
 		-- make a circle with perimeter big enough to hold everything
-	local rad = size * N * 1.5 / (2 * math.pi)		-- 1.5 is just a margin
-	if rad < 30 then rad = 30 end
+	local rad = size * N * 0.8 / (2 * math.pi)		-- 0.7 is just a margin
+	if rad < size then rad = size end
 	
 		-- place objects along it
 	for i,v in ipairs(self.items) do

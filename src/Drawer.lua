@@ -29,6 +29,7 @@ Drawer = class()
 function Drawer:init(w)
 	
 	self.packs = {}
+	self.bipdir = "builtinpacks"
 	self.pdir = "packs"
 	self.w = 200		-- width
 	self.x = LG.getWidth() - self.w	-- left border
@@ -53,11 +54,20 @@ function Drawer:init(w)
 	self.camy = 0		-- camera shift (value of the top pixel in the drawer's variable view)
 	self.scrolled = false	-- is the user actually scrolling the view now?
 	
+	
+	-- scanning the built-in packs folder
+	local ls = LF.enumerate(self.bipdir)
+	for i,v in ipairs(ls) do
+		if LF.isDirectory(self.bipdir .. "/" .. v) then
+			self:loadpack(self.bipdir,v)
+		end
+	end
+	
 	-- scanning the packs folder (expected to be in the "save directory")
 	local ls = LF.enumerate(self.pdir)
 	for i,v in ipairs(ls) do
 		if LF.isDirectory(self.pdir .. "/" .. v) then
-			self:loadpack(v)
+			self:loadpack(self.pdir,v)
 		end
 	end
 	
@@ -75,8 +85,8 @@ end
 -- for now, loadpack() just loads all the sprites in the folder and adds them
 -- the the pack's table
 
-function Drawer:loadpack(str)
-	local path = self.pdir .. "/" .. str
+function Drawer:loadpack(pack,str)
+	local path = pack .. "/" .. str
 	
 	-- is string valid?
 	if str == "" or not str then return end

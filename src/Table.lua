@@ -191,6 +191,13 @@ function Table:mousepressed(x,y,button)
 				TcpClient:send(FMT("LABEL %d %d %d %s", gx, gy, 0, TcpClient:escapestring(line)))
 			end)
 		end)
+		
+		Menu:add("Reset view", function()
+			self.x = 0
+			self.y = 0
+			self.zoomtarget = 1
+			self.zoom = 1
+		end)
 	end
 	
 	return nil	-- in any case, intercept the event
