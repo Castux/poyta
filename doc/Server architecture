@@ -159,6 +159,9 @@ d. Special commands to simple entities
 SETLABEL id [text]
 	Sets the current (top) text of the label id to text. If text is omitted, erase it instead (do not delete label).
 
+ATTACH id [target]
+	Attachs the label id to the entity target. If target is omitted, label is detached.
+
 SETCOLOR id r g b
 	Change the modulating color of N-Image id to (r,g,b).
 

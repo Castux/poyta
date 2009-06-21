@@ -122,6 +122,38 @@ function Label:initview()
 	
 end
 
+function Label:attachto(target)
+	
+	-- reproduce normal label code
+	
+		-- the detach case
+	if not target and self.attach then
+		self.x = self.x + Table.ids[self.attach].x
+		self.y = self.y + Table.ids[self.attach].y
+		
+		self.attach = nil
+	
+		-- the attach case
+	else
+		self.attach = target
+		if Table.ids[self.attach] then
+			self.x = self.x - Table.ids[self.attach].x
+			self.y = self.y - Table.ids[self.attach].y
+		end
+	end
+	
+	-- and then update view related variables
+	if self.attach then
+		-- remember the initial difference with attach
+		self.dx = self.x
+		self.dy = self.y
+		
+		-- avoid movement
+		self.currx = self.dx + Table.ids[self.attach].x
+		self.curry = self.dy + Table.ids[self.attach].y
+	end
+end
+
 -- when we receive a move command, we have to make it relative, if we're attached
 function Label:set(x,y,a)
 	
@@ -187,11 +219,26 @@ function Label:drawentity(alpha,dx,dy,da)
 end
 
 -- in case of attachment, the order to send when dropping is different (relative)
+-- and when dropping on something else, propose attaching
 
 function Label:mousereleased(x,y,button)
 
+	-- if we were dragging, and dropped on something, attach
+	if button == love.mouse_left and self.dragged and EventHandler.hot and EventHandler.hot ~= self then
+		self.dragged = false
+		
+		local target = EventHandler.hot
+		if not target:isa(Entity) then
+			return
+		end
+		
+		Menu:init(x,y)
+		Menu:add("Attach label",function()
+			TcpClient:send(FMT("ATTACH %d %d", self.id, target.id))
+		end)
+	
 	-- if we were dragging, stop and ask server to move entity
-	if button == love.mouse_left and self.dragged then
+	elseif button == love.mouse_left and self.dragged then
 		self.dragged = false
 		
 		local x,y = Table:screen2game(x-self.dragx,y-self.dragy)
@@ -231,13 +278,18 @@ function Label:mousepressed(x,y,button)
 			TcpClient:send("FLIP " .. self.id .. " random")
 		end)
 		
+		-- text changing
 		Menu:add("Change text", function()
 			TextInput:init(x,y + 1.5*self.lineh,function(line)
 				TcpClient:send("SETLABEL " .. self.id .. " " .. TcpClient:escapestring(line))
 			end)
 		end)
 		
-		
-		
+		-- detaching
+		if self.attach then
+			Menu:add("Detach label", function()
+				TcpClient:send("ATTACH " .. self.id)
+			end)
+		end
 	end
 end

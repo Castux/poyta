@@ -174,3 +174,23 @@ function Label:dumpstatus(nick, id)
 	
 	return str
 end
+
+-- attach and updates coordinates so we don't move in the process
+function Label:attachto(target)
+	
+	-- the detach case
+	if not target and self.attach then
+		self.x = self.x + Table.ids[self.attach].x
+		self.y = self.y + Table.ids[self.attach].y
+		
+		self.attach = nil
+	
+	-- the attach case
+	else
+		self.attach = target
+		if Table.ids[self.attach] then
+			self.x = self.x - Table.ids[self.attach].x
+			self.y = self.y - Table.ids[self.attach].y
+		end
+	end
+end

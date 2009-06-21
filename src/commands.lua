@@ -213,4 +213,15 @@ SETLABEL = function(w)
 	
 	e.text[e.curr] = str
 end,
+
+ATTACH = function(w)
+	
+	local id,e,cli = fetch_entity(w[3],sock)
+	if not id then return end
+	
+	local target = tonumber(w[4])
+	
+	e:attachto(target)
+end,
+
 }

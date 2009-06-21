@@ -56,6 +56,7 @@ Supervisor.clearances = {
 	SETCOLOR = 2,
 	LABEL = 2,
 	SETLABEL = 2,
+	ATTACH = 2,
 	
 }
 
@@ -494,6 +495,29 @@ SETLABEL = function(w,sock)
 	
 	-- WARN USERS
 	TcpServer:broadcast(FMT("SETLABEL %s %d %s", cli.nick, id, e.text[e.curr]))
+end,
+
+ATTACH = function(w,sock)
+
+	local id,e,cli = fetch_entity(w[2],sock)
+	if not id then return end
+	
+	if not e:isa(Label) then
+		TcpServer:send("ERROR " ..  id .. " is not a label",sock)
+		return
+	end
+	
+	local target = tonumber(w[3])
+	
+	e:attachto(target)
+	
+	-- WARN USERS
+	local str = FMT("ATTACH %s %d", cli.nick, id)
+	if target then
+		str = str .. " " .. target
+	end
+	
+	TcpServer:broadcast(str)
 end,
 
 }
