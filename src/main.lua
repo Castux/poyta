@@ -117,6 +117,9 @@ function load()
 	
 	-- some more sprite loading
 	LF.require("uisprites.lua")
+	
+	-- info
+	Console:print("Game directory: " .. LF.getSaveDirectory())
 end
 
 function reset()
