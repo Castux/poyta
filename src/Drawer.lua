@@ -20,7 +20,7 @@ love.filesystem.require("DrawerItem.lua")
 -- checks if the file extension is one of those that Löve can read.
 local function imagefilename(f)
 	
-	local _,_,ext = string.find(f,"%.(.-)$")
+	local ext = string.match(f,"%.(.-)$")
 	ext = string.upper(ext)
 	
 	local allowed = {
@@ -391,7 +391,7 @@ end
 -- or the default "not found" sprite.
 function Drawer:resolvename(s)
 	
-	local _,_,pack,name = string.find(s, "(.+)/(.+)")
+	local pack,name = string.match(s, "(.+)/(.+)")
 	
 	local p = self.packs[pack]
 	if p and p[name] then

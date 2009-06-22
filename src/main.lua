@@ -56,7 +56,7 @@ function load()
 	
 	-- console sends directly everything that looks like a command, and SAYs the rest
 	Console.callback = function(self,line)
-		local _,_,word = string.find(line,"^(%w+)")
+		local word = string.match(line,"^(%w+)")
 		if Supervisor.commands[word] then
 			TcpClient:send(line)
 		else
