@@ -16,6 +16,32 @@
 love.filesystem.require("common/class.lua")
 love.filesystem.require("DrawerItem.lua")
 
+
+-- checks if the file extension is one of those that Löve can read.
+local function imagefilename(f)
+	
+	local _,_,ext = string.find(f,"%.(.-)$")
+	ext = string.upper(ext)
+	
+	local allowed = {
+		PNG = true,
+		BMP = true,
+		GIF = true,
+		JPEG = true,
+		JPG = true,
+		LBM = true,
+		PCX = true,
+		PNM = true,
+		TGA = true,
+		XCF = true,
+		XPM = true,
+		XV = true,
+	}
+	
+	return allowed[ext]
+end
+
+
 Drawer = class()
 
 -- At initialisation, the drawer takes care of loading all the packs.
@@ -105,7 +131,7 @@ function Drawer:loadpack(pack,str)
 	local ls = LF.enumerate(path)
 	for i,v in ipairs(ls) do
 		local f = path .. "/" .. v
-		if LF.isFile(f) then
+		if LF.isFile(f) and imagefilename(v) then
 			p[v] = LG.newImage(f)
 		end
 	end
