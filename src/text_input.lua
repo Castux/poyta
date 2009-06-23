@@ -39,11 +39,10 @@ function text_input(key)
 		return(string.char(key - love.key_kp0 + love.key_0))
 	
 	elseif key == love.key_kp_period then
-		if shift then
-			return(":")
-		else
-			return(".")
-		end
+		return(".")
+		
+	elseif key == love.key_kp_plus then
+		return(":")
 	end
 	
 end

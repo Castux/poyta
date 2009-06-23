@@ -24,6 +24,10 @@ dice, etc.)
 <p>Copyright 2009 Noé Falzon
 &lt;<a href="mailto:firstname.lastname@aliceadsl.fr">firstname.lastname@aliceadsl.fr</a>&gt;</p>
 
+<hr />
+
+<p>If you don't plan on reading the manual ("duh, a manual?"), read at least this first section "Version 0.5 (alpha1)". Most of the rest you can probably figure out for yourself.</p>
+
 <h1>Version 0.5 (alpha1)</h1>
 <p>pöytä is under heavy development. This release is an alpha version, brought to you to present progress on the developement, and because it is already partly usable. For this reason, you must keep in mind the following facts:</p>
 
@@ -31,7 +35,7 @@ dice, etc.)
 <li>Most of the intended features are still to be implemented. Only very basic functionalities are available. To get an overview of what is planned, please refer to the file "doc/Design doc" in the source distribution.</li>
 <li>There are probably major bugs in the program. If you encounter one, please report it on the project's <a href="http://launchpad.net/poyta/">webpage</a>.</li>
 <li>Most of the user interface is temporary and will be cleaned up later. For now, it is intended to be functional, not handy or good looking.</li>
-<li>The text input, due to engine limitations, is awful. It will not follow your keyboard layout, and shift will work only on letters. The numeric pad should work. Shift + numeric pad's dot should make a ":".</li>
+<li>The text input, due to engine limitations, is awful. It will not follow your keyboard layout, and shift will work only on letters. The numbers on the numeric pad should work. Use the "+" on the numeric pad to make ":".</li>
 </ul>
 
 
@@ -97,9 +101,9 @@ dice, etc.)
 
 <h2>Quick start</h2>
 
-<p>In the top left corner is the console that you can use to chat. Just below is the list of players. On the right side is the drawer, in which you will find game elements. All the rest is the table, the game area on which you will manipulate game elements. its center is indicated by the big "pöytä" word.</p>
+<p>In the top left corner is the console that you can use to chat. Just below is the list of players. On the right side is the drawer, in which you will find game elements. All the rest is the table, the game area on which you will manipulate game elements. Its center is indicated by the big "pöytä" word.</p>
 
-<p>The first thing to do is connect to a server. Right-click on the table, click "Connect", and type the IP address (or hostname) of the server, followed by ":", followed by the port number. If the server is on you own machine, you can leave the default ("localhost:6666"). Then hit the return key.</p>
+<p>The first thing to do is connect to a server. Right-click on the table, click "Connect", and type the IP address (or hostname) of the server, followed by ":", followed by the port number. If the server is on your own machine, you can leave the default ("localhost:6666"). Then hit the return key.</p>
 
 <p>Once connected, you can change your nickname and your color with right-click, and click on "Change nick" and "Change color". The nickname cannot contain a space.</p>
 
@@ -119,12 +123,12 @@ dice, etc.)
 <li>Delete: well, remove it from the table...</li>
 <li>Change color: images can be drawn with a modulating color. With this you can make different pieces from the same original black and white image. Chosing "White" set back the original color.</li>
 <li>Altitude: change the drawing order. Normally, elements are drawn in the order they were added to the table. But a board, for instance, should be below the pieces, so if you added it after the pieces, you can force it back to the background with "Move to back". </li>
-<li>Lock: a locked element cannot be dragged (the whole table is dragged instead). This is useful for instance to avoid to accidentaly move a board when trying to shift the view. (Note that this is a local setting. Other players can lock or not the same elements as you.)</li>
+<li>Lock: a locked element cannot be dragged (the whole table is dragged instead). This is useful for instance to avoid to accidentally move a board when trying to shift the view. (Note that this is a local setting. Other players can lock or not the same elements as you.)</li>
 </ul>
 
 <h3>Labels</h3>
 
-<p>From the table's contextual menu, you can add a label with "Make label". A label is meant to represent a small piece of paper, with two sides, on which you can write whatever you need. Type your text, hit the enter key. A label can be moved and rotated like any other game element. It's contextual menu, however, has a few more options:</p>
+<p>From the table's contextual menu, you can add a label with "Make label". A label is meant to represent a small piece of paper, with two sides, on which you can write whatever you need. Type your text, hit the enter key. A label can be moved and rotated like any other game element. Its contextual menu, however, has a few more options:</p>
 
 <ul>
 <li>Change text: change the text on the currently displayed side of the label.</li>
@@ -143,7 +147,7 @@ dice, etc.)
 <ol>
 <li>Get images of your board game (take photos, grab them on the web, draw them yourself, as you wish).</li>
 <li>Put them all in a directory, whose name will be the pack's name. Say, "My Cool Pack".</li>
-<li>Start pöytä and check what to console says. Something like "Game directory:" followed by the path to a directory on your hard drive. Go there (create the missing directories if necessary).</li>
+<li>Start pöytä and check what the console says. Something like "Game directory:" followed by the path to a directory on your hard drive. Go there (create the missing directories if necessary).</li>
 <li>Create a directory "packs" in this game directory.</li>
 <li>Copy your pack inside "packs". So now there is a "pack" directory, with a "My Cool Pack" directory inside.</li>
 <li>Restart pöytä, and voilà, your pack should appear in the drawer.</li>
@@ -151,7 +155,17 @@ dice, etc.)
 
 <p>This "game directory" thing is a bit annoying, we know, but in later versions, it will be easier. On GNU/Linux it should be something like /home/user/.love/poyta/, on Windows ??, and on Mac OS X, ???</p>
 
-<p>Now of course, playing alone isn't funny. Send the packs you made to the other players, and you can play using the same game elements. If a someone adds an element from a pack you don't have, it will show as a question mark, and the console will tell you what pack you need.</p>
+<p>Now of course, playing alone isn't funny. Send the packs you made to the other players, and you can play using the same game elements. If someone adds an element from a pack you don't have, it will show as a question mark, and the console will tell you what pack you need.</p>
+
+<h1>Free/open source software</h1>
+
+<p>pöytä is the work of Noé Falzon (<a href="mailto:firstname.lastname@aliceadsl.fr">firstname.lastname@aliceadsl.fr</a>). Its source code is released under the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License version 3</a>. All other media (images, documentation) are released under the <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons by-nc-sa 3.0</a> license, unless stated otherwise for particular elements (see in particular files Pack.info in each built-in pack)</p>
+
+<p>This means that you have the right to freely use, re-distribute and modify (under a few conditions) pöytä. Don't hesitate!</p>
+
+<p>pöytä uses the <a href="http://www.lua.org/">Lua</a> programming language and the <a href="http://www.love2d.org/">LÖVE</a> game engine, both great free software projects.</p>
+
+<p>Share the sprit of free software!</p>
 
 </body>
 </html>
