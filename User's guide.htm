@@ -1,24 +1,114 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-	<TITLE>pöytä user's guide</TITLE>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "DTD/xhtml1-strict.dtd">
 
-</HEAD>
-<BODY>
-<IMG SRC="logo192.png" NAME="logo">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
-<P>pöytä is a networked board game
+<head>
+  <title>pöytä user's guide</title>
+  <meta http-equiv="Content-Type" content="text/xhtml+xml; charset=utf-8" />
+</head>
+
+<body>
+<img src="logo192.png" name="logo">
+
+<p>pöytä is a networked board game
 system that pretends to be almost &quot;universal&quot; in the sense
 that it does not implement individual games, but instead provides
 users the possibility to use the images they want as assets, and the
 most common mechanisms found in board games (movable elements, cards,
 dice, etc.)
-</P>
+</p>
 
-<P>Copyright 2009 Noé Falzon
-&lt;<A HREF="mailto:firstname.lastname@aliceadsl.fr">firstname.lastname@aliceadsl.fr</A>&gt;</P>
+<p>Copyright 2009 Noé Falzon
+&lt;<a href="mailto:firstname.lastname@aliceadsl.fr">firstname.lastname@aliceadsl.fr</a>&gt;</p>
 
-<H1>Version 0.5 (alpha1)</H1>
-<P>pöytä is under heavy development.</P>
-</BODY>
-</HTML>
+<h1>Version 0.5 (alpha1)</h1>
+<p>pöytä is under heavy development. This release is an alpha version, brought to you to present progress on the developement, and because it is already partly usable. For this reason, you must keep in mind the following facts:</p>
+
+<ul>
+<li>Most of the intended features are still to be implemented. Only very basic functionalities are available. To get an overview of what is planned, please refer to the file "doc/Design doc" in the source distribution.</li>
+<li>There are probably major bugs in the program. If you encounter one, please report it on the project's <a href="http://launchpad.net/poyta/">webpage</a>.</li>
+<li>Most of the user interface is temporary and will be cleaned up later. For now, it is intended to be functional, not handy or good looking.</li>
+<li>The text input, due to engine limitations, is awful. It will not follow your keyboard layout, and shift will work only on letters. The numeric pad should work. Shift + numeric pad's dot should make a ":".</li>
+</ul>
+
+<p>This being said, we hope you will enjoy this early release :)</p>
+
+<h1>Running pöytä</h1>
+
+<p>If you got the source distribution, please follow the instructions in the README. If you took one of the binaries distribution, your life will be a lot easier.</p>
+
+<h2>Windows</h2>
+
+<p>To run the server, double click on server.bat, which will set up the server on the port 6666. If you need to use another port, replace 6666 by what you want in the file server.bat</p>
+
+<p>To run the client, double click poyta.exe</p>
+
+<h2>Mac OS X</h2>
+
+<p>To run the server, open a Terminal (normaly available in Applications/Accessories) and change directory to pöytä's folder: "cd /path/to/poyta". Then run: "./server.sh", which will set up the server on the port 6666. If you need to use another port, replace 6666 by what you want in the file server.sh</p>
+
+<p>To run the client, double click the poyta icon.</p>
+
+<h2>GNU/Linux</h2>
+
+<p>Requirements for the server:
+<ul>
+<li>Lua 5.1</li>
+<li>LuaSocket</li>
+</ul>
+
+On Ubuntu, you can install these with the command "sudo apt-get install lua5.1 liblua5.1-socket2".
+</p>
+
+<p>Requirements for the client:
+<ul>
+<li>Boost</li>
+<li>SDL</li>
+<li>SDL Mixer</li>
+<li>Lua 5.1</li>
+<li>FreeType</li>
+<li>DevIL</li>
+<li>PhysFS</li>
+</ul>
+
+On Ubuntu, you can install these with the command "sudo apt-get install libdevil1c2 libfreetype6 libgl1-mesa-glx liblua5.1-0 libphysfs-1.0-0 libsdl1.2debian libsdl-mixer1.2".
+</p>
+
+<p>To run the server, open a terminal and change directory to pöytä's folder, and run: "./server.sh", which will set up the server on the port 6666. If you need to use another port, replace 6666 by what you want in the file server.sh</p>
+
+<p>To run the client, run ./poyta from pöytä's folder.</p>
+
+<p>Depending on your file manager, you might be able to double click directly on these files.</p>
+
+<h1>Using pöytä</h1>
+
+<h2>Note on controls</h2>
+
+<p>In all this guide we will refer to right-clicks and mouse wheel. If your mouse has only one button or no wheel, you can use the alternative controls:
+
+<ul>
+<li>Right-click -> control-click</li>
+<li>Wheel up -> page up</li>
+<li>Wheel down -> page down</li>
+</ul>
+</p>
+
+<h2>Quick start</h2>
+
+<p>In the top left corner is the console that you can use to chat. Just below is the list of players. On the right side is the drawer, in which you will find game elements. All the rest is the table, the game area on which you will manipulate game elements. its center is indicated by the big "pöytä" word.</p>
+
+<p>The first thing to do is connect to a server. Right-click on the table, click "Connect", and type the IP address (or hostname) of the server, followed by ":", followed by the port number. If the server is on you own machine, you can leave the default ("localhost:6666"). Then hit the return key.</p>
+
+<p>Once connected, you can change your nickname and your color with right-click, and click on "Change nick" and "Change color". The nickname cannot contain a space.</p>
+
+<p>The drawer at the right has a list of packs, either built-in or user-made (see section "Packs"). Clicking on a pack's name displays its contents. Clicking on an element adds it to the table. Clicking again on the pack's name brings back the pack list. To see more elements at once, you can resize the drawer by dragging its left border. You can also fold it completely by clicking its left border.</p>
+
+<p>The table can be dragged (click, move mouse, release button) and zoomed (wheel up and down) to see more or less objects at once. The view can be reset from the contextual menu (right-click, "Reset view").</p>
+
+<p>Game elements are moved by drag and drop: move your mouse over an element (a frame appears around it), click, move mouse, release button. They can also be rotated: move your mouse over a corner of the element (a small circle appears), click, move mouse, release button.</p>
+
+</body>
+</html>
