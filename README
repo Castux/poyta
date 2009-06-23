@@ -1,0 +1,41 @@
+pöytä
+=====
+
+pöytä is a networked board game system that pretends to be almost "universal" in the sense that it does not implement individual games, but instead provides users the possibility to use the images they want as assets, and the most common mechanisms found in board games (movable elements, cards, dice, etc.)
+
+Copyright 2009 Noé Falzon <firstname.lastname@aliceadsl.fr>
+
+Running pöytä from source
+-------------------------
+
+pöytä can be run on GNU/Linux, Mac OS X and Windows.
+
+* To run the server, you will need the Lua interpreter (www.lua.org) and LuaSocket.
+From the src/server directory, run:
+
+lua servermain.lua port
+
+or an equivalent command on your system, where "port" should be replaced by the port on which you want the server to listen. It can be omitted and defaults to 6666. Note that depending on your system, you might need administrator rights to use a port below 1024.
+
+* To run the client, you will need the LÖVE game engine (www.love2d.org).
+From the root directory, run:
+
+love src
+
+or an equivalent command on your system.
+
+pöytä binaries
+--------------
+
+User friendly binaries are released for GNU/Linux, Mac OS X and Windows and should be available at the same place than the source distribution.
+
+Using pöytä
+-----------
+
+Please read the User's guide for more information.
+
+License
+-------
+
+All source code is released under the GNU General Public License version 3.
+All other media (images, documentation) are released under Creative Commons by-nc-sa, unless stated otherwise for particular elements (see in particular files Pack.info in each built-in pack).
