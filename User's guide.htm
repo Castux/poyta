@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html 
      PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-     "DTD/xhtml1-strict.dtd">
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
@@ -11,7 +11,7 @@
 </head>
 
 <body>
-<img src="logo192.png" name="logo">
+<p><img src="logo192.png" alt="logo" /></p>
 
 <p>pöytä is a networked board game
 system that pretends to be almost &quot;universal&quot; in the sense
@@ -34,6 +34,7 @@ dice, etc.)
 <li>The text input, due to engine limitations, is awful. It will not follow your keyboard layout, and shift will work only on letters. The numeric pad should work. Shift + numeric pad's dot should make a ":".</li>
 </ul>
 
+
 <p>This being said, we hope you will enjoy this early release :)</p>
 
 <h1>Running pöytä</h1>
@@ -54,16 +55,16 @@ dice, etc.)
 
 <h2>GNU/Linux</h2>
 
-<p>Requirements for the server:
+<p>Requirements for the server:</p>
+
 <ul>
 <li>Lua 5.1</li>
 <li>LuaSocket</li>
 </ul>
 
-On Ubuntu, you can install these with the command "sudo apt-get install lua5.1 liblua5.1-socket2".
-</p>
+<p>On Ubuntu, you can install these with the command "sudo apt-get install lua5.1 liblua5.1-socket2".</p>
 
-<p>Requirements for the client:
+<p>Requirements for the client:</p>
 <ul>
 <li>Boost</li>
 <li>SDL</li>
@@ -74,8 +75,7 @@ On Ubuntu, you can install these with the command "sudo apt-get install lua5.1 l
 <li>PhysFS</li>
 </ul>
 
-On Ubuntu, you can install these with the command "sudo apt-get install libdevil1c2 libfreetype6 libgl1-mesa-glx liblua5.1-0 libphysfs-1.0-0 libsdl1.2debian libsdl-mixer1.2".
-</p>
+<p>On Ubuntu, you can install these with the command "sudo apt-get install libdevil1c2 libfreetype6 libgl1-mesa-glx liblua5.1-0 libphysfs-1.0-0 libsdl1.2debian libsdl-mixer1.2".</p>
 
 <p>To run the server, open a terminal and change directory to pöytä's folder, and run: "./server.sh", which will set up the server on the port 6666. If you need to use another port, replace 6666 by what you want in the file server.sh</p>
 
@@ -87,14 +87,13 @@ On Ubuntu, you can install these with the command "sudo apt-get install libdevil
 
 <h2>Note on controls</h2>
 
-<p>In all this guide we will refer to right-clicks and mouse wheel. If your mouse has only one button or no wheel, you can use the alternative controls:
+<p>In all this guide we will refer to right-clicks and mouse wheel. If your mouse has only one button or no wheel, you can use the alternative controls:</p>
 
 <ul>
 <li>Right-click -> control-click</li>
 <li>Wheel up -> page up</li>
 <li>Wheel down -> page down</li>
 </ul>
-</p>
 
 <h2>Quick start</h2>
 
@@ -109,6 +108,50 @@ On Ubuntu, you can install these with the command "sudo apt-get install libdevil
 <p>The table can be dragged (click, move mouse, release button) and zoomed (wheel up and down) to see more or less objects at once. The view can be reset from the contextual menu (right-click, "Reset view").</p>
 
 <p>Game elements are moved by drag and drop: move your mouse over an element (a frame appears around it), click, move mouse, release button. They can also be rotated: move your mouse over a corner of the element (a small circle appears), click, move mouse, release button.</p>
+
+<h2>More details</h2>
+
+<h3>Game elements</h3>
+
+<p>Right-clicking on a game element brings its contextual menu, in which you can find the following options:</p>
+
+<ul>
+<li>Delete: well, remove it from the table...</li>
+<li>Change color: images can be drawn with a modulating color. With this you can make different pieces from the same original black and white image. Chosing "White" set back the original color.</li>
+<li>Altitude: change the drawing order. Normally, elements are drawn in the order they were added to the table. But a board, for instance, should be below the pieces, so if you added it after the pieces, you can force it back to the background with "Move to back". </li>
+<li>Lock: a locked element cannot be dragged (the whole table is dragged instead). This is useful for instance to avoid to accidentaly move a board when trying to shift the view. (Note that this is a local setting. Other players can lock or not the same elements as you.)</li>
+</ul>
+
+<h3>Labels</h3>
+
+<p>From the table's contextual menu, you can add a label with "Make label". A label is meant to represent a small piece of paper, with two sides, on which you can write whatever you need. Type your text, hit the enter key. A label can be moved and rotated like any other game element. It's contextual menu, however, has a few more options:</p>
+
+<ul>
+<li>Change text: change the text on the currently displayed side of the label.</li>
+<li>Flip: display the second side of the label. If a side has no text, it is shown as &lt;***&gt;.</li>
+<li>Flip randomly: display a random side of the label, with equal chances. You can simulate a coin flip with this (until a better way appears in next versions of pöytä...)</li>
+</ul>
+
+<p>A neat thing about labels is that you can attach them to other elements, so they follow them around. To do this, drag a label to another element (until it has a frame around it), release the mouse, and click on the option that appears "Attach label". There you go, now when the element is moved, the label follows. When you move the label, it only changes its position with respect to the element it's attached to.</p>
+
+<h1>Making packs</h1>
+
+<p>pöytä comes with a few built-in packs, but its real power is that the users can use their own. And it is very simple (no progaming skills needed!)</p>
+
+<p>A pack is merely a fancy name for a bunch of images inside a folder. So, to create a pack, follow these simple steps:</p>
+
+<ol>
+<li>Get images of your board game (take photos, grab them on the web, draw them yourself, as you wish).</li>
+<li>Put them all in a directory, whose name will be the pack's name. Say, "My Cool Pack".</li>
+<li>Start pöytä and check what to console says. Something like "Game directory:" followed by the path to a directory on your hard drive. Go there (create the missing directories if necessary).</li>
+<li>Create a directory "packs" in this game directory.</li>
+<li>Copy your pack inside "packs". So now there is a "pack" directory, with a "My Cool Pack" directory inside.</li>
+<li>Restart pöytä, and voilà, your pack should appear in the drawer.</li>
+</ol>
+
+<p>This "game directory" thing is a bit annoying, we know, but in later versions, it will be easier. On GNU/Linux it should be something like /home/user/.love/poyta/, on Windows ??, and on Mac OS X, ???</p>
+
+<p>Now of course, playing alone isn't funny. Send the packs you made to the other players, and you can play using the same game elements. If a someone adds an element from a pack you don't have, it will show as a question mark, and the console will tell you what pack you need.</p>
 
 </body>
 </html>
