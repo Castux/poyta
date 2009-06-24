@@ -11,16 +11,16 @@ MAC=poyta-mac
 # Export a release from the bazaar branch
 bzr export $REL
 
-# Make the .love is done
+# Make the .love
 cd $REL/src
-zip -r poyta.love .
+zip -qr poyta.love .
 mv poyta.love ..
 cd ../..
 
 ## WINDOWS
 
 # Get ready our binaries
-unzip love-0.5-0-win32.zip
+unzip -q love-0.5-0-win32.zip
 mv love-0.5-0 $WIN
 
 # Make client
@@ -29,7 +29,7 @@ rm $WIN/love.exe
 
 # Make server
 cp -r $REL/src/common $REL/src/server $WIN/
-unzip luasocket-2.0.2-lua-5.1.2-Win32-vc8.zip -d $WIN/server/
+unzip -q luasocket-2.0.2-lua-5.1.2-Win32-vc8.zip -d $WIN/server/
 
 echo "CD server
 lua5.1.exe servermain.lua 6666" > $WIN/server.bat
@@ -39,6 +39,8 @@ cp $REL/User\'s\ guide.htm $REL/logo192.png $WIN/
 
 # And icon (still needs manual resource replacement)
 cp $REL/icon/poyta.ico $WIN/
+echo $WIN: Need to replace the icon manually
+
 
 ## LINUX
 
@@ -63,26 +65,27 @@ cp $REL/icon/poyta_icon.svg $LIN/
 
 
 ## MAC OS X
+# This is the über cheat. We make the app look like data
+# and the .love look like the app, so users can double click it.
+# (instead of dragging the .love on love.app)
 
 mkdir $MAC
 
-# Client
-unzip love.app.zip
+# Server
+cp -r $REL/src/common $REL/src/server $MAC/
 
-cd love.app/Contents/Resources
-rm -r *
+unzip -q luasocket-mac-build.zip
+cp -r luasocket-mac-build/build/* $MAC/server/
+echo "cd server
+./lua5.1 servermain.lua 6666" > $MAC/server.sh
+chmod u+x $MAC/server.sh
 
-cd ../MacOS/
-mv love poyta
+rm -r luasocket-mac-build
 
-cd ..
-rm Info.plist PkgInfo
+# Client: symlinks die somewhere in the process. Do it by hand.
+cp $REL/icon/poyta.icns $MAC
+cp $REL/poyta.love $MAC
+echo $MAC: Need to build bundle manually.
 
-cd ../..
-
-cp $REL/platform/Info.plist love.app/Contents/
-cp $REL/platform/PkgInfo love.app/Contents/
-cp $REL/icon/poyta.icns love.app/Contents/Resources/
-
-mv love.app poyta.app
-mv poyta.app $MAC/
+# Doc
+cp $REL/User\'s\ guide.htm $REL/logo192.png $MAC/
