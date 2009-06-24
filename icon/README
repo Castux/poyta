@@ -5,5 +5,4 @@ The p with dots is from the font URW Chancery L Bold Italic.
 All PNG's, the cleaned up SVG and the ICO are done with the script
 make-icons.sh, and require Inkscape, and icotool.
 
-The Mac OS X .icns file was converted with the website
-http://iconverticons.com/ from the .ico
+The Mac OS X .icns file was made manually with Icon Composer on a Mac.
