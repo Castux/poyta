@@ -6,6 +6,7 @@
 REL=poyta-rel
 WIN=poyta-win
 LIN=poyta-linux
+MAC=poyta-mac
 
 # Export a release from the bazaar branch
 bzr export $REL
@@ -59,3 +60,29 @@ cp $REL/User\'s\ guide.htm $REL/logo192.png $LIN/
 
 # Icon (not sure how usefull that is... make a full .desktop?)
 cp $REL/icon/poyta_icon.svg $LIN/
+
+
+## MAC OS X
+
+mkdir $MAC
+
+# Client
+unzip love.app.zip
+
+cd love.app/Contents/Resources
+rm -r *
+
+cd ../MacOS/
+mv love poyta
+
+cd ..
+rm Info.plist PkgInfo
+
+cd ../..
+
+cp $REL/platform/Info.plist love.app/Contents/
+cp $REL/platform/PkgInfo love.app/Contents/
+cp $REL/icon/poyta.icns love.app/Contents/Resources/
+
+mv love.app poyta.app
+mv poyta.app $MAC/
