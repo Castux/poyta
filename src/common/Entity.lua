@@ -33,7 +33,6 @@ function Entity:init(x,y,a)
 	self.visible = true
 	
 	self:set(x,y,a)
-	--self:scale(s,s2)
 	
 	return self
 end
@@ -83,6 +82,29 @@ end
 -- (later for savegames?)
 -- should be overloaded, of course
 function Entity:dumpstatus(nick, id)
+	
+	local str = ""
 
-	return FMT("ENTITY %s %d %d %d %d", nick, id, self.x, self.y, self.a)
+	if self.x ~= 0 or self.y ~= 0 then
+		str = FMT("MOVE %s %d %d %d\n", nick, id, self.x, self.y)
+	end
+	
+	if self.a ~= 0 then
+		str = str .. FMT("ROTATE %s %d %f\n", nick, id, self.a)
+	end
+	
+	if self.s ~= 1 or self.s2 ~= nil then
+		str = str .. FMT("SCALE %s %s %f", nick, id, self.s)
+		if self.s2 then
+			str = str .. " " .. self.s2
+		end
+		str = str .. "\n"
+	end
+	
+	return str
+end
+
+function Entity:dumpcreate(nick,id)
+	
+	return FMT("ENTITY %s %d\n", nick, id) .. self:dumpstatus(nick,id)
 end

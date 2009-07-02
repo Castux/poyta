@@ -134,7 +134,7 @@ HANDSHAKE = function(w,sock)
 		-- and about the gamestate
 		
 		for id,e in Table:pairs() do
-			TcpServer:send(e:dumpstatus("=server=",id),sock)
+			TcpServer:send(e:dumpcreate("=server=",id),sock)
 		end
 		
 	end
@@ -314,7 +314,7 @@ ENTITY = function(w,sock)
 	print("", FMT("%s created entity %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+	TcpServer:broadcast(e:dumpcreate(cli.nick, id))
 end,
 
 MOVE = function(w,sock)
@@ -376,10 +376,8 @@ FLIP = function(w,sock)
 		
 		print("", FMT("%s flipped entity %d", cli.nick, id))
 		
-		local str = FMT("FLIP %s %d", cli.nick, id)
-		if rand then
-			str = str .. " " .. e.curr
-		end
+		local str = FMT("FLIP %s %d %d", cli.nick, id, e.curr)
+
 		TcpServer:broadcast(str)
 	else
 		local err = "Entity " .. id .. " cannot be flipped"
@@ -451,7 +449,7 @@ IMAGE = function(w,sock)
 	print("", FMT("%s created %d-image %d at (%d,%d) with angle %d", cli.nick, #e.sprites, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+	TcpServer:broadcast(e:dumpcreate(cli.nick, id))
 end,
 
 SETCOLOR = function(w,sock)
@@ -480,7 +478,7 @@ LABEL = function(w,sock)
 	print("", FMT("%s created label %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+	TcpServer:broadcast(e:dumpcreate(cli.nick, id))
 end,
 
 SETLABEL = function(w,sock)

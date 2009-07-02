@@ -104,11 +104,11 @@ PONG time	(time is the server time at reception of the PING. This is sent only t
 b. Manipulation of game entities
 --------------------------------
 
-ENTITY nick id x y a
+ENTITY nick id
 MOVE nick id x y
 ROTATE nick id a	
 SCALE nick id s1 [s2]
-FLIP nick id [current]	(if the flip was random, current indicates the new top)
+FLIP nick id new	(new indicates the new top)
 DELETE nick id
 MOVEZ nick id pos num	(num is the number of elements that had to be moved up by one.
 	Since client might not have all info about entities, this is necessary)
@@ -116,8 +116,8 @@ MOVEZ nick id pos num	(num is the number of elements that had to be moved up by 
 c. Basic entities
 -----------------
 
-IMAGE nick id x y a N sprite1 [sprite2 ...] curr r g b
+IMAGE nick id N sprite1 [sprite2 ...]
 SETCOLOR nick id r g b
-LABEL nick id x y a text text2 curr [id]
+LABEL nick id text text2
 SETLABEL nick id text
 ATTACH nick id [target]
