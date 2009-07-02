@@ -112,6 +112,8 @@ b. Manipulation of game entities
 (All these commands require clearance 2 or 3 to succeed.)
 As a general rule, the server should try to be as nice as possible. If an action does not apply or is irrelevant, just ignore it, and if necessary, notify in an answer but never block in error.
 
+Using -1 for an id means the last one to be created (on top of the list). It can be useful to create stuff and set their properties immediately in one message to the server.
+
 MOVE id x y
 	Move entity id to position (x,y)
 	

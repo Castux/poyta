@@ -6,6 +6,12 @@ require "BasicEntity"
 local fetch_entity = function(str,sock)
 	local cli = ClientManager.clients[sock]
 	local id = tonumber(str)
+	
+	-- special request: the last one
+	if id == -1 then
+		id = Table.last
+	end
+	
 	local e = Table.ids[id]
 	
 	if not id then

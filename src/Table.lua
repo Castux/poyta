@@ -229,7 +229,7 @@ function Table:mousepressed(x,y,button)
 				if not line or line == "" then
 					line = " "
 				end
-				TcpClient:send(FMT("LABEL %s %%s", TcpClient:escapestring(line)))
+				TcpClient:send(FMT("LABEL %s %%s\nMOVE -1 %d %d", TcpClient:escapestring(line), gx, gy))
 			end)
 		end)
 	end
