@@ -92,5 +92,6 @@ IV. Random ideas (sort later)
 
 - A package with only images (no text file) assumes every thing is a basic object. To create more complex things, a bit of code is necessary. Shortcuts are provided for usual tasks (like making card deck where all cards have a common face and a different one, using wildcards for easy importing, etc.)
 - If activated, the private zone could appear as a drawer (typically at the bottom of the screen). But then how to represent on the table movements to and from them?
-- Moving objects done by drag and drop. Rotating them by hovering over a corner. A button appear. One click makes a quarter turn in the direction of the corner. Holding the click allows for a continuous rotation. Resizing should be more rare (don't know how yet).
+- Rotating objects by hovering over a corner. A button appear. One click makes a quarter turn in the direction of the corner. Holding the click allows for a continuous rotation. Resizing should be more rare (don't know how yet).
 - Provide objects as arrows and lines. Directly drawable as a special object, or just images? Like rulers, it would be easier to place by clicking from one end and dragging to the other, instead of placing, resizing, rotating.
+- A multiple pile: one drag zone only, and sorts objects into piles. Or only a zone in which stuff is counted dynamically (not a collection, client only?)
