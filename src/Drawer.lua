@@ -305,7 +305,12 @@ function Drawer:mousepressed(x,y,button)
 end
 
 function Drawer:mousereleased(x,y,button)
-
+	
+	-- forward to items first
+	for i,v in ipairs(self.items) do
+		v:mousereleased(x,y,button)	
+	end
+	
 	if button == love.mouse_left and self.dragged then
 		-- stop dragging
 		self.dragged = false

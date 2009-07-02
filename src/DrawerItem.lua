@@ -23,6 +23,11 @@ function DrawerItem:init(x,y,name,sprite)
 	self.name = name
 	self.sprite = sprite
 	
+	-- GUI stuff
+	self.dragged = false
+	self.dragx = 0		-- mouse position at click time
+	self.dragy = 0
+	
 	return self
 end
 
@@ -39,7 +44,23 @@ function DrawerItem:draw()
 	end
 	
 	LG.draw(self.sprite, self.x, self.y - Drawer.camy, 0, zoom)
-	LG.setColorMode(love.color_normal)	
+	LG.setColorMode(love.color_normal)
+	
+	-- dragging ghost
+	if self.dragged then
+		local x,y = love.mouse.getX(), love.mouse.getY()
+		local zoom = zoom
+		
+		if x < Drawer.x then
+			zoom = Table.zoom
+		end
+		
+		LG.setColorMode(love.color_modulate)
+		LG.setColor(LG.newColor(255,255,255,100))
+		
+		LG.draw(self.sprite, x, y, 0, zoom)
+		LG.setColorMode(love.color_normal)
+	end
 end
 
 
@@ -50,12 +71,44 @@ function DrawerItem:isinside(x,y)
 end
 
 function DrawerItem:mousepressed(x,y,button)
-	-- add an image to the table
+	
+	-- start dragging
 	if button == love.mouse_left and EventHandler.hot == self then
-		TcpClient:send("IMAGE 1 " .. TcpClient:escapestring(Drawer.view .. "/" .. self.name))
+		self.dragged = true
+		self.dragx = x
+		self.dragy = y
 	end
+
 end
 
+function DrawerItem:mousereleased(x,y,button)
+
+	if button == love.mouse_left and self.dragged then
+		self.dragged = false
+		local destx,desty
+		
+		-- check if it was a simple click
+		if x == self.dragx and y == self.dragy then
+			destx,desty = 0,0
+		end
+		
+		-- or a result of a drag
+		if x < Drawer.x then 
+			destx,desty = Table:screen2game(x,y)
+		end
+		
+		-- if one or the other, make an image
+		if destx and desty then
+			local str = FMT("IMAGE 1 %s\n", TcpClient:escapestring(Drawer.view .. "/" .. self.name))
+			
+			if destx ~= 0 and desty ~= 0 then
+				str = str .. FMT("MOVE -1 %d %d\n", destx, desty)
+			end
+			
+			TcpClient:send(str)
+		end
+	end
+end
 ------------------------------------------------------------
 --[[ The second type of item: text, for the pack list view]]
 ------------------------------------------------------------
