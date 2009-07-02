@@ -6,6 +6,12 @@ require "BasicEntity"
 local fetch_entity = function(str,sock)
 	local cli = ClientManager.clients[sock]
 	local id = tonumber(str)
+	
+	-- special request: the last one
+	if id == -1 then
+		id = Table.last
+	end
+	
 	local e = Table.ids[id]
 	
 	if not id then
@@ -134,7 +140,7 @@ HANDSHAKE = function(w,sock)
 		-- and about the gamestate
 		
 		for id,e in Table:pairs() do
-			TcpServer:send(e:dumpstatus("=server=",id),sock)
+			TcpServer:send(e:dumpcreate("=server=",id),sock)
 		end
 		
 	end
@@ -309,12 +315,12 @@ ENTITY = function(w,sock)
 	local cli = ClientManager.clients[sock]
 	
 	-- make entity and put it on the table
-	local id,e = Table:add( Entity(tonumber(w[2]),tonumber(w[3]),tonumber(w[4])) )	
+	local id,e = Table:add( Entity() )	
 	
 	print("", FMT("%s created entity %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+	TcpServer:broadcast(e:dumpcreate(cli.nick, id))
 end,
 
 MOVE = function(w,sock)
@@ -376,10 +382,8 @@ FLIP = function(w,sock)
 		
 		print("", FMT("%s flipped entity %d", cli.nick, id))
 		
-		local str = FMT("FLIP %s %d", cli.nick, id)
-		if rand then
-			str = str .. " " .. e.curr
-		end
+		local str = FMT("FLIP %s %d %d", cli.nick, id, e.curr)
+
 		TcpServer:broadcast(str)
 	else
 		local err = "Entity " .. id .. " cannot be flipped"
@@ -431,26 +435,19 @@ IMAGE = function(w,sock)
 	local cli = ClientManager.clients[sock]
 	
 	-- gather string arguments
-	local N = tonumber(w[5])
+	local N = tonumber(w[2])
 	if not N then
 		return
 	end
 	
 	local strings = {}
 	
-	for i = 6,6+N-1 do
+	for i = 3,3+N-1 do
 		table.insert(strings, w[i])
 	end
 	
 	-- make image
-	local tmp = NImage(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]), unpack(strings))
-	
-	local r = tonumber(w[6+N])
-	local g = tonumber(w[7+N])
-	local b = tonumber(w[8+N])
-	if r or g or b then
-		tmp:setcolor(r,g,b)
-	end
+	local tmp = NImage(0, 0, 0, unpack(strings))
 	
 	-- add to table
 	local id,e = Table:add(tmp)	
@@ -458,7 +455,7 @@ IMAGE = function(w,sock)
 	print("", FMT("%s created %d-image %d at (%d,%d) with angle %d", cli.nick, #e.sprites, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+	TcpServer:broadcast(e:dumpcreate(cli.nick, id))
 end,
 
 SETCOLOR = function(w,sock)
@@ -479,7 +476,7 @@ end,
 LABEL = function(w,sock)
 	local cli = ClientManager.clients[sock]
 	
-	local tmp = Label(tonumber(w[2]),tonumber(w[3]),tonumber(w[4]), w[5] or "%s", w[6] or "%s", tonumber(w[7]))
+	local tmp = Label(0, 0, 0, w[2] or "%s", w[3] or "%s", tonumber(w[7]))
 	
 	-- add to table
 	local id,e = Table:add(tmp)	
@@ -487,7 +484,7 @@ LABEL = function(w,sock)
 	print("", FMT("%s created label %d at (%d,%d) with angle %d", cli.nick, id, e.x, e.y, e.a))
 	
 	-- WARN USERS
-	TcpServer:broadcast(e:dumpstatus(cli.nick, id))
+	TcpServer:broadcast(e:dumpcreate(cli.nick, id))
 end,
 
 SETLABEL = function(w,sock)

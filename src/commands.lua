@@ -97,7 +97,7 @@ end,
 --[[Basic entities manipulation]]
 
 ENTITY = function(w)
-	local tmp = Entity(tonumber(w[4]),tonumber(w[5]),tonumber(w[6]))
+	local tmp = Entity()
 	tmp:initview()
 	
 	Table:add(tonumber(w[3]), tmp)
@@ -130,11 +130,7 @@ FLIP = function(w)
 	
 	local new = tonumber(w[4])
 	
-	if new then
-		e.curr = new
-	else
-		e:flip()
-	end
+	e.curr = new
 end,
 
 DELETE = function(w)
@@ -157,18 +153,15 @@ end,
 IMAGE = function(w)
 
 	-- gather strings
-	local N = tonumber(w[7])
+	local N = tonumber(w[4])
 	local strings = {}
 	
-	for i = 8,8+N-1 do
+	for i = 5,5+N-1 do
 		local s = TcpClient:unescapestring(w[i])
 		table.insert(strings, s)
 	end
 	
-	local tmp = NImage(tonumber(w[4]),tonumber(w[5]),tonumber(w[6]), unpack(strings))
-	tmp.curr = tonumber(w[8+N])
-	tmp:setcolor(tonumber(w[9+N]),tonumber(w[10+N]),tonumber(w[11+N]))
-	
+	local tmp = NImage(0, 0, 0, unpack(strings))
 	tmp:initview()
 	
 	-- add to table
@@ -185,15 +178,13 @@ end,
 
 LABEL = function(w)
 
-	local text = TcpClient:unescapestring(w[7])
-	local text2 = TcpClient:unescapestring(w[8])
+	local text = TcpClient:unescapestring(w[4])
+	local text2 = TcpClient:unescapestring(w[5])
 	
 	if text == " " then text = nil end
 	if text2 == " " then text2 = nil end
 	
-	local tmp = Label(tonumber(w[4]), tonumber(w[5]), tonumber(w[6]), text, text2, tonumber(w[10]))
-	tmp.curr = tonumber(w[9])
-
+	local tmp = Label(0, 0, 0, text, text2)
 	tmp:initview()
 
 	-- add to table

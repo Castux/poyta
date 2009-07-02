@@ -105,16 +105,25 @@ function NImage:flip(random)
 end
 
 -- overload parent's one
-function NImage:dumpstatus(nick, id)
+function NImage:dumpcreate(nick, id)
 	
-	local str = FMT("IMAGE %s %d %d %d %d %d ", nick, id, self.x, self.y, self.a, #self.sprites)
+	local str = FMT("IMAGE %s %d %d ", nick, id, #self.sprites)
 	
 	for i,v in ipairs(self.sprites) do
 		str = str .. v .. " "
 	end
 	
-	str = str .. FMT("%d %d %d %d", self.curr, self.r, self.g, self.b)
-	return str
+	str = str .. "\n"
+	
+	if self.curr ~= 1 then
+		str = str .. FMT("FLIP %s %d %d\n", nick, id, self.curr)
+	end
+	
+	if self.r ~= 255 or self.g ~= 255 or self.b ~= 255 then
+		str = str .. FMT("SETCOLOR %s %d %d %d %d\n", nick, id, self.r, self.g, self.b)
+	end
+	
+	return str .. self:dumpstatus(nick,id)
 end
 
 
@@ -161,18 +170,22 @@ function Label:flip(random)
 end
 
 -- overload parent's one
-function Label:dumpstatus(nick, id)
+function Label:dumpcreate(nick, id)
 	
 	local text = self.text[1] or "%s"
 	local text2 = self.text[2] or "%s"
 	
-	local str = FMT("LABEL %s %d %d %d %d %s %s %d ", nick, id, self.x, self.y, self.a, text, text2, self.curr)
+	local str = FMT("LABEL %s %d %s %s\n", nick, id, text, text2)
 	
 	if self.attach then
-		str = str .. self.attach
+		str = str .. FMT("ATTACH %s %d %d\n", nick, id, self.attach)
 	end
 	
-	return str
+	if self.curr ~= 1 then
+		str = str .. FMT("FLIP %s %d %d\n", nick, id, self.curr)
+	end
+	
+	return str .. self:dumpstatus(nick,id)
 end
 
 -- attach and updates coordinates so we don't move in the process
