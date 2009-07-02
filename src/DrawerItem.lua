@@ -52,7 +52,7 @@ end
 function DrawerItem:mousepressed(x,y,button)
 	-- add an image to the table
 	if button == love.mouse_left and EventHandler.hot == self then
-		TcpClient:send("IMAGE 0 0 0 1 " .. TcpClient:escapestring(Drawer.view .. "/" .. self.name))
+		TcpClient:send("IMAGE 1 " .. TcpClient:escapestring(Drawer.view .. "/" .. self.name))
 	end
 end
 

@@ -33,7 +33,7 @@ function Entity:init(x,y,a)
 	self.visible = true
 	
 	self:set(x,y,a)
-	self:scale(s,s2)
+	--self:scale(s,s2)
 	
 	return self
 end

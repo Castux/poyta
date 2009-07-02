@@ -134,24 +134,24 @@ MOVEZ id pos
 c. Creation of simple game entities
 -----------------------------------
 
-ENTITY x y a
-	Create a "generic entity" (debug purpose) at (x,y) with angle a.
+ENTITY
+	Create a "generic entity" (debug purpose).
 
-LABEL x y a text text2 [id]
-	Create a label with text text at (x,y) with angle a. If id, attach it to entity id (x,y,a are then relative to id's).
+LABEL text text2 [id]
+	Create a label with faces text and text2. If id, attach it to entity id.
 	text2 can be reduced to a simple space (escaped) to signify an empty string.
 
-IMAGE x y a N sprite1 [sprite2 ...] [r g b]
-	Create a N-Image at (x,y,a) with strings sprite* as sprites, and optionnal color (r,g,b) as modulating color.
+IMAGE N sprite1 [sprite2 ...]
+	Create a N-Image with strings sprite* as sprites.
 	
-COUNTER x y [value]
-	Create a counter at (x,y,a) with value value (which defaults to 0).
+COUNTER [value]
+	Create a counter with value value (which defaults to 0).
 
-DIE x y [faces]
-	Create a die at (x,y,a) with faces faces (which defaults to 6). The initial face is random.
+DIE [faces]
+	Create a die with faces faces (which defaults to 6). The initial face is random.
 
-CLOCK x y
-	Create a clock at (x,y,a), initialised at 0 and in paused state.
+CLOCK
+	Create a clock, initialised at 0 and in paused state.
 
 d. Special commands to simple entities
 --------------------------------------
