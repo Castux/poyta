@@ -46,7 +46,7 @@ function load()
 	-- all singleton classes reuse the class name
 	--	MyClass = MyClass(init params)
 	
-	-- console
+	--[[ console
 	Console = Console(4,4,80,10,"VeraMono.ttf",12)
 	
 	-- console sends directly everything that looks like a command, and SAYs the rest
@@ -58,6 +58,7 @@ function load()
 			TcpClient:send("SAY " .. line)
 		end
 	end
+	]]
 		
 	-- network
 	TcpClient = TcpClient()
@@ -80,7 +81,7 @@ function load()
 	
 	-- supervisor
 	Supervisor = Supervisor()
-	love.filesystem.include("commands.lua")
+	dofile "commands.lua"
 	
 	-- clientmanager
 	ClientManager = ClientManager()
@@ -89,14 +90,14 @@ function load()
 	Table = Table()
 
 	-- drawer
-	Drawer = Drawer()
+	--Drawer = Drawer()
 	
 	-- contextual menu
-	Menu = Menu()
+	--Menu = Menu()
 	
 	-- text input
-	TextInput = TextInput()
-	TextInput.active = false
+	--TextInput = TextInput()
+	--TextInput.active = false
 	
 	-- event handler
 	EventHandler = EventHandler()
@@ -108,13 +109,13 @@ function load()
 	EventHandler:register(Table)
 	
 	-- graphics
-	LG.setBackgroundColor(LG.newColor(240,240,240))
+	--LG.setBackgroundColor(LG.newColor(240,240,240))
 	
 	-- some more sprite loading
-	LF.require("uisprites.lua")
+	--dofile "uisprites.lua"
 	
 	-- info
-	Console:print("Game directory: " .. LF.getSaveDirectory())
+	--Console:print("Game directory: " .. LF.getSaveDirectory())
 end
 
 function reset()
@@ -211,3 +212,5 @@ function initconnection(host,port)
 
 	TcpClient:send("HANDSHAKE Do you want to play a game?")
 end
+
+load()

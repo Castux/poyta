@@ -1,11 +1,11 @@
 require "wx"
 require "GLWindow"
 
-function main()
+function init_gui()
 		
 	-- Main window
 	ID_FRAME = 999
-	frame = wx.wxFrame( wx.NULL, ID_FRAME, "wxLua + LuaGL test",
+	frame = wx.wxFrame( wx.NULL, ID_FRAME, "pöytä client",
 			wx.wxDefaultPosition, wx.wxSize(600, 400),
 			wx.wxDEFAULT_FRAME_STYLE )
 	
@@ -26,16 +26,42 @@ function main()
 		end
 	)
 	
-	-- Other stuff
-	rtri = 0
-	
 	-- Now the cool stuff: openGL context and canvas
 	glwindow = GLWindow:new(frame)
-		
+	
+	-- A text control
+	ID_TEXT = 998
+	local console = wx.wxTextCtrl(frame, ID_TEXT, "",
+		wx.wxDefaultPosition, wx.wxSize(200, 400),
+		wx.wxTE_MULTILINE + wx.wxTE_READONLY)
+	
+	-- Text input: command line
+	ID_CL = 997
+	local command_line = wx.wxTextCtrl( frame, ID_CL, "",
+		wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxTE_PROCESS_ENTER)
+	
+	-- Place these in sizers
+	
+	-- VBox
+	local vbox = wx.wxBoxSizer(wx.wxVERTICAL)
+	vbox:Add(console, 1, wx.wxEXPAND + wx.wxALL, 2)
+	vbox:Add(command_line, 0, wx.wxEXPAND + wx.wxALL, 2)
+	
+	-- HBox
+	local hbox = wx.wxBoxSizer(wx.wxHORIZONTAL)
+	hbox:Add(vbox, 0, wx.wxEXPAND, 2)
+	hbox:Add(glwindow.glcanvas, 1, wx.wxEXPAND, 2)
+	
+	frame:SetAutoLayout(true)
+	frame:SetSizer(hbox)
+	
+	
+	
 	frame:Show(true)
 	
 	glwindow:initGL()
 	
+
 	-- Make this realtime
 	wx.wxGetApp():Connect(-1, wx.wxEVT_IDLE, function(event)
 		
@@ -56,6 +82,8 @@ function main()
 end
 
 function update_cb(dt,t)
+	
+	rtri = rtri or 0
 	
 	rtri = rtri + 90*dt
 end
@@ -112,6 +140,6 @@ function mousereleased_cb(x,y,but)
 end
 
 
-main()
+init_gui()
 
 wx.wxGetApp():MainLoop()

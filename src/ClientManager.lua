@@ -30,7 +30,7 @@ function ClientManager:init()
 	self.us = nil 	-- points to the client that we are
 
 	-- nickbox
-	self.font = LG.newFont(love.default_font, 10)
+	--self.font = LG.newFont(love.default_font, 10)
 	
 	return self
 end

@@ -58,7 +58,8 @@ function Drawer:init(w)
 	self.bipdir = "builtinpacks"
 	self.pdir = "packs"
 	self.w = 200		-- width
-	self.x = LG.getWidth() - self.w	-- left border
+	--self.x = LG.getWidth() - self.w	-- left border
+	self.x = 500
 	
 	self.lineh = 20		-- height of the lines in packs list view
 	self.imgh = 100		-- size of the squares in pack view
@@ -80,7 +81,7 @@ function Drawer:init(w)
 	self.camy = 0		-- camera shift (value of the top pixel in the drawer's variable view)
 	self.scrolled = false	-- is the user actually scrolling the view now?
 	
-	
+	--[[
 	-- scanning the built-in packs folder
 	local ls = LF.enumerate(self.bipdir)
 	for i,v in ipairs(ls) do
@@ -100,6 +101,7 @@ function Drawer:init(w)
 	-- load some data
 	self.defaultsprite = LG.newImage("default.png")
 	self.font = LG.newFont(love.default_font, self.lineh)
+	]]
 	
 	-- create the items in the view for the first time
 	-- (then it's updated each time the drawer is resized or the view is changed)

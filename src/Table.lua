@@ -33,7 +33,7 @@ function Table:init()
 	self.dragx = nil
 	self.dragy = nil
 				
-	self.sprite = LG.newImage("background.png")
+	--self.sprite = LG.newImage("background.png")
 	
 	return self
 end
