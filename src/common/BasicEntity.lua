@@ -13,7 +13,7 @@
 -- You should have received a copy of the  GNU General Public License  along
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
-require "Entity"
+require "common/Entity"
 
 -- BasicEntity is just a "virtual" class from which derive, well, the basic entities.
 -- It doesn't do much.

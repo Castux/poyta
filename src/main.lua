@@ -16,32 +16,27 @@
 
 -- client specific includes
 
-love.filesystem.require("Console.lua")
-love.filesystem.require("TcpClient.lua")
-love.filesystem.require("ClientManager.lua")
-love.filesystem.require("Table.lua")
-love.filesystem.require("EventHandler.lua")
-love.filesystem.require("Drawer.lua")
-love.filesystem.require("Menu.lua")
-love.filesystem.require("TextInput.lua")
+require "Console"
+require "TcpClient"
+require "ClientManager"
+require "Table"
+require "EventHandler"
+require "Drawer"
+require "Menu"
+require "TextInput"
 
-love.filesystem.require("colorpicker.lua")
-love.filesystem.require("text_input.lua")
+require "colorpicker"
+require "text_input"
 
--- common includes. must override Lua's require and take care of dependencies by hand
--- because of Löve's integration.
--- (since these are used by the pure Lua server also, we can't put Löve's require in them)
+require "common/Supervisor"
+require "Entity"
+require "BasicEntity"
 
-require = function() end
-
-love.filesystem.require("common/Supervisor.lua")
-love.filesystem.require("Entity.lua")
-love.filesystem.require("BasicEntity.lua")
-
--- shortcuts
+--[[ shortcuts
 LG = love.graphics
 FMT = string.format
 LF = love.filesystem
+--]]
 
 --[[ THE REAL THING ]]
 

@@ -22,7 +22,7 @@ end
 
 -- The entities on client side are the common ones, with added stuff for drawing, etc.
 
-love.filesystem.require("common/Entity.lua")
+require "common/Entity"
 
 function Entity:initview()
 	

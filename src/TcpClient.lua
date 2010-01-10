@@ -14,7 +14,7 @@
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
 require "socket"
-love.filesystem.require("common/class.lua")
+require "common/class"
 
 TcpClient = class()
 

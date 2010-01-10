@@ -13,8 +13,8 @@
 -- You should have received a copy of the  GNU General Public License  along
 -- with this program. If not, see <http://www.gnu.org/licenses/>.
 
-love.filesystem.require("common/class.lua")
-love.filesystem.require("DrawerItem.lua")
+require "common/class"
+require "DrawerItem"
 
 
 -- checks if the file extension is one of those that Löve can read.
