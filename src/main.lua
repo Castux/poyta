@@ -32,11 +32,8 @@ require "common/Supervisor"
 require "Entity"
 require "BasicEntity"
 
---[[ shortcuts
-LG = love.graphics
-FMT = string.format
-LF = love.filesystem
---]]
+require "wxluagl"
+
 
 --[[ THE REAL THING ]]
 
@@ -45,20 +42,6 @@ function load()
 
 	-- all singleton classes reuse the class name
 	--	MyClass = MyClass(init params)
-	
-	--[[ console
-	Console = Console(4,4,80,10,"VeraMono.ttf",12)
-	
-	-- console sends directly everything that looks like a command, and SAYs the rest
-	Console.callback = function(self,line)
-		local word = string.match(line,"^(%w+)")
-		if Supervisor.commands[word] then
-			TcpClient:send(line)
-		else
-			TcpClient:send("SAY " .. line)
-		end
-	end
-	]]
 		
 	-- network
 	TcpClient = TcpClient()
@@ -114,8 +97,24 @@ function load()
 	-- some more sprite loading
 	--dofile "uisprites.lua"
 	
-	-- info
-	--Console:print("Game directory: " .. LF.getSaveDirectory())
+	-- console
+	Console = Console()
+	
+	-- console sends directly everything that looks like a command, and SAYs the rest
+	Console.callback = function(self,line)
+		local word = string.match(line,"^(%w+)")
+		if Supervisor.commands[word] then
+			TcpClient:send(line)
+		else
+			TcpClient:send("SAY " .. line)
+		end
+		
+		-- temp
+		Console:print(line)
+	end
+	
+	-- Init GUI (There cannot be other function calls after this)
+	init_gui()
 end
 
 function reset()

@@ -35,10 +35,19 @@ function init_gui()
 		wx.wxDefaultPosition, wx.wxSize(200, 400),
 		wx.wxTE_MULTILINE + wx.wxTE_READONLY)
 	
+	Console.widget = console
+	
 	-- Text input: command line
 	ID_CL = 997
 	local command_line = wx.wxTextCtrl( frame, ID_CL, "",
 		wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxTE_PROCESS_ENTER)
+	
+	command_line:Connect(ID_CL, wx.wxEVT_COMMAND_TEXT_ENTER,
+		function(event)
+			Console:execute(command_line:GetValue())
+			command_line:Clear()
+		end
+	)
 	
 	-- Place these in sizers
 	
@@ -56,9 +65,9 @@ function init_gui()
 	frame:SetSizer(hbox)
 	
 	
+	-- Start the whole thing
 	
 	frame:Show(true)
-	
 	glwindow:initGL()
 	
 
@@ -77,8 +86,9 @@ function init_gui()
 		event:RequestMore()
 	end)
 	
-
-
+	-- This has to be effectively the last function call ever
+	-- All the rest is callbacks (apparently)
+	wx.wxGetApp():MainLoop()
 end
 
 function update_cb(dt,t)
@@ -89,7 +99,9 @@ function update_cb(dt,t)
 end
 
 function draw_cb()
-
+	
+	rtri = rtri or 0
+	
 	-- Do gl stuff
 	gl.Clear('COLOR_BUFFER_BIT,DEPTH_BUFFER_BIT') -- Clear Screen And Depth Buffer
 
@@ -140,6 +152,3 @@ function mousereleased_cb(x,y,but)
 end
 
 
-init_gui()
-
-wx.wxGetApp():MainLoop()
