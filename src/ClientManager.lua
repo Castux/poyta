@@ -29,16 +29,17 @@ function ClientManager:init()
 	self.nicks = {}
 	self.us = nil 	-- points to the client that we are
 
-	-- nickbox
-	--self.font = LG.newFont(love.default_font, 10)
+	--self.widget = nil	-- set by init_gui(). do not set to nil,
+				-- it break because initconnection() calls :init()
 	
 	return self
 end
 
 -- add a new client
 -- returns the client
+-- if us is true, this client is us
 
-function ClientManager:add(nick,clearance,r,g,b)
+function ClientManager:add(nick,clearance,r,g,b,us)
 
 	local tmp = {
 		nick = nick,
@@ -52,6 +53,12 @@ function ClientManager:add(nick,clearance,r,g,b)
 	end
 	
 	self.nicks[nick] = tmp
+	
+	if us then
+		self.us = tmp
+	end
+	
+	self:updategui()
 	
 	return tmp
 end
@@ -76,6 +83,8 @@ function ClientManager:changenick(oldnick,newnick)
 	self.nicks[newnick] = cli
 	cli.nick = newnick
 	
+	self:updategui()
+	
 	return ret
 end
 
@@ -95,22 +104,22 @@ function ClientManager:printclient(nick)
 		clear = "host"
 	end
 	
-	return FMT("%s (%s)", tmp.nick, clear)
-end
-
-function ClientManager:draw(x,y)
-	
-	local i = 1
-	for k,v in pairs(self.nicks) do
-		local us = ""
-		if k == self.us.nick then us = "*" end
-		
-		LG.setColor(LG.newColor(v.color[1],v.color[2],v.color[3]))
-		LG.draw(us .. self:printclient(k), x + 2, y + i*10 + 2)
-		i = i + 1
+	local star = ""
+	if nick == self.us.nick then
+		star = "*"
 	end
 	
-	LG.setColor(LG.newColor(100,0,150))
-	LG.setLineWidth(2)
-	LG.rectangle(love.draw_line, x, y, 200 + 4 , i*10 + 4)
+	return FMT("%s%s (%s)", star, tmp.nick, clear)
+end
+
+function ClientManager:updategui()
+	
+	local tab = {}
+	
+	for k,v in pairs(self.nicks) do
+		tab[#tab + 1] = self:printclient(k)
+	end
+	
+	-- Add to the gui list
+	self.widget:Set(tab)
 end

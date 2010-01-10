@@ -38,8 +38,7 @@ CLIENT = function(w)
 end,
 
 YOUARE = function(w)
-	ClientManager:add(w[2], tonumber(w[3]), tonumber(w[4]), tonumber(w[5]), tonumber(w[6]))
-	ClientManager.us = ClientManager.nicks[w[2]]
+	ClientManager:add(w[2], tonumber(w[3]), tonumber(w[4]), tonumber(w[5]), tonumber(w[6]), true)
 end,
 
 THEREIS = function(w)

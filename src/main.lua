@@ -147,7 +147,11 @@ end
 
 function mousepressed_cb(x,y,but)
 	print("Pressed",x,y,but)
-	initconnection()
+	
+	if but == 2 then
+		initconnection()
+		TcpClient:send("NICK Tenoch")	
+	end
 end
 
 function mousereleased_cb(x,y,but)

@@ -43,6 +43,13 @@ function init_gui()
 	-- Now the cool stuff: openGL context and canvas
 	glwindow = GLWindow:new(frame)
 	
+	-- A list of clients
+	ID_CLIENT_LIST = 996
+	local client_list = wx.wxListBox(frame, ID_CLIENT_LIST)
+	
+	print(client_list)
+	ClientManager.widget = client_list
+	
 	-- A text control
 	ID_TEXT = 998
 	local console = wx.wxTextCtrl(frame, ID_TEXT, "",
@@ -67,6 +74,7 @@ function init_gui()
 	
 	-- VBox
 	local vbox = wx.wxBoxSizer(wx.wxVERTICAL)
+	vbox:Add(client_list, 1, wx.wxEXPAND + wx.wxALL, 2)
 	vbox:Add(console, 1, wx.wxEXPAND + wx.wxALL, 2)
 	vbox:Add(command_line, 0, wx.wxEXPAND + wx.wxALL, 2)
 	
