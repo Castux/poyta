@@ -47,8 +47,8 @@ function init_gui()
 	ID_CLIENT_LIST = 996
 	local client_list = wx.wxListBox(frame, ID_CLIENT_LIST)
 	
-	print(client_list)
 	ClientManager.widget = client_list
+	ClientManager:updategui()
 	
 	-- A text control
 	ID_TEXT = 998

@@ -120,6 +120,10 @@ function ClientManager:updategui()
 		tab[#tab + 1] = self:printclient(k)
 	end
 	
+	if #tab == 0 then
+		tab[1] = "(Not connected to any server)"
+	end
+	
 	-- Add to the gui list
 	self.widget:Set(tab)
 end

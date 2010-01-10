@@ -121,7 +121,10 @@ end
 function reset()
 
 	TcpClient:close()
+	
 	ClientManager:init()
+	ClientManager:updategui()
+	
 	Table:init()
 end
 
