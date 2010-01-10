@@ -35,6 +35,9 @@ require "BasicEntity"
 require "wxluagl"
 
 
+-- Shortcuts
+FMT = string.format
+
 --[[ THE REAL THING ]]
 
 function load()
@@ -108,12 +111,10 @@ function load()
 		else
 			TcpClient:send("SAY " .. line)
 		end
-		
-		-- temp
-		Console:print(line)
 	end
 	
-	-- Init GUI (There cannot be other function calls after this)
+	-- Init GUI (There cannot be other function calls after this because
+	-- it tail calls the main app loop)
 	init_gui()
 end
 
@@ -124,29 +125,41 @@ function reset()
 	Table:init()
 end
 
-function update(dt)
+function update_cb(dt)
 	
 	-- check network input
 	TcpClient:update(dt)
 	
 	-- update stuff on the table
-	Table:update(dt)
+	--Table:update(dt)
 	
 	-- take care of hotness
-	EventHandler:update(dt)
+	--EventHandler:update(dt)
 	
 	-- drawer can haz update too
-	Drawer:update(dt)
+	--Drawer:update(dt)
 	
-
+	rtri = rtri or 0
+	
+	rtri = rtri + 90*dt
 end
+
+
+function mousepressed_cb(x,y,but)
+	print("Pressed",x,y,but)
+	initconnection()
+end
+
+function mousereleased_cb(x,y,but)
+	print("Released",x,y,but)
+end
+
 
 function draw()
 	
 	Table:draw()
 	
-	-- LG.draw(love.timer.getFPS(),600,20)
-	Console:draw()
+
 	ClientManager:draw(4,134)
 	Drawer:draw()
 	Menu:draw()

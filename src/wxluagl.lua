@@ -10,7 +10,9 @@ function init_gui()
 			wx.wxDEFAULT_FRAME_STYLE )
 	
 	-- create a simple file menu
+	local ID_CONNECT = 997
 	local fileMenu = wx.wxMenu()
+	fileMenu:Append(ID_CONNECT, "C&onnect...", "Connect to server")
 	fileMenu:Append(wx.wxID_EXIT, "E&xit", "Quit the program")
 
 	-- create a menu bar and append the file menu
@@ -20,9 +22,21 @@ function init_gui()
 	-- attach the menu bar into the frame
 	frame:SetMenuBar(menuBar)
 	
+	-- Plug menu commands
 	frame:Connect(wx.wxID_EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
 		function (event)
 			frame:Close(true)
+		end
+	)
+	frame:Connect(ID_CONNECT, wx.wxEVT_COMMAND_MENU_SELECTED,
+		function (event)
+			local line = wx.wxGetTextFromUser("Enter server to connect to",
+				"Connect...", "localhost:6666")
+				
+			if line ~= "" then
+				local _,_,host,port = string.find(line, "(.*):(.*)")
+				initconnection(host,tonumber(port))
+			end
 		end
 	)
 	
@@ -91,13 +105,6 @@ function init_gui()
 	wx.wxGetApp():MainLoop()
 end
 
-function update_cb(dt,t)
-	
-	rtri = rtri or 0
-	
-	rtri = rtri + 90*dt
-end
-
 function draw_cb()
 	
 	rtri = rtri or 0
@@ -141,14 +148,6 @@ function draw_cb()
 	gl.End()
 	
 	
-end
-
-function mousepressed_cb(x,y,but)
-	print("Pressed",x,y,but)
-end
-
-function mousereleased_cb(x,y,but)
-	print("Released",x,y,but)
 end
 
 
